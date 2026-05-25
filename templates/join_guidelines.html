@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join {{ settings.choir_name }} - Guidelines</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #f8f9fc;
+        }
+
+        /* ─── Left Panel ─── */
+        .guide-left {
+            width: 440px;
+            min-width: 440px;
+            background: linear-gradient(160deg, #0c0c1d 0%, #1a1a2e 40%, #16213e 70%, #0f3460 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guide-left::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e94560, #f39c12, #16a085);
+        }
+
+        .guide-left .overlay-circle {
+            position: absolute;
+            top: -120px; right: -120px;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(233,69,96,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .guide-left .overlay-circle-2 {
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15,52,96,0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .guide-left .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .guide-left .content .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+
+        .guide-left .content .logo-wrap img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .guide-left .content .logo-wrap .brand-text h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+
+        .guide-left .content .logo-wrap .brand-text p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .guide-left .content .welcome h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .guide-left .content .welcome h1 span {
+            color: #e94560;
+        }
+
+        .guide-left .content .welcome p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .guide-left .content .info-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guide-left .content .info-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .guide-left .content .info-card .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(233,69,96,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            min-width: 40px;
+        }
+
+        .guide-left .content .info-card .text strong {
+            display: block;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .guide-left .content .info-card .text span {
+            font-size: 12px;
+            color: rgba(255,255,255,0.45);
+        }
+
+        /* ─── Right Panel ─── */
+        .guide-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            min-height: 100vh;
+        }
+
+        .guide-card {
+            width: 100%;
+            max-width: 680px;
+        }
+
+        .guide-card .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .guide-card .header-row .step-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f2f5;
+            color: #666;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .guide-card .header-row .step-badge strong {
+            color: #e94560;
+        }
+
+        .guide-card .header-row .progress-text {
+            font-size: 12px;
+            color: #aaa;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #eef0f4;
+            border-radius: 2px;
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            border-radius: 2px;
+            transition: width 0.5s;
+        }
+
+        .guide-card h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a2e;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .guide-card .subtitle {
+            font-size: 15px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        /* ─── Steps ─── */
+        .steps-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .steps-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            bottom: 12px;
+            width: 2px;
+            background: linear-gradient(180deg, #e94560 0%, #e94560 20%, #e0e0e0 20%, #e0e0e0 100%);
+            background-size: 100% 100%;
+        }
+
+        .step-item {
+            position: relative;
+            margin-bottom: 28px;
+        }
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-item .step-number {
+            position: absolute;
+            left: -40px;
+            top: 2px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            z-index: 2;
+        }
+
+        .step-item:nth-child(1) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
+        .step-item:nth-child(2) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
+        .step-item:nth-child(3) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
+        .step-item:nth-child(4) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
+        .step-item:nth-child(5) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
+        .step-item:nth-child(6) .step-number { background: #16a085; color: #fff; box-shadow: 0 0 0 4px rgba(22,160,133,0.15); }
+
+        .step-item .step-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border: 1px solid #f0f2f5;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .step-item .step-content:hover {
+            border-color: #e0e4ec;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        .step-item .step-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .step-item .step-content p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .step-item .step-content .step-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f0f2f5;
+        }
+
+        .step-item .step-content .step-details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-item .step-content .step-details ul li {
+            font-size: 13px;
+            color: #888;
+            padding: 4px 0;
+            padding-left: 18px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .step-item .step-content .step-details ul li::before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+            color: #e94560;
+            font-weight: 700;
+        }
+
+        .step-item .step-content .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .tag-required { background: #fff3cd; color: #856404; }
+        .tag-optional { background: #e8f5e9; color: #2e7d32; }
+        .tag-info { background: #e3f2fd; color: #0d47a1; }
+
+        /* ─── Agreement ─── */
+        .agreement-section {
+            margin-top: 36px;
+            padding: 24px;
+            background: #fff;
+            border-radius: 14px;
+            border: 2px solid #eef0f4;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .agreement-section:hover {
+            border-color: #d0d4dc;
+        }
+
+        .agreement-section.checked {
+            border-color: #16a085;
+            background: linear-gradient(135deg, #f0faf8, #fff);
+        }
+
+        .agreement-section label {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+        }
+
+        .agreement-section label input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            margin-top: 2px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+
+        .agreement-section label .agree-text {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .agreement-section label .agree-text strong {
+            color: #1a1a2e;
+            font-size: 15px;
+        }
+
+        .agreement-section label .agree-text .link {
+            color: #e94560;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* ─── Buttons ─── */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-proceed {
+            flex: 1;
+            padding: 15px 28px;
+            background: linear-gradient(135deg, #e94560, #d63850);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.35;
+            pointer-events: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-proceed.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .btn-proceed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233,69,96,0.3);
+        }
+
+        .btn-proceed:active {
+            transform: translateY(0);
+        }
+
+        .btn-back {
+            padding: 15px 24px;
+            background: transparent;
+            color: #888;
+            border: 1px solid #e0e4ec;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-back:hover {
+            border-color: #ccc;
+            color: #555;
+        }
+
+        .guide-card .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .guide-card .footer-note a {
+            color: #e94560;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .guide-card .footer-note a:hover {
+            text-decoration: underline;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1024px) {
+            .guide-left { display: none; }
+            .guide-right { padding: 40px 24px; }
+            .guide-card { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Left Panel -->
+    <div class="guide-left">
+        <div class="overlay-circle"></div>
+        <div class="overlay-circle-2"></div>
+        <div class="content">
+            <div class="logo-wrap">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                <div class="brand-text">
+                    <h2>{{ settings.choir_name }}</h2>
+                    <p>Management System</p>
+                </div>
+            </div>
+
+            <div class="welcome">
+                <h1>Before You<br><span>Join Us</span></h1>
+                <p>We're excited to welcome you to our musical community. Please take a moment to review our membership guidelines to ensure a smooth registration process.</p>
+            </div>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="icon">&#128197;</div>
+                    <div class="text">
+                        <strong>Registration takes ~3 minutes</strong>
+                        <span>Have your details ready</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="icon">&#128274;</div>
+                    <div class="text">
+                        <strong>Your data is secure</strong>
+                        <span>Encrypted and confidential</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="icon">&#128222;</div>
+                    <div class="text">
+                        <strong>Need help? Contact us</strong>
+                        <span>Reach out to the admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="guide-right">
+        <div class="guide-card">
+            <div class="header-row">
+                <span class="step-badge">&#9679; Step <strong>1</strong> of 2</span>
+                <span class="progress-text">50% complete</span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="fill"></div>
+            </div>
+
+            <h2>Membership Guidelines</h2>
+            <p class="subtitle">Review each step carefully before proceeding to registration</p>
+
+            <div class="steps-timeline">
+
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Personal Information</h4>
+                        <p>Provide your accurate legal details. All information you submit must be truthful and verifiable.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li><strong>Full Name</strong> — Enter your legal first and last name as they appear on official documents</li>
+                                <li><strong>Date of Birth</strong> — Used for age verification and membership records</li>
+                                <li><strong>State of Origin &amp; LGA</strong> — Helps us understand our diverse community</li>
+                            </ul>
+                            <span class="tag tag-required">&#9888; Required fields marked with *</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Contact Details</h4>
+                        <p>We need a valid phone number to verify your identity and keep you informed about choir activities.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li><strong>Phone Number</strong> — You will receive a one-time verification code via SMS. A valid, active number is required.</li>
+                                <li><strong>Email Address</strong> — Optional but recommended for receiving newsletters and official communications</li>
+                            </ul>
+                            <span class="tag tag-info">&#128274; Phone verification ensures real-person registration</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Additional Information</h4>
+                        <p>Optional details that help us better organize our choir sections and activities.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li><strong>Academic Qualification</strong> — Helps us understand the educational background of our members</li>
+                                <li><strong>NIN Number</strong> — National Identification Number for official records (optional)</li>
+                            </ul>
+                            <span class="tag tag-optional">&#10003; These fields are optional</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Privacy &amp; Data Protection</h4>
+                        <p>We take your privacy seriously. Here's how we handle your information.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li>Your personal data is stored securely and used <strong>only for choir management purposes</strong></li>
+                                <li>We <strong>do not share</strong> your information with third parties without your consent</li>
+                                <li>You may request access to, correction of, or deletion of your data at any time</li>
+                                <li>Data is protected in accordance with applicable privacy regulations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Code of Conduct</h4>
+                        <p>As a member, you are expected to uphold the values and standards of our choir community.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li><strong>Attendance</strong> — Attend rehearsals and events punctually. Notify leadership in advance if unable to attend</li>
+                                <li><strong>Dues</strong> — Pay membership dues promptly as they fund our activities and operations</li>
+                                <li><strong>Respect</strong> — Treat fellow members, conductors, and leadership with courtesy and professionalism</li>
+                                <li><strong>Participation</strong> — Engage actively and contribute positively to the choir's growth</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h4>Complete Your Registration</h4>
+                        <p>After agreeing to these guidelines, you will proceed to the registration form to submit your details.</p>
+                        <div class="step-details">
+                            <ul>
+                                <li>Verify your phone number with the OTP code sent via SMS</li>
+                                <li>Review all information before submitting — edits after submission require admin approval</li>
+                                <li>You will receive a confirmation once your registration is processed</li>
+                            </ul>
+                            <span class="tag tag-info">&#9201; Total process takes approximately 3-5 minutes</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Agreement -->
+            <div class="agreement-section" id="agreementBox">
+                <label for="agreeCheck">
+                    <input type="checkbox" id="agreeCheck" onclick="toggleAgreement(this.checked)">
+                    <div class="agree-text">
+                        <strong>I have read and understood all the guidelines above</strong><br>
+                        I confirm that the information I will provide is accurate, and I agree to abide by the <a class="link" href="{{ url_for('terms') }}" onclick="event.stopPropagation();">Terms of Service</a> and Code of Conduct of {{ settings.choir_name }}.
+                    </div>
+                </label>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-row">
+                <a href="{{ url_for('landing') }}" class="btn-back">&larr; Back</a>
+                <a href="{{ url_for('member_join') }}" id="proceedBtn" class="btn-proceed">Proceed to Registration &rarr;</a>
+            </div>
+
+            <div class="footer-note">
+                Already a member? <a href="{{ url_for('login') }}">Sign in to your account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleAgreement(checked) {
+            const box = document.getElementById('agreementBox');
+            const btn = document.getElementById('proceedBtn');
+            if (checked) {
+                box.classList.add('checked');
+                btn.classList.add('active');
+            } else {
+                box.classList.remove('checked');
+                btn.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of your choir management</p>
+</div>
+
+<div class="cards">
+    <div class="card accent-1">
+        <div class="card-icon">&#128101;</div>
+        <div class="card-value">{{ total_members }}</div>
+        <div class="card-label">Total Members</div>
+    </div>
+    <div class="card accent-2">
+        <div class="card-icon">&#128176;</div>
+        <div class="card-value">{{ settings.currency }}{{ "%.2f"|format(total_revenue) }}</div>
+        <div class="card-label">Total Collected</div>
+    </div>
+    <div class="card accent-3">
+        <div class="card-icon">&#9989;</div>
+        <div class="card-value">{{ attendance_rate }}%</div>
+        <div class="card-label">Attendance Rate</div>
+    </div>
+    <div class="card accent-4">
+        <div class="card-icon">&#9835;</div>
+        <div class="card-value">{{ total_songs }}</div>
+        <div class="card-label">Songs</div>
+    </div>
+    <div class="card accent-5">
+        <div class="card-icon">&#128200;</div>
+        <div class="card-value">{{ total_payments }}</div>
+        <div class="card-label">Payments Recorded</div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Recent Payments</h3>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>For</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent_payments %}
+                <tr>
+                    <td>{{ p.first_name }} {{ p.last_name }}</td>
+                    <td>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
+                    <td>{{ p.payment_date }}</td>
+                    <td>{{ p.payment_for or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="text-align:center;color:#999;">No payments yet</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h3>Top Paying Members</h3>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Member</th>
+                    <th>Total Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in top_members %}
+                <tr>
+                    <td>{{ m.first_name }} {{ m.last_name }}</td>
+                    <td>{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="2" style="text-align:center;color:#999;">No payments yet</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

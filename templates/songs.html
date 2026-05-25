@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Songs</h1>
+    <p>Manage choir song library</p>
+</div>
+
+<div style="margin-bottom:20px;">
+    <a href="{{ url_for('song_add') }}" class="btn btn-primary">+ Add Song</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Composer</th>
+                <th>Upload Date</th>
+                <th>Audio</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in songs %}
+            <tr>
+                <td><strong>{{ s.title }}</strong></td>
+                <td>{{ s.composer or '-' }}</td>
+                <td>{{ s.upload_date }}</td>
+                <td>
+                    {% if s.audio_file %}
+                    <a href="{{ url_for('uploaded_file', filename=s.audio_file) }}" class="btn btn-success btn-sm" target="_blank">&#9654; Play</a>
+                    {% else %}
+                    <span style="color:#999;">No audio</span>
+                    {% endif %}
+                </td>
+                <td class="actions-cell">
+                    <a href="{{ url_for('song_delete', id=s.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this song?')">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center;padding:30px;color:#999;">No songs uploaded yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

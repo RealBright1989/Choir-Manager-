@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - {{ settings.choir_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { margin: 0; padding: 0; display: block; background: #f0f2f5; }
+        .terms-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #fff; padding: 20px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .terms-header .brand {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 20px; font-weight: 700;
+        }
+        .terms-header .brand img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .terms-content {
+            max-width: 800px; margin: 30px auto;
+            background: #fff; border-radius: 12px; padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .terms-content h1 { font-size: 28px; color: #1a1a2e; margin-bottom: 8px; }
+        .terms-content h2 { font-size: 18px; color: #1a1a2e; margin-top: 28px; margin-bottom: 8px; }
+        .terms-content p, .terms-content li { font-size: 14px; color: #555; line-height: 1.7; }
+        .terms-content ul { padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <header class="terms-header">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <span>{{ settings.choir_name }}</span>
+        </div>
+        <a href="{{ url_for('landing') }}" class="btn btn-outline btn-sm" style="color:#fff;border-color:rgba(255,255,255,0.3);text-decoration:none;">&larr; Back</a>
+    </header>
+
+    <div class="terms-content">
+        <h1>Terms of Service &amp; License Agreement</h1>
+        <p>Last updated: {{ now().strftime('%B %d, %Y') }}</p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing and using this Choir Management System, you agree to be bound by these Terms of Service. If you do not agree, do not use the system.</p>
+
+        <h2>2. License</h2>
+        <p>This software is provided for the exclusive use of {{ settings.choir_name }} and its authorized members. You may not distribute, modify, or sublicense this software without prior written permission.</p>
+
+        <h2>3. User Accounts</h2>
+        <ul>
+            <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+            <li>You must notify an administrator immediately of any unauthorized use of your account.</li>
+            <li>The administrator reserves the right to suspend or terminate accounts at any time.</li>
+        </ul>
+
+        <h2>4. Data Privacy</h2>
+        <ul>
+            <li>Member data (names, contact details, payment records) is stored securely and used only for choir management purposes.</li>
+            <li>Data will not be shared with third parties without consent, except as required by law.</li>
+            <li>You may request deletion of your personal data by contacting the administrator.</li>
+        </ul>
+
+        <h2>5. Acceptable Use</h2>
+        <ul>
+            <li>Use the system only for legitimate choir management activities.</li>
+            <li>Do not upload malicious files, attempt to breach security, or misuse the system.</li>
+            <li>Respect the privacy of other members' data.</li>
+        </ul>
+
+        <h2>6. Disclaimer</h2>
+        <p>This system is provided "as is" without warranty of any kind. The developers and administrators are not liable for any damages arising from its use.</p>
+
+        <h2>7. Changes to Terms</h2>
+        <p>We reserve the right to update these terms at any time. Continued use after changes constitutes acceptance of the new terms.</p>
+
+        <h2>8. Contact</h2>
+        <p>For questions about these terms, please contact the system administrator.</p>
+    </div>
+</body>
+</html>

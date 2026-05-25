@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ settings.choir_name }} - Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { margin: 0; padding: 0; display: block; background: #f8f9fc; min-height: 100vh; }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        .landing-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff; padding: 16px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .landing-header .brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+        .landing-header .brand img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(26,26,46,0.4) 0%, rgba(22,33,62,0.4) 50%, rgba(15,52,96,0.4) 100%),
+                        url('{{ url_for('static', filename='hero_bg.jpeg') }}') center/cover no-repeat;
+            color: #fff; text-align: center; padding: 120px 20px 140px;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(233,69,96,0.06) 0%, transparent 50%);
+        }
+        .hero h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; position: relative; z-index: 2; }
+        .hero h1 span { color: #e94560; }
+        .hero p { font-size: 18px; color: rgba(255,255,255,0.7); max-width: 600px; margin: 0 auto 32px; line-height: 1.6; position: relative; z-index: 2; }
+        .hero .btn-hero { display: inline-block; padding: 14px 36px; background: #e94560; color: #fff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; transition: background 0.2s; position: relative; z-index: 2; }
+        .hero .btn-hero:hover { background: #d63850; }
+        .hero .btn-hero-secondary { display: inline-block; padding: 14px 36px; background: transparent; color: #fff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; border: 2px solid rgba(255,255,255,0.3); margin-left: 12px; transition: border-color 0.2s; position: relative; z-index: 2; }
+        .hero .btn-hero-secondary:hover { border-color: #fff; }
+        .hero .links-row { margin-top: 16px; position: relative; z-index: 2; }
+        .hero .links-row a { color: rgba(255,255,255,0.5); font-size: 13px; text-decoration: underline; margin: 0 8px; transition: color 0.2s; }
+        .hero .links-row a:hover { color: rgba(255,255,255,0.8); }
+        .hero .links-row span { color: rgba(255,255,255,0.2); }
+
+        .features {
+            max-width: 1100px; margin: -40px auto 60px; padding: 0 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px; position: relative; z-index: 2;
+        }
+        .feature-card {
+            background: #fff; border-radius: 14px; padding: 30px 24px;
+            text-align: center; box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            transition: transform 0.25s, box-shadow 0.25s; cursor: default;
+        }
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
+        .feature-card .icon { font-size: 40px; margin-bottom: 12px; }
+        .feature-card h3 { font-size: 18px; color: #1a1a2e; margin-bottom: 8px; }
+        .feature-card p { font-size: 14px; color: #666; line-height: 1.6; }
+
+        /* ─── Social Section ─── */
+        .social-section {
+            background: #fff;
+            padding: 70px 20px 80px;
+            text-align: center;
+        }
+
+        .social-section .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(233,69,96,0.08);
+            color: #e94560;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .social-section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .social-section .subtitle {
+            font-size: 15px;
+            color: #888;
+            margin-bottom: 44px;
+        }
+
+        .social-grid {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .social-card {
+            background: #f8f9fc;
+            border-radius: 16px;
+            padding: 32px 20px 28px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #eef0f4;
+            text-decoration: none;
+            display: block;
+        }
+
+        .social-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+        }
+
+        .social-card .social-icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            font-weight: 800;
+            transition: transform 0.3s;
+        }
+
+        .social-card:hover .social-icon-wrap { transform: scale(1.1); }
+
+        .social-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+
+        .social-card .handle {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 16px;
+        }
+
+        .social-card .follow-btn {
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .social-card .follow-btn:hover { opacity: 0.85; }
+
+        .social-card.facebook { border-top: 4px solid #1877f2; }
+        .social-card.facebook .social-icon-wrap { background: rgba(24,119,242,0.1); color: #1877f2; }
+        .social-card.facebook .follow-btn { background: #1877f2; color: #fff; }
+
+        .social-card.youtube { border-top: 4px solid #ff0000; }
+        .social-card.youtube .social-icon-wrap { background: rgba(255,0,0,0.1); color: #ff0000; }
+        .social-card.youtube .follow-btn { background: #ff0000; color: #fff; }
+
+        .social-card.instagram { border-top: 4px solid #e4405f; }
+        .social-card.instagram .social-icon-wrap { background: rgba(228,64,95,0.1); color: #e4405f; }
+        .social-card.instagram .follow-btn { background: #e4405f; color: #fff; }
+
+        .social-card.tiktok { border-top: 4px solid #000; }
+        .social-card.tiktok .social-icon-wrap { background: rgba(0,0,0,0.06); color: #000; }
+        .social-card.tiktok .follow-btn { background: #000; color: #fff; }
+
+        .social-card .no-link {
+            font-size: 13px;
+            color: #ccc;
+            font-style: italic;
+        }
+
+        /* ─── Footer ─── */
+        .landing-footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 24px 20px;
+            font-size: 13px;
+        }
+        .landing-footer a { color: #e94560; text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .social-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 32px; }
+        }
+        @media (max-width: 480px) {
+            .social-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="landing-header">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <span>{{ settings.choir_name }}</span>
+        </div>
+        <div>
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm" style="text-decoration:none;">Login</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>Welcome to <span>{{ settings.choir_name }}</span></h1>
+        <p>Manage your choir members, track attendance, record payments, upload songs, and generate reports — all in one place.</p>
+        <a href="{{ url_for('join_guidelines') }}" class="btn-hero">Join the Choir</a>
+        <a href="{{ url_for('login') }}" class="btn-hero-secondary">Sign In</a>
+        <div class="links-row">
+            <a href="{{ url_for('signup') }}">System User Registration</a>
+            <span>|</span>
+            <a href="{{ url_for('user_manual') }}">&#128214; User Manual</a>
+            <span>|</span>
+            <a href="{{ url_for('terms') }}">Terms of Service</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="icon">&#128101;</div>
+            <h3>Member Management</h3>
+            <p>Register and manage choir members with contact details, sections, and join dates.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">&#9989;</div>
+            <h3>Attendance Tracking</h3>
+            <p>Record rehearsal attendance with Present, Absent, or Excused status for any date.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">&#128176;</div>
+            <h3>Payment Tracking</h3>
+            <p>Track dues and payments with full history per member and monthly summaries.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">&#9835;</div>
+            <h3>Song Library</h3>
+            <p>Upload and manage songs with lyrics, composer info, and audio file attachments.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">&#128200;</div>
+            <h3>Reports &amp; Export</h3>
+            <p>Generate financial reports, attendance summaries, and export data to CSV.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">&#128279;</div>
+            <h3>Connect With Us</h3>
+            <p>Follow us on Facebook, YouTube, Instagram, and TikTok for updates and performances.</p>
+        </div>
+    </section>
+
+    <section class="social-section">
+        <div class="section-label">&#9679; Stay Connected</div>
+        <h2>Follow Us on Social Media</h2>
+        <p class="subtitle">Join our community and stay updated with the latest news, events, and performances</p>
+
+        <div class="social-grid">
+            <a href="{{ social_links.get('facebook_url', '#') }}" target="_blank" class="social-card facebook" {% if not social_links.get('facebook_url') %} onclick="return false;" {% endif %}>
+                <div class="social-icon-wrap">f</div>
+                <h4>Facebook</h4>
+                <p class="handle">@{{ settings.choir_name }}</p>
+                {% if social_links.get('facebook_url') %}
+                <span class="follow-btn">Follow Us</span>
+                {% else %}
+                <span class="no-link">Not configured</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ social_links.get('youtube_url', '#') }}" target="_blank" class="social-card youtube" {% if not social_links.get('youtube_url') %} onclick="return false;" {% endif %}>
+                <div class="social-icon-wrap">&#9654;</div>
+                <h4>YouTube</h4>
+                <p class="handle">@{{ settings.choir_name }}</p>
+                {% if social_links.get('youtube_url') %}
+                <span class="follow-btn">Subscribe</span>
+                {% else %}
+                <span class="no-link">Not configured</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ social_links.get('instagram_url', '#') }}" target="_blank" class="social-card instagram" {% if not social_links.get('instagram_url') %} onclick="return false;" {% endif %}>
+                <div class="social-icon-wrap">&#9679;</div>
+                <h4>Instagram</h4>
+                <p class="handle">@{{ settings.choir_name }}</p>
+                {% if social_links.get('instagram_url') %}
+                <span class="follow-btn">Follow Us</span>
+                {% else %}
+                <span class="no-link">Not configured</span>
+                {% endif %}
+            </a>
+
+            <a href="{{ social_links.get('tiktok_url', '#') }}" target="_blank" class="social-card tiktok" {% if not social_links.get('tiktok_url') %} onclick="return false;" {% endif %}>
+                <div class="social-icon-wrap">&#9835;</div>
+                <h4>TikTok</h4>
+                <p class="handle">@{{ settings.choir_name }}</p>
+                {% if social_links.get('tiktok_url') %}
+                <span class="follow-btn">Follow Us</span>
+                {% else %}
+                <span class="no-link">Not configured</span>
+                {% endif %}
+            </a>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        &copy; {{ now().year }} {{ settings.choir_name }}. All rights reserved. Powered by Choir Management System.
+        <br>
+        <a href="{{ url_for('terms') }}">Terms of Service</a>
+        &middot;
+        <a href="{{ url_for('user_manual') }}">User Manual</a>
+    </footer>
+</body>
+</html>

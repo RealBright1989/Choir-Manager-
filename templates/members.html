@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Members</h1>
+    <p>Manage choir members</p>
+</div>
+
+<div class="search-bar">
+    <form method="GET" style="display:flex;gap:10px;flex:1;">
+        <input type="text" name="search" placeholder="Search by name or phone..." value="{{ search }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+        {% if search %}
+        <a href="{{ url_for('members') }}" class="btn btn-outline btn-sm">Clear</a>
+        {% endif %}
+    </form>
+    <a href="{{ url_for('member_add') }}" class="btn btn-primary">+ Add Member</a>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Photo</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Section</th>
+                <th>Total Paid</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in members %}
+            <tr>
+                <td>
+                    {% if m.photo %}
+                    <img src="{{ url_for('member_photo', filename=m.photo) }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
+                    {% else %}
+                    <span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:#eee;text-align:center;line-height:40px;font-size:14px;color:#999;">?</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('member_detail', id=m.id) }}" style="color:#e94560;font-weight:600;text-decoration:none;">{{ m.first_name }} {{ m.last_name }}</a>
+                    {% if m.other_names %}<br><span style="font-size:12px;color:#888;">{{ m.other_names }}</span>{% endif %}
+                </td>
+                <td>{{ m.phone or '-' }}</td>
+                <td>{{ m.email or '-' }}</td>
+                <td><span class="badge badge-info">{{ m.section }}</span></td>
+                <td>{{ m.join_date }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(payment_totals.get(m.id, 0)) }}</td>
+                <td class="actions-cell">
+                    <a href="{{ url_for('member_edit', id=m.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                    <a href="{{ url_for('member_delete', id=m.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this member?')">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">No members registered yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

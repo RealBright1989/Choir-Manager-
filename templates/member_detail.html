@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header" style="display:flex;align-items:center;gap:20px;">
+    {% if member.photo %}
+    <img src="{{ url_for('member_photo', filename=member.photo) }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:3px solid #e94560;">
+    {% endif %}
+    <div>
+        <h1>{{ member.first_name }} {{ member.last_name }}</h1>
+        <p>{{ member.section }} &middot; Joined {{ member.join_date }}
+        {% if member.other_names %} &middot; {{ member.other_names }}{% endif %}</p>
+    </div>
+</div>
+
+<div class="cards" style="margin-bottom:24px;">
+    <div class="card accent-1">
+        <div class="card-value">{{ settings.currency }}{{ "%.2f"|format(payments|sum(attribute='amount')) }}</div>
+        <div class="card-label">Total Paid</div>
+    </div>
+    <div class="card accent-2">
+        <div class="card-value">{{ payments|length }}</div>
+        <div class="card-label">Payments</div>
+    </div>
+    <div class="card accent-3">
+        <div class="card-value">{{ attendance|length }}</div>
+        <div class="card-label">Attendance Records</div>
+    </div>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:20px;">
+    <a href="{{ url_for('member_edit', id=member.id) }}" class="btn btn-secondary">Edit Member</a>
+    <a href="{{ url_for('finance', member_id=member.id) }}" class="btn btn-primary">View Payments</a>
+</div>
+
+<div class="table-container">
+    <div class="table-header"><h3>Payment History</h3></div>
+    <table>
+        <thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Notes</th></tr></thead>
+        <tbody>
+            {% for p in payments %}
+            <tr>
+                <td>{{ p.payment_date }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
+                <td>{{ p.payment_for or '-' }}</td>
+                <td>{{ p.notes or '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="text-align:center;color:#999;">No payments recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="table-container">
+    <div class="table-header"><h3>Attendance History</h3></div>
+    <table>
+        <thead><tr><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+            {% for a in attendance %}
+            <tr>
+                <td>{{ a.date }}</td>
+                <td><span class="badge {{ 'badge-success' if a.status=='Present' else 'badge-danger' if a.status=='Absent' else 'badge-warning' }}">{{ a.status }}</span></td>
+                <td>{{ a.notes or '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3" style="text-align:center;color:#999;">No attendance records.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

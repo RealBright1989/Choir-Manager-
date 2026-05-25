@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>User Management</h1>
+    <p>Create and manage system users</p>
+</div>
+
+<div class="cards" style="margin-bottom:20px;">
+    <div class="card accent-1">
+        <div class="card-value">{{ users|length }}</div>
+        <div class="card-label">Total Users</div>
+    </div>
+</div>
+
+<div class="form-card" style="margin-bottom:24px;">
+    <h3 style="margin-bottom:16px;">Create New User</h3>
+    <form method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
+
+        <label>Password (min 4 characters)</label>
+        <input type="password" name="password" required>
+
+        <label>Role</label>
+        <select name="role">
+            <option value="admin">Admin</option>
+            <option value="treasurer">Treasurer</option>
+            <option value="viewer">Viewer</option>
+        </select>
+
+        <input type="hidden" name="csrf_token" value="{{ csrf() }}">
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+    </form>
+</div>
+
+<div class="table-container">
+    <div class="table-header"><h3>Existing Users</h3></div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td><strong>{{ u.username }}</strong></td>
+                <td><span class="badge {{ 'badge-success' if u.role == 'admin' else 'badge-info' if u.role == 'treasurer' else 'badge-warning' }}">{{ u.role }}</span></td>
+                <td>{{ u.created_at }}</td>
+                <td>
+                    {% if u.id != session.user_id %}
+                    <a href="{{ url_for('user_delete', id=u.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete user {{ u.username }}?')">Delete</a>
+                    {% else %}
+                    <span style="color:#999;font-size:13px;">(you)</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

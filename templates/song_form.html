@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
+
+<div class="form-card">
+    <form method="POST" enctype="multipart/form-data">
+        <label>Title *</label>
+        <input type="text" name="title" value="{{ song.title if song else '' }}" required>
+
+        <label>Composer</label>
+        <input type="text" name="composer" value="{{ song.composer if song else '' }}">
+
+        <label>Lyrics</label>
+        <textarea name="lyrics" rows="8">{{ song.lyrics if song else '' }}</textarea>
+
+        <label>Audio File (MP3, WAV, OGG)</label>
+        <input type="file" name="audio" accept=".mp3,.wav,.ogg,.flac,.m4a">
+
+        <label>Notes</label>
+        <textarea name="notes">{{ song.notes if song else '' }}</textarea>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save Song</button>
+            <a href="{{ url_for('songs') }}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

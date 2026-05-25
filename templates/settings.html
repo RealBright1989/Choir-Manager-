@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Settings</h1>
+    <p>Configure your choir management system</p>
+</div>
+
+<div class="form-card">
+    <form method="POST">
+        <label>Choir Name</label>
+        <input type="text" name="choir_name" value="{{ settings_data.get('choir_name', '8 Eton Natural Choir') }}">
+        <div class="help-text">Displayed in the sidebar header</div>
+
+        <label>Currency Symbol</label>
+        <input type="text" name="currency" value="{{ settings_data.get('currency', '$') }}" maxlength="5">
+        <div class="help-text">e.g. $, &#8364;, &#163;, &#8355;</div>
+
+        <label>Default Dues Amount</label>
+        <input type="number" step="0.01" name="dues_amount" value="{{ settings_data.get('dues_amount', '10') }}">
+        <div class="help-text">Suggested amount for monthly dues</div>
+
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee;">
+
+        <h3 style="margin-bottom:12px;">Social Media Links</h3>
+
+        <label>Facebook URL</label>
+        <input type="url" name="facebook_url" value="{{ settings_data.get('facebook_url', '') }}" placeholder="https://facebook.com/yourpage">
+
+        <label>YouTube URL</label>
+        <input type="url" name="youtube_url" value="{{ settings_data.get('youtube_url', '') }}" placeholder="https://youtube.com/@yourchannel">
+
+        <label>Instagram URL</label>
+        <input type="url" name="instagram_url" value="{{ settings_data.get('instagram_url', '') }}" placeholder="https://instagram.com/yourprofile">
+
+        <label>TikTok URL</label>
+        <input type="url" name="tiktok_url" value="{{ settings_data.get('tiktok_url', '') }}" placeholder="https://tiktok.com/@yourprofile">
+
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee;">
+
+        <h3 style="margin-bottom:12px;">SMS / Phone Verification</h3>
+
+        <label>SMS Provider</label>
+        <select name="sms_provider">
+            <option value="log" {{ 'selected' if settings_data.get('sms_provider') == 'log' else '' }}>Development Mode (OTP printed to console)</option>
+            <option value="twilio" {{ 'selected' if settings_data.get('sms_provider') == 'twilio' else '' }}>Twilio (Live SMS)</option>
+        </select>
+        <div class="help-text">Use "Development Mode" for testing. Switch to Twilio for production.</div>
+
+        <label>Twilio Account SID</label>
+        <input type="text" name="twilio_account_sid" value="{{ settings_data.get('twilio_account_sid', '') }}">
+
+        <label>Twilio Auth Token</label>
+        <input type="password" name="twilio_auth_token" value="{{ settings_data.get('twilio_auth_token', '') }}">
+
+        <label>Twilio Phone Number</label>
+        <input type="text" name="twilio_phone" value="{{ settings_data.get('twilio_phone', '') }}" placeholder="e.g. +1234567890">
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join {{ settings.choir_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='lga_data.js') }}"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .join-left {
+            flex: 1;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            padding: 60px;
+        }
+
+        .join-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .join-right {
+            width: 520px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #fff;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .join-card {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .join-card .brand {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .join-card .brand img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+
+        .join-card .brand h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .join-card .brand p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .join-card .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .join-card label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 4px;
+            margin-top: 12px;
+        }
+
+        .join-card input, .join-card select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .join-card input:focus, .join-card select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+        }
+
+        .join-card .btn-join {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .join-card .btn-join:hover { background: #d63850; }
+
+        .join-card .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .join-card .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .join-card .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .join-card .footer-links {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .join-card .footer-links a { color: #e94560; text-decoration: none; }
+        .join-card .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .join-left { display: none; }
+            .join-right { width: 100%; padding: 30px 20px; min-height: auto; }
+            .join-card .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="join-left">
+        <img id="slideJoin" src="{{ url_for('static', filename='slide1.jpeg') }}" alt="Choir" style="object-fit:contain;width:100%;height:auto;max-height:80vh;transition:opacity 0.8s;border-radius:16px;">
+    </div>
+    <script>
+    (function() {
+        const slides = [];
+        for (let i = 1; i <= 5; i++) slides.push("{{ url_for('static', filename='slide') }}" + i + ".jpeg");
+        let idx = 0;
+        setInterval(function() {
+            idx = (idx + 1) % slides.length;
+            const img = document.getElementById('slideJoin');
+            img.style.opacity = '0';
+            setTimeout(function() { img.src = slides[idx]; img.style.opacity = '1'; }, 400);
+        }, 4000);
+    })();
+    </script>
+
+    <div class="join-right">
+        <div class="join-card">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                <h2>{{ settings.choir_name }}</h2>
+                <p>Member Registration Form</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, msg in messages %}
+            <div class="alert alert-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-row">
+                    <div>
+                        <label>First Name *</label>
+                        <input type="text" name="first_name" required>
+                    </div>
+                    <div>
+                        <label>Last Name *</label>
+                        <input type="text" name="last_name" required>
+                    </div>
+                    <div>
+                        <label>Other Names</label>
+                        <input type="text" name="other_names" placeholder="Optional">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Date of Birth *</label>
+                        <input type="date" name="dob" required>
+                    </div>
+                    <div>
+                        <label>Academic Qualification</label>
+                        <select name="academic_qualification">
+                            <option value="">Select...</option>
+                            <option value="SSCE">SSCE / O-Level</option>
+                            <option value="OND">OND / NCE</option>
+                            <option value="HND">HND</option>
+                            <option value="B.Sc">B.Sc / B.A</option>
+                            <option value="M.Sc">M.Sc / M.A</option>
+                            <option value="PhD">PhD</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div>
+                        <label>Singing Part *</label>
+                        <select name="section" required>
+                            <option value="">Select part...</option>
+                            <option value="Soprano">Soprano</option>
+                            <option value="Alto">Alto</option>
+                            <option value="Tenor">Tenor</option>
+                            <option value="Bass">Bass</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Country of Origin *</label>
+                        <select name="country" id="countryInput" onchange="toggleCountryFields()" required>
+                            <option value="">Select country...</option>
+                            <option value="Nigeria" selected>Nigeria</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="Angola">Angola</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Austria">Austria</option>
+                            <option value="Bangladesh">Bangladesh</option>
+                            <option value="Belgium">Belgium</option>
+                            <option value="Benin">Benin</option>
+                            <option value="Botswana">Botswana</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Burkina Faso">Burkina Faso</option>
+                            <option value="Burundi">Burundi</option>
+                            <option value="Cameroon">Cameroon</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Chad">Chad</option>
+                            <option value="China">China</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="Congo">Congo</option>
+                            <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                            <option value="Democratic Republic of Congo">Democratic Republic of Congo</option>
+                            <option value="Denmark">Denmark</option>
+                            <option value="Egypt">Egypt</option>
+                            <option value="Equatorial Guinea">Equatorial Guinea</option>
+                            <option value="Eritrea">Eritrea</option>
+                            <option value="Eswatini">Eswatini</option>
+                            <option value="Ethiopia">Ethiopia</option>
+                            <option value="Finland">Finland</option>
+                            <option value="France">France</option>
+                            <option value="Gabon">Gabon</option>
+                            <option value="Gambia">Gambia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Guinea">Guinea</option>
+                            <option value="Guinea-Bissau">Guinea-Bissau</option>
+                            <option value="India">India</option>
+                            <option value="Indonesia">Indonesia</option>
+                            <option value="Iran">Iran</option>
+                            <option value="Iraq">Iraq</option>
+                            <option value="Ireland">Ireland</option>
+                            <option value="Israel">Israel</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Jamaica">Jamaica</option>
+                            <option value="Japan">Japan</option>
+                            <option value="Jordan">Jordan</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="Kuwait">Kuwait</option>
+                            <option value="Lebanon">Lebanon</option>
+                            <option value="Lesotho">Lesotho</option>
+                            <option value="Liberia">Liberia</option>
+                            <option value="Libya">Libya</option>
+                            <option value="Madagascar">Madagascar</option>
+                            <option value="Malawi">Malawi</option>
+                            <option value="Malaysia">Malaysia</option>
+                            <option value="Mali">Mali</option>
+                            <option value="Mauritania">Mauritania</option>
+                            <option value="Mauritius">Mauritius</option>
+                            <option value="Mexico">Mexico</option>
+                            <option value="Morocco">Morocco</option>
+                            <option value="Mozambique">Mozambique</option>
+                            <option value="Namibia">Namibia</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="New Zealand">New Zealand</option>
+                            <option value="Niger">Niger</option>
+                            <option value="Norway">Norway</option>
+                            <option value="Pakistan">Pakistan</option>
+                            <option value="Philippines">Philippines</option>
+                            <option value="Poland">Poland</option>
+                            <option value="Portugal">Portugal</option>
+                            <option value="Qatar">Qatar</option>
+                            <option value="Romania">Romania</option>
+                            <option value="Russia">Russia</option>
+                            <option value="Rwanda">Rwanda</option>
+                            <option value="Saudi Arabia">Saudi Arabia</option>
+                            <option value="Senegal">Senegal</option>
+                            <option value="Seychelles">Seychelles</option>
+                            <option value="Sierra Leone">Sierra Leone</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="Somalia">Somalia</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="South Korea">South Korea</option>
+                            <option value="South Sudan">South Sudan</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Sudan">Sudan</option>
+                            <option value="Sweden">Sweden</option>
+                            <option value="Switzerland">Switzerland</option>
+                            <option value="Tanzania">Tanzania</option>
+                            <option value="Togo">Togo</option>
+                            <option value="Tunisia">Tunisia</option>
+                            <option value="Turkey">Turkey</option>
+                            <option value="Uganda">Uganda</option>
+                            <option value="Ukraine">Ukraine</option>
+                            <option value="United Arab Emirates">United Arab Emirates</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="United States">United States</option>
+                            <option value="Uruguay">Uruguay</option>
+                            <option value="Venezuela">Venezuela</option>
+                            <option value="Zambia">Zambia</option>
+                            <option value="Zimbabwe">Zimbabwe</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="nigeriaFields">
+                    <div class="form-row">
+                        <div>
+                            <label>State of Origin</label>
+                            <select name="state_of_origin" id="stateSelect" onchange="updateLGAs()">
+                                <option value="">Select state...</option>
+                                <option value="Abia">Abia</option>
+                                <option value="Adamawa">Adamawa</option>
+                                <option value="Akwa Ibom">Akwa Ibom</option>
+                                <option value="Anambra">Anambra</option>
+                                <option value="Bauchi">Bauchi</option>
+                                <option value="Bayelsa">Bayelsa</option>
+                                <option value="Benue">Benue</option>
+                                <option value="Borno">Borno</option>
+                                <option value="Cross River">Cross River</option>
+                                <option value="Delta">Delta</option>
+                                <option value="Ebonyi">Ebonyi</option>
+                                <option value="Edo">Edo</option>
+                                <option value="Ekiti">Ekiti</option>
+                                <option value="Enugu">Enugu</option>
+                                <option value="FCT">FCT (Abuja)</option>
+                                <option value="Gombe">Gombe</option>
+                                <option value="Imo">Imo</option>
+                                <option value="Jigawa">Jigawa</option>
+                                <option value="Kaduna">Kaduna</option>
+                                <option value="Kano">Kano</option>
+                                <option value="Katsina">Katsina</option>
+                                <option value="Kebbi">Kebbi</option>
+                                <option value="Kogi">Kogi</option>
+                                <option value="Kwara">Kwara</option>
+                                <option value="Lagos">Lagos</option>
+                                <option value="Nasarawa">Nasarawa</option>
+                                <option value="Niger">Niger</option>
+                                <option value="Ogun">Ogun</option>
+                                <option value="Ondo">Ondo</option>
+                                <option value="Osun">Osun</option>
+                                <option value="Oyo">Oyo</option>
+                                <option value="Plateau">Plateau</option>
+                                <option value="Rivers">Rivers</option>
+                                <option value="Sokoto">Sokoto</option>
+                                <option value="Taraba">Taraba</option>
+                                <option value="Yobe">Yobe</option>
+                                <option value="Zamfara">Zamfara</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>LGA</label>
+                            <select name="lga" id="lgaSelect">
+                                <option value="">Select LGA...</option>
+                            </select>
+                    </div>
+                    <label>NIN Number *</label>
+                    <input type="text" name="nin_number" placeholder="National Identification Number" required>
+                </div>
+                </div>
+
+                <div id="internationalFields" style="display:none;">
+                    <label>State / Province</label>
+                    <input type="text" name="state_of_origin" placeholder="e.g. California, Ontario, Lagos...">
+                    <label>Passport Number / International ID</label>
+                    <input type="text" name="passport_number" placeholder="e.g. A12345678">
+                    <label>NIN Number (optional)</label>
+                    <input type="text" name="nin_number" placeholder="National Identification Number if you have one">
+                </div>
+
+                <label>Passport Photograph</label>
+                <input type="file" name="photo" accept="image/*" style="padding:8px 0;">
+
+                <div class="form-row">
+                    <div>
+                        <label>Email Address</label>
+                        <input type="email" name="email" placeholder="Optional if you have a phone">
+                    </div>
+                    <div>
+                        <label>Phone Number *</label>
+                        <input type="tel" name="phone" id="phoneInput" required placeholder="e.g. +2348012345678">
+                    </div>
+                </div>
+
+                <div id="otpSection" style="display:none;margin-top:8px;padding:14px;background:#f8f9fa;border-radius:8px;border:1px solid #eee;">
+                    <label style="margin-top:0;">Phone Verification</label>
+                    <div style="display:flex;gap:8px;margin-bottom:8px;">
+                        <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" style="flex:1;" maxlength="6">
+                        <button type="button" id="verifyOtpBtn" class="btn btn-success btn-sm" style="padding:10px 16px;">Verify</button>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" id="sendOtpBtn" class="btn btn-secondary btn-sm">Send OTP</button>
+                        <span id="otpStatus" style="font-size:13px;color:#888;align-self:center;"></span>
+                    </div>
+                    <input type="hidden" name="phone_verified" id="phoneVerified" value="0">
+                </div>
+
+                <input type="hidden" name="csrf_token" value="{{ csrf() }}">
+
+                <button type="submit" id="submitBtn" class="btn-join" disabled>Submit Registration</button>
+            </form>
+
+            <div class="footer-links">
+                Already a member? <a href="{{ url_for('login') }}">Sign In</a>
+                <br>
+                <a href="{{ url_for('landing') }}" style="color:#888;">&larr; Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+function toggleCountryFields() {
+    const country = document.getElementById('countryInput').value;
+    const nigeriaFields = document.getElementById('nigeriaFields');
+    const internationalFields = document.getElementById('internationalFields');
+    const stateSelect = document.getElementById('stateSelect');
+    const lgaSelect = document.getElementById('lgaSelect');
+
+    const ninNigeria = document.getElementById('ninNigeria');
+    if (country === '' || country === 'Nigeria') {
+        nigeriaFields.style.display = '';
+        internationalFields.style.display = 'none';
+        stateSelect.required = true;
+        lgaSelect.required = true;
+        if (ninNigeria) ninNigeria.required = true;
+    } else {
+        nigeriaFields.style.display = 'none';
+        internationalFields.style.display = '';
+        stateSelect.required = false;
+        lgaSelect.required = false;
+        if (ninNigeria) ninNigeria.required = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', toggleCountryFields);
+
+function updateLGAs() {
+    const state = document.getElementById('stateSelect').value;
+    const lgaSelect = document.getElementById('lgaSelect');
+    lgaSelect.innerHTML = '<option value="">Select LGA...</option>';
+    if (state && NIGERIA_LGAS[state]) {
+        NIGERIA_LGAS[state].forEach(lga => {
+            const opt = document.createElement('option');
+            opt.value = lga;
+            opt.textContent = lga;
+            lgaSelect.appendChild(opt);
+        });
+    }
+}
+
+// ─── Phone OTP Verification ───
+const phoneInput = document.getElementById('phoneInput');
+const otpSection = document.getElementById('otpSection');
+const sendOtpBtn = document.getElementById('sendOtpBtn');
+const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+const otpInput = document.getElementById('otpInput');
+const otpStatus = document.getElementById('otpStatus');
+const phoneVerified = document.getElementById('phoneVerified');
+const submitBtn = document.getElementById('submitBtn');
+
+let phoneVerifiedFlag = false;
+
+phoneInput.addEventListener('input', function() {
+    if (this.value.trim().length >= 10) {
+        otpSection.style.display = 'block';
+    } else {
+        otpSection.style.display = 'none';
+        phoneVerifiedFlag = false;
+        submitBtn.disabled = true;
+    }
+});
+
+sendOtpBtn.addEventListener('click', function() {
+    const phone = phoneInput.value.trim();
+    if (!phone) { otpStatus.textContent = 'Enter a phone number'; return; }
+    otpStatus.textContent = 'Sending...';
+    sendOtpBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('phone', phone);
+
+    fetch('/join/send-otp', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                otpStatus.textContent = 'OTP sent! Check your phone (or server console in dev mode).';
+                otpStatus.style.color = '#16a085';
+            } else {
+                otpStatus.textContent = data.error || 'Failed to send OTP';
+                otpStatus.style.color = '#e74c3c';
+                sendOtpBtn.disabled = false;
+            }
+        })
+        .catch(() => {
+            otpStatus.textContent = 'Network error';
+            otpStatus.style.color = '#e74c3c';
+            sendOtpBtn.disabled = false;
+        });
+});
+
+verifyOtpBtn.addEventListener('click', function() {
+    const phone = phoneInput.value.trim();
+    const otp = otpInput.value.trim();
+    if (!otp) { otpStatus.textContent = 'Enter the OTP code'; return; }
+    otpStatus.textContent = 'Verifying...';
+    verifyOtpBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('phone', phone);
+    formData.append('otp', otp);
+
+    fetch('/join/verify-otp', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                otpStatus.textContent = 'Phone verified!';
+                otpStatus.style.color = '#16a085';
+                phoneVerifiedFlag = true;
+                phoneVerified.value = '1';
+                submitBtn.disabled = false;
+                sendOtpBtn.disabled = true;
+                otpInput.disabled = true;
+                verifyOtpBtn.disabled = true;
+            } else {
+                otpStatus.textContent = data.error || 'Invalid OTP';
+                otpStatus.style.color = '#e74c3c';
+                verifyOtpBtn.disabled = false;
+            }
+        })
+        .catch(() => {
+            otpStatus.textContent = 'Network error';
+            otpStatus.style.color = '#e74c3c';
+            verifyOtpBtn.disabled = false;
+        });
+});
+</script>
+</html>

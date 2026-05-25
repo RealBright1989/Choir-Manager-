@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ settings.choir_name }} - Choir Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">&#9776;</button>
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="text-align:center;">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="width:50px;height:50px;object-fit:contain;">
+            <p style="margin-top:6px;">Management System</p>
+        </div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+                <span class="icon">&#9632;</span> Dashboard
+            </a>
+            <a href="{{ url_for('members') }}" class="{{ 'active' if request.endpoint in ('members','member_add','member_edit','member_detail') else '' }}">
+                <span class="icon">&#128101;</span> Members
+            </a>
+            <a href="{{ url_for('attendance') }}" class="{{ 'active' if request.endpoint == 'attendance' else '' }}">
+                <span class="icon">&#9989;</span> Attendance
+            </a>
+            <a href="{{ url_for('finance') }}" class="{{ 'active' if request.endpoint == 'finance' else '' }}">
+                <span class="icon">&#128176;</span> Finance
+            </a>
+            <a href="{{ url_for('reports') }}" class="{{ 'active' if request.endpoint == 'reports' else '' }}">
+                <span class="icon">&#128200;</span> Reports
+            </a>
+            <a href="{{ url_for('songs') }}" class="{{ 'active' if request.endpoint in ('songs','song_add') else '' }}">
+                <span class="icon">&#9835;</span> Songs
+            </a>
+            <a href="{{ url_for('social') }}" class="{{ 'active' if request.endpoint == 'social' else '' }}">
+                <span class="icon">&#128279;</span> Social
+            </a>
+            {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('users') }}" class="{{ 'active' if request.endpoint == 'users' else '' }}">
+                <span class="icon">&#128736;</span> Users
+            </a>
+            {% endif %}
+            <a href="{{ url_for('settings') }}" class="{{ 'active' if request.endpoint == 'settings' else '' }}">
+                <span class="icon">&#9881;</span> Settings
+            </a>
+        </nav>
+
+        <div style="position:absolute;bottom:16px;left:0;right:0;padding:12px 20px;border-top:1px solid rgba(255,255,255,0.1);">
+            <div style="color:rgba(255,255,255,0.5);font-size:12px;margin-bottom:6px;">
+                Signed in as <strong style="color:rgba(255,255,255,0.8);">{{ session.get('username', '') }}</strong>
+            </div>
+            <a href="{{ url_for('logout') }}" style="color:#e94560;text-decoration:none;font-size:13px;font-weight:600;">Logout</a>
+        </div>
+    </aside>
+
+    <main class="main-content watermark">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+    <script>
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('menuOverlay').classList.toggle('active');
+    }
+    </script>
+</body>
+</html>

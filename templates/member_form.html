@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<script src="{{ url_for('static', filename='lga_data.js') }}"></script>
+{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
+
+<div class="form-card">
+    <form method="POST" enctype="multipart/form-data">
+        <label>First Name *</label>
+        <input type="text" name="first_name" value="{{ member.first_name if member else '' }}" required>
+
+        <label>Last Name *</label>
+        <input type="text" name="last_name" value="{{ member.last_name if member else '' }}" required>
+
+        <label>Other Names</label>
+        <input type="text" name="other_names" value="{{ member.other_names if member else '' }}">
+
+        <label>Phone</label>
+        <input type="text" name="phone" value="{{ member.phone if member else '' }}">
+
+        <label>Email</label>
+        <input type="email" name="email" value="{{ member.email if member else '' }}">
+
+        <label>Section</label>
+        <select name="section">
+            <option value="Soprano" {{ 'selected' if member and member.section == 'Soprano' else '' }}>Soprano</option>
+            <option value="Alto" {{ 'selected' if member and member.section == 'Alto' else '' }}>Alto</option>
+            <option value="Tenor" {{ 'selected' if member and member.section == 'Tenor' else '' }}>Tenor</option>
+            <option value="Bass" {{ 'selected' if member and member.section == 'Bass' else '' }}>Bass</option>
+        </select>
+
+        <label>Join Date *</label>
+        <input type="date" name="join_date" value="{{ member.join_date if member else '' }}" required>
+
+        <label>Address</label>
+        <textarea name="address">{{ member.address if member else '' }}</textarea>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label>Date of Birth</label>
+                <input type="date" name="dob" value="{{ member.dob if member else '' }}">
+            </div>
+            <div>
+                <label>Academic Qualification</label>
+                <select name="academic_qualification">
+                    <option value="">Select...</option>
+                    <option value="SSCE" {{ 'selected' if member and member.academic_qualification == 'SSCE' else '' }}>SSCE / O-Level</option>
+                    <option value="OND" {{ 'selected' if member and member.academic_qualification == 'OND' else '' }}>OND / NCE</option>
+                    <option value="HND" {{ 'selected' if member and member.academic_qualification == 'HND' else '' }}>HND</option>
+                    <option value="B.Sc" {{ 'selected' if member and member.academic_qualification == 'B.Sc' else '' }}>B.Sc / B.A</option>
+                    <option value="M.Sc" {{ 'selected' if member and member.academic_qualification == 'M.Sc' else '' }}>M.Sc / M.A</option>
+                    <option value="PhD" {{ 'selected' if member and member.academic_qualification == 'PhD' else '' }}>PhD</option>
+                    <option value="Other" {{ 'selected' if member and member.academic_qualification == 'Other' else '' }}>Other</option>
+                </select>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+                <label>Country of Origin</label>
+        <select name="country" id="countryInputForm" onchange="toggleCountryFormFields()">
+            <option value="">Select country...</option>
+            <option value="Nigeria" {{ 'selected' if member and member.country == 'Nigeria' or not member else '' }}>Nigeria</option>
+            <option value="United States" {{ 'selected' if member and member.country == 'United States' else '' }}>United States</option>
+            <option value="United Kingdom" {{ 'selected' if member and member.country == 'United Kingdom' else '' }}>United Kingdom</option>
+            <option value="Canada" {{ 'selected' if member and member.country == 'Canada' else '' }}>Canada</option>
+            <option value="Ghana" {{ 'selected' if member and member.country == 'Ghana' else '' }}>Ghana</option>
+            <option value="South Africa" {{ 'selected' if member and member.country == 'South Africa' else '' }}>South Africa</option>
+            <option value="Other" {{ 'selected' if member and member.country not in ('Nigeria','United States','United Kingdom','Canada','Ghana','South Africa','') else '' }}>Other</option>
+        </select>
+
+        <div id="adminNigeriaFields" {{ 'style=display:none' if member and member.country and member.country != 'Nigeria' else '' }}>
+            <label>State of Origin</label>
+            <select name="state_of_origin" id="stateSelect" onchange="updateLGAsMember()">
+                <option value="">Select state...</option>
+                <option value="Abia" {{ 'selected' if member and member.state_of_origin == 'Abia' else '' }}>Abia</option>
+                <option value="Adamawa" {{ 'selected' if member and member.state_of_origin == 'Adamawa' else '' }}>Adamawa</option>
+                <option value="Akwa Ibom" {{ 'selected' if member and member.state_of_origin == 'Akwa Ibom' else '' }}>Akwa Ibom</option>
+                <option value="Anambra" {{ 'selected' if member and member.state_of_origin == 'Anambra' else '' }}>Anambra</option>
+                <option value="Bauchi" {{ 'selected' if member and member.state_of_origin == 'Bauchi' else '' }}>Bauchi</option>
+                <option value="Bayelsa" {{ 'selected' if member and member.state_of_origin == 'Bayelsa' else '' }}>Bayelsa</option>
+                <option value="Benue" {{ 'selected' if member and member.state_of_origin == 'Benue' else '' }}>Benue</option>
+                <option value="Borno" {{ 'selected' if member and member.state_of_origin == 'Borno' else '' }}>Borno</option>
+                <option value="Cross River" {{ 'selected' if member and member.state_of_origin == 'Cross River' else '' }}>Cross River</option>
+                <option value="Delta" {{ 'selected' if member and member.state_of_origin == 'Delta' else '' }}>Delta</option>
+                <option value="Ebonyi" {{ 'selected' if member and member.state_of_origin == 'Ebonyi' else '' }}>Ebonyi</option>
+                <option value="Edo" {{ 'selected' if member and member.state_of_origin == 'Edo' else '' }}>Edo</option>
+                <option value="Ekiti" {{ 'selected' if member and member.state_of_origin == 'Ekiti' else '' }}>Ekiti</option>
+                <option value="Enugu" {{ 'selected' if member and member.state_of_origin == 'Enugu' else '' }}>Enugu</option>
+                <option value="FCT" {{ 'selected' if member and member.state_of_origin == 'FCT' else '' }}>FCT (Abuja)</option>
+                <option value="Gombe" {{ 'selected' if member and member.state_of_origin == 'Gombe' else '' }}>Gombe</option>
+                <option value="Imo" {{ 'selected' if member and member.state_of_origin == 'Imo' else '' }}>Imo</option>
+                <option value="Jigawa" {{ 'selected' if member and member.state_of_origin == 'Jigawa' else '' }}>Jigawa</option>
+                <option value="Kaduna" {{ 'selected' if member and member.state_of_origin == 'Kaduna' else '' }}>Kaduna</option>
+                <option value="Kano" {{ 'selected' if member and member.state_of_origin == 'Kano' else '' }}>Kano</option>
+                <option value="Katsina" {{ 'selected' if member and member.state_of_origin == 'Katsina' else '' }}>Katsina</option>
+                <option value="Kebbi" {{ 'selected' if member and member.state_of_origin == 'Kebbi' else '' }}>Kebbi</option>
+                <option value="Kogi" {{ 'selected' if member and member.state_of_origin == 'Kogi' else '' }}>Kogi</option>
+                <option value="Kwara" {{ 'selected' if member and member.state_of_origin == 'Kwara' else '' }}>Kwara</option>
+                <option value="Lagos" {{ 'selected' if member and member.state_of_origin == 'Lagos' else '' }}>Lagos</option>
+                <option value="Nasarawa" {{ 'selected' if member and member.state_of_origin == 'Nasarawa' else '' }}>Nasarawa</option>
+                <option value="Niger" {{ 'selected' if member and member.state_of_origin == 'Niger' else '' }}>Niger</option>
+                <option value="Ogun" {{ 'selected' if member and member.state_of_origin == 'Ogun' else '' }}>Ogun</option>
+                <option value="Ondo" {{ 'selected' if member and member.state_of_origin == 'Ondo' else '' }}>Ondo</option>
+                <option value="Osun" {{ 'selected' if member and member.state_of_origin == 'Osun' else '' }}>Osun</option>
+                <option value="Oyo" {{ 'selected' if member and member.state_of_origin == 'Oyo' else '' }}>Oyo</option>
+                <option value="Plateau" {{ 'selected' if member and member.state_of_origin == 'Plateau' else '' }}>Plateau</option>
+                <option value="Rivers" {{ 'selected' if member and member.state_of_origin == 'Rivers' else '' }}>Rivers</option>
+                <option value="Sokoto" {{ 'selected' if member and member.state_of_origin == 'Sokoto' else '' }}>Sokoto</option>
+                <option value="Taraba" {{ 'selected' if member and member.state_of_origin == 'Taraba' else '' }}>Taraba</option>
+                <option value="Yobe" {{ 'selected' if member and member.state_of_origin == 'Yobe' else '' }}>Yobe</option>
+                <option value="Zamfara" {{ 'selected' if member and member.state_of_origin == 'Zamfara' else '' }}>Zamfara</option>
+            </select>
+            <label>LGA</label>
+            <select name="lga" id="lgaSelectMember">
+                <option value="">Select LGA...</option>
+            </select>
+            <label>NIN Number *</label>
+            <input type="text" name="nin_number" id="ninNigeriaAdmin" value="{{ member.nin_number if member else '' }}" placeholder="National Identification Number" required>
+        </div>
+
+        <div id="adminInternationalFields" {{ 'style=display:none' if not member or member.country == 'Nigeria' or not member.country else '' }}>
+            <label>State / Province</label>
+            <input type="text" name="state_of_origin" value="{{ member.state_of_origin if member and member.country != 'Nigeria' else '' }}" placeholder="e.g. California, Ontario">
+            <label>Passport Number / International ID</label>
+            <input type="text" name="passport_number" value="{{ member.passport_number if member else '' }}">
+            <label>NIN Number (optional)</label>
+            <input type="text" name="nin_number" value="{{ member.nin_number if member else '' }}" placeholder="National Identification Number if you have one">
+        </div>
+
+        <script>
+        function updateLGAsMember() {
+            const state = document.getElementById('stateSelect').value;
+            const lgaSelect = document.getElementById('lgaSelectMember');
+            const currentVal = '{{ member.lga if member else '' }}';
+            lgaSelect.innerHTML = '<option value="">Select LGA...</option>';
+            if (state && NIGERIA_LGAS[state]) {
+                NIGERIA_LGAS[state].forEach(function(lga) {
+                    const opt = document.createElement('option');
+                    opt.value = lga;
+                    opt.textContent = lga;
+                    if (lga === currentVal) opt.selected = true;
+                    lgaSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function toggleCountryFormFields() {
+            const country = document.getElementById('countryInputForm').value;
+            const nigeria = document.getElementById('adminNigeriaFields');
+            const internat = document.getElementById('adminInternationalFields');
+            const ninAdmin = document.getElementById('ninNigeriaAdmin');
+            if (country === '' || country === 'Nigeria') {
+                nigeria.style.display = '';
+                internat.style.display = 'none';
+                if (ninAdmin) ninAdmin.required = true;
+                setTimeout(updateLGAsMember, 50);
+            } else {
+                nigeria.style.display = 'none';
+                internat.style.display = '';
+                if (ninAdmin) ninAdmin.required = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const state = document.getElementById('stateSelect').value;
+            if (state) updateLGAsMember();
+        });
+        </script>
+
+        <label>Passport Photograph</label>
+        <input type="file" name="photo" accept="image/*" style="padding:8px 0;">
+        {% if member and member.photo %}
+        <div style="margin-top:6px;font-size:13px;color:#888;">
+            Current: <img src="{{ url_for('member_photo', filename=member.photo) }}" style="height:60px;width:60px;object-fit:cover;border-radius:6px;vertical-align:middle;">
+        </div>
+        <input type="hidden" name="existing_photo" value="{{ member.photo }}">
+        {% endif %}
+
+        <label>Notes</label>
+        <textarea name="notes">{{ member.notes if member else '' }}</textarea>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{{ url_for('members') }}" class="btn btn-outline">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - {{ settings.choir_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .signup-left {
+            flex: 1;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            padding: 60px;
+        }
+
+        .signup-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .signup-right {
+            width: 460px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #fff;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .signup-card {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .signup-card .brand {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .signup-card .brand img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-bottom: 8px;
+        }
+
+        .signup-card .brand h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .signup-card .brand p {
+            font-size: 13px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .signup-card label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            margin-top: 14px;
+        }
+
+        .signup-card input[type="text"],
+        .signup-card input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .signup-card input:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+        }
+
+        .signup-card .btn-signup {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+
+        .signup-card .btn-signup:hover { background: #d63850; }
+
+        .signup-card .btn-signup:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .signup-card .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+
+        .signup-card .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .signup-card .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .signup-card .footer-links {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .signup-card .footer-links a {
+            color: #e94560;
+            text-decoration: none;
+        }
+
+        .signup-card .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .signup-left { display: none; }
+            .signup-right { width: 100%; padding: 30px 20px; min-height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-left">
+        <img id="slideSignup" src="{{ url_for('static', filename='slide1.jpeg') }}" alt="Choir" style="object-fit:contain;width:100%;height:auto;max-height:80vh;transition:opacity 0.8s;border-radius:16px;">
+    </div>
+    <script>
+    (function() {
+        const slides = [];
+        for (let i = 1; i <= 5; i++) slides.push("{{ url_for('static', filename='slide') }}" + i + ".jpeg");
+        let idx = 0;
+        setInterval(function() {
+            idx = (idx + 1) % slides.length;
+            const img = document.getElementById('slideSignup');
+            img.style.opacity = '0';
+            setTimeout(function() { img.src = slides[idx]; img.style.opacity = '1'; }, 400);
+        }, 4000);
+    })();
+    </script>
+
+    <div class="signup-right">
+        <div class="signup-card">
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+                <h2>{{ settings.choir_name }}</h2>
+                <p>Create your account</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, msg in messages %}
+            <div class="alert alert-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <label>Username *</label>
+                <input type="text" name="username" required autofocus>
+
+                <label>Password *</label>
+                <input type="password" name="password" required minlength="4">
+
+                <label>Confirm Password *</label>
+                <input type="password" name="confirm_password" required minlength="4">
+
+                <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;font-size:13px;color:#666;margin-top:12px;">
+                    <input type="checkbox" id="agreeTerms" onchange="document.getElementById('signupBtn').disabled=!this.checked" style="margin-top:2px;width:15px;height:15px;accent-color:#e94560;">
+                    <span>I agree to the <a href="{{ url_for('terms') }}" style="color:#e94560;text-decoration:underline;">Terms of Service</a> and license agreement</span>
+                </label>
+
+                <input type="hidden" name="csrf_token" value="{{ csrf() }}">
+
+                <button type="submit" id="signupBtn" class="btn-signup" disabled>Create Account</button>
+            </form>
+
+            <div class="footer-links">
+                Already have an account? <a href="{{ url_for('login') }}">Sign In</a>
+                <br>
+                <a href="{{ url_for('landing') }}" style="color:#888;">&larr; Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

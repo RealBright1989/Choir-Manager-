@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Social Links</h1>
+    <p>Follow us on social media</p>
+</div>
+
+<div class="social-grid">
+    <div class="social-card">
+        <div class="social-icon" style="color:#1877f2;">f</div>
+        <h3>Facebook</h3>
+        {% if links.get('facebook_url') %}
+        <a href="{{ links.facebook_url }}" target="_blank" class="btn btn-primary">Open Facebook</a>
+        {% else %}
+        <p style="color:#999;font-size:13px;">No link set</p>
+        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        {% endif %}
+    </div>
+
+    <div class="social-card">
+        <div class="social-icon" style="color:#ff0000;">&#9654;</div>
+        <h3>YouTube</h3>
+        {% if links.get('youtube_url') %}
+        <a href="{{ links.youtube_url }}" target="_blank" class="btn btn-danger">Open YouTube</a>
+        {% else %}
+        <p style="color:#999;font-size:13px;">No link set</p>
+        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        {% endif %}
+    </div>
+
+    <div class="social-card">
+        <div class="social-icon" style="color:#e4405f;">&#9679;</div>
+        <h3>Instagram</h3>
+        {% if links.get('instagram_url') %}
+        <a href="{{ links.instagram_url }}" target="_blank" class="btn btn-primary" style="background:#e4405f;">Open Instagram</a>
+        {% else %}
+        <p style="color:#999;font-size:13px;">No link set</p>
+        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        {% endif %}
+    </div>
+
+    <div class="social-card">
+        <div class="social-icon" style="color:#000000;">&#9835;</div>
+        <h3>TikTok</h3>
+        {% if links.get('tiktok_url') %}
+        <a href="{{ links.tiktok_url }}" target="_blank" class="btn btn-secondary">Open TikTok</a>
+        {% else %}
+        <p style="color:#999;font-size:13px;">No link set</p>
+        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Attendance</h1>
+    <p>Track rehearsal and event attendance</p>
+</div>
+
+<div class="search-bar">
+    <form method="GET" style="display:flex;gap:10px;align-items:center;">
+        <label style="font-weight:600;">Date:</label>
+        <input type="date" name="date" value="{{ selected_date }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Load</button>
+        <a href="{{ url_for('attendance') }}" class="btn btn-outline btn-sm">Today</a>
+    </form>
+</div>
+
+<div class="form-card" style="max-width:100%;">
+    <form method="POST" action="{{ url_for('attendance_take') }}">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="font-size:16px;">Attendance for {{ selected_date }}</h3>
+            <button type="submit" class="btn btn-primary">Save Attendance</button>
+        </div>
+
+        {% if records %}
+        <div class="attendance-grid">
+            {% for r in records %}
+            <div class="attendance-item">
+                <input type="hidden" name="member_ids" value="{{ r.member_id }}">
+                <div class="member-info">
+                    <span class="member-name">{{ r.first_name }} {{ r.last_name }}</span>
+                    <span class="member-section">{{ r.section }}</span>
+                </div>
+                <select name="status_{{ r.member_id }}">
+                    <option value="Present" {{ 'selected' if r.status == 'Present' else '' }}>Present</option>
+                    <option value="Absent" {{ 'selected' if r.status == 'Absent' else '' }}>Absent</option>
+                    <option value="Excused" {{ 'selected' if r.status == 'Excused' else '' }}>Excused</option>
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="attendance-grid">
+            {% for m in members %}
+            <div class="attendance-item">
+                <input type="hidden" name="member_ids" value="{{ m.id }}">
+                <div class="member-info">
+                    <span class="member-name">{{ m.first_name }} {{ m.last_name }}</span>
+                    <span class="member-section">{{ m.section }}</span>
+                </div>
+                <select name="status_{{ m.id }}">
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Excused">Excused</option>
+                </select>
+            </div>
+            {% else %}
+            <p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">
+                No members registered yet. <a href="{{ url_for('member_add') }}" style="color:#e94560;">Add members first.</a>
+            </p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+{% if available_dates %}
+<div class="table-container" style="margin-top:24px;">
+    <div class="table-header"><h3>Past Attendance Dates</h3></div>
+    <table>
+        <thead><tr><th>Date</th><th>Action</th></tr></thead>
+        <tbody>
+            {% for d in available_dates %}
+            <tr>
+                <td>{{ d }}</td>
+                <td><a href="{{ url_for('attendance', date=d) }}" class="btn btn-outline btn-sm">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

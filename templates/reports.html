@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Reports</h1>
+    <p>View summaries and insights</p>
+</div>
+
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <a href="{{ url_for('export_members') }}" class="btn btn-secondary btn-sm">&#128230; Export Members</a>
+    <a href="{{ url_for('export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Export Payments</a>
+    <a href="{{ url_for('export_attendance') }}" class="btn btn-secondary btn-sm">&#128230; Export Attendance</a>
+    <a href="{{ url_for('export_backup') }}" class="btn btn-primary btn-sm">&#128230; Full Backup (CSV)</a>
+</div>
+
+<div class="report-grid">
+    <div class="report-card">
+        <h3>Members by Section</h3>
+        <table>
+            <thead><tr><th>Section</th><th>Count</th></tr></thead>
+            <tbody>
+                {% for s in section_counts %}
+                <tr><td>{{ s.section }}</td><td><strong>{{ s.count }}</strong></td></tr>
+                {% else %}
+                <tr><td colspan="2" style="color:#999;">No members</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-card">
+        <h3>Attendance Summary</h3>
+        <table>
+            <thead><tr><th>Status</th><th>Count</th></tr></thead>
+            <tbody>
+                {% for a in attendance_summary %}
+                <tr><td>{{ a.status }}</td><td><strong>{{ a.count }}</strong></td></tr>
+                {% else %}
+                <tr><td colspan="2" style="color:#999;">No attendance records</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-card" style="grid-column:1/-1;">
+        <h3>Monthly Financial Summary</h3>
+        <table>
+            <thead><tr><th>Month</th><th>Transactions</th><th>Total</th></tr></thead>
+            <tbody>
+                {% for m in monthly_summary %}
+                <tr>
+                    <td>{{ m.month }}</td>
+                    <td>{{ m.txns }}</td>
+                    <td>{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="color:#999;">No payments yet</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-card" style="grid-column:1/-1;">
+        <h3>Member Financial Summary</h3>
+        <table>
+            <thead><tr><th>Member</th><th>Section</th><th>Join Date</th><th>Payments</th><th>Total Paid</th></tr></thead>
+            <tbody>
+                {% for m in member_financials %}
+                <tr>
+                    <td>{{ m.first_name }} {{ m.last_name }}</td>
+                    <td>{{ m.section }}</td>
+                    <td>{{ m.join_date }}</td>
+                    <td>{{ m.payment_count }}</td>
+                    <td>{{ settings.currency }}{{ "%.2f"|format(m.total_paid) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="color:#999;">No members</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
