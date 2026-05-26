@@ -40,12 +40,7 @@
         </div>
         <table>
             <thead>
-                <tr>
-                    <th>Member</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>For</th>
-                </tr>
+                <tr><th>Member</th><th>Amount</th><th>Date</th><th>For</th></tr>
             </thead>
             <tbody>
                 {% for p in recent_payments %}
@@ -56,7 +51,7 @@
                     <td>{{ p.payment_for or '-' }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="4" style="text-align:center;color:#999;">No payments yet</td></tr>
+                <tr><td colspan="4" class="empty-table">No payments yet</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -68,10 +63,7 @@
         </div>
         <table>
             <thead>
-                <tr>
-                    <th>Member</th>
-                    <th>Total Paid</th>
-                </tr>
+                <tr><th>Member</th><th>Total Paid</th></tr>
             </thead>
             <tbody>
                 {% for m in top_members %}
@@ -80,7 +72,7 @@
                     <td>{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
                 </tr>
                 {% else %}
-                <tr><td colspan="2" style="text-align:center;color:#999;">No payments yet</td></tr>
+                <tr><td colspan="2" class="empty-table">No payments yet</td></tr>
                 {% endfor %}
             </tbody>
         </table>

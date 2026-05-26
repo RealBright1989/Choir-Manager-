@@ -24,9 +24,10 @@
             background: linear-gradient(160deg, #0c0c1d 0%, #1a1a2e 40%, #16213e 70%, #0f3460 100%);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             padding: 60px 40px;
+            padding-top: 80px;
             position: relative;
             overflow: hidden;
         }
@@ -155,52 +156,58 @@
         .guide-right {
             flex: 1;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 60px;
+            padding: 48px 56px;
+            padding-top: 64px;
             min-height: 100vh;
         }
 
         .guide-card {
             width: 100%;
-            max-width: 680px;
+            max-width: 720px;
         }
 
         .guide-card .header-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
         }
 
         .guide-card .header-row .step-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: #f0f2f5;
-            color: #666;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(233,69,96,0.1), rgba(233,69,96,0.04));
+            color: #e94560;
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(233,69,96,0.12);
         }
 
         .guide-card .header-row .step-badge strong {
-            color: #e94560;
+            color: #b02a40;
         }
 
         .guide-card .header-row .progress-text {
             font-size: 12px;
-            color: #aaa;
-            font-weight: 500;
+            color: #94a3b8;
+            font-weight: 600;
+            background: #f1f4f9;
+            padding: 4px 12px;
+            border-radius: 12px;
         }
 
         .progress-bar {
             width: 100%;
-            height: 4px;
+            height: 5px;
             background: #eef0f4;
-            border-radius: 2px;
-            margin-bottom: 36px;
+            border-radius: 3px;
+            margin-bottom: 28px;
             overflow: hidden;
         }
 
@@ -208,138 +215,197 @@
             width: 50%;
             height: 100%;
             background: linear-gradient(90deg, #e94560, #f39c12);
-            border-radius: 2px;
+            border-radius: 3px;
             transition: width 0.5s;
+            position: relative;
+        }
+
+        .progress-bar .fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0;
+            width: 12px; height: 100%;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.4;
         }
 
         .guide-card h2 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
             color: #1a1a2e;
             letter-spacing: -0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .guide-card h2::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #e94560, #f39c12);
+            border-radius: 2px;
+            margin-top: 12px;
         }
 
         .guide-card .subtitle {
-            font-size: 15px;
-            color: #888;
-            margin-bottom: 32px;
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 28px;
+            margin-top: 12px;
         }
 
-        /* ─── Steps ─── */
-        .steps-timeline {
-            position: relative;
-            padding-left: 40px;
-        }
-
-        .steps-timeline::before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 12px;
-            bottom: 12px;
-            width: 2px;
-            background: linear-gradient(180deg, #e94560 0%, #e94560 20%, #e0e0e0 20%, #e0e0e0 100%);
-            background-size: 100% 100%;
+        /* ─── Steps Grid ─── */
+        .steps-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
         .step-item {
-            position: relative;
-            margin-bottom: 28px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid #eef2f6;
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
-        .step-item:last-child {
-            margin-bottom: 0;
+        .step-item:hover {
+            border-color: #d0d7e0;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.05);
+            transform: translateX(4px);
         }
 
-        .step-item .step-number {
-            position: absolute;
-            left: -40px;
-            top: 2px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 18px 22px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .step-header .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            z-index: 2;
+            font-size: 15px;
+            font-weight: 800;
+            flex-shrink: 0;
+            transition: all 0.3s;
         }
 
-        .step-item:nth-child(1) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
-        .step-item:nth-child(2) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
-        .step-item:nth-child(3) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
-        .step-item:nth-child(4) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
-        .step-item:nth-child(5) .step-number { background: #e94560; color: #fff; box-shadow: 0 0 0 4px rgba(233,69,96,0.15); }
-        .step-item:nth-child(6) .step-number { background: #16a085; color: #fff; box-shadow: 0 0 0 4px rgba(22,160,133,0.15); }
+        .step-item:nth-child(1) .step-number { background: linear-gradient(135deg, #e94560, #d63850); color: #fff; box-shadow: 0 3px 10px rgba(233,69,96,0.25); }
+        .step-item:nth-child(2) .step-number { background: linear-gradient(135deg, #0f3460, #1a5276); color: #fff; box-shadow: 0 3px 10px rgba(15,52,96,0.25); }
+        .step-item:nth-child(3) .step-number { background: linear-gradient(135deg, #16a085, #138d75); color: #fff; box-shadow: 0 3px 10px rgba(22,160,133,0.25); }
+        .step-item:nth-child(4) .step-number { background: linear-gradient(135deg, #8e44ad, #7d3c98); color: #fff; box-shadow: 0 3px 10px rgba(142,68,173,0.25); }
+        .step-item:nth-child(5) .step-number { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; box-shadow: 0 3px 10px rgba(243,156,18,0.25); }
+        .step-item:nth-child(6) .step-number { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; box-shadow: 0 3px 10px rgba(46,204,113,0.25); }
 
-        .step-item .step-content {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px 24px;
-            border: 1px solid #f0f2f5;
-            transition: border-color 0.2s, box-shadow 0.2s;
+        .step-item:nth-child(1) { border-left: 4px solid #e94560; }
+        .step-item:nth-child(2) { border-left: 4px solid #0f3460; }
+        .step-item:nth-child(3) { border-left: 4px solid #16a085; }
+        .step-item:nth-child(4) { border-left: 4px solid #8e44ad; }
+        .step-item:nth-child(5) { border-left: 4px solid #f39c12; }
+        .step-item:nth-child(6) { border-left: 4px solid #2ecc71; }
+
+        .step-header .step-title {
+            flex: 1;
         }
 
-        .step-item .step-content:hover {
-            border-color: #e0e4ec;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-        }
-
-        .step-item .step-content h4 {
+        .step-header .step-title h4 {
             font-size: 15px;
             font-weight: 700;
             color: #1a1a2e;
-            margin-bottom: 6px;
+            letter-spacing: -0.2px;
         }
 
-        .step-item .step-content p {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
+        .step-header .step-title p {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 2px;
+            line-height: 1.4;
         }
 
-        .step-item .step-content .step-details {
-            margin-top: 10px;
-            padding-top: 10px;
+        .step-header .step-toggle {
+            font-size: 12px;
+            color: #94a3b8;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #f1f4f9;
+        }
+
+        .step-item.expanded .step-toggle {
+            transform: rotate(180deg);
+        }
+
+        .step-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            padding: 0 22px;
+        }
+
+        .step-item.expanded .step-body {
+            max-height: 400px;
+            padding: 0 22px 18px;
+        }
+
+        .step-body .step-details {
             border-top: 1px solid #f0f2f5;
+            padding-top: 14px;
         }
 
-        .step-item .step-content .step-details ul {
+        .step-body .step-details ul {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
-        .step-item .step-content .step-details ul li {
+        .step-body .step-details ul li {
             font-size: 13px;
-            color: #888;
-            padding: 4px 0;
-            padding-left: 18px;
+            color: #64748b;
+            padding: 5px 0;
+            padding-left: 20px;
             position: relative;
             line-height: 1.5;
         }
 
-        .step-item .step-content .step-details ul li::before {
-            content: '•';
+        .step-body .step-details ul li::before {
+            content: '';
             position: absolute;
             left: 4px;
-            color: #e94560;
-            font-weight: 700;
+            top: 11px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #e94560;
+            opacity: 0.5;
         }
 
-        .step-item .step-content .tag {
+        .step-body .step-details .tag {
             display: inline-block;
-            padding: 2px 10px;
-            border-radius: 4px;
+            padding: 3px 12px;
+            border-radius: 6px;
             font-size: 11px;
-            font-weight: 600;
-            margin-top: 8px;
+            font-weight: 700;
+            margin-top: 10px;
+            letter-spacing: 0.2px;
         }
 
-        .tag-required { background: #fff3cd; color: #856404; }
-        .tag-optional { background: #e8f5e9; color: #2e7d32; }
-        .tag-info { background: #e3f2fd; color: #0d47a1; }
+        .tag-required { background: #fef3cd; color: #856404; border: 1px solid #f9e28a; }
+        .tag-optional { background: #e8f5e9; color: #2e7d32; border: 1px solid #b8dfb8; }
+        .tag-info { background: #e0f2fe; color: #0369a1; border: 1px solid #b2d9f0; }
 
         /* ─── Agreement ─── */
         .agreement-section {
@@ -478,7 +544,7 @@
         /* ─── Responsive ─── */
         @media (max-width: 1024px) {
             .guide-left { display: none; }
-            .guide-right { padding: 40px 24px; }
+            .guide-right { padding: 40px 24px; padding-top: 60px; }
             .guide-card { max-width: 100%; }
         }
     </style>
@@ -544,13 +610,18 @@
             <h2>Membership Guidelines</h2>
             <p class="subtitle">Review each step carefully before proceeding to registration</p>
 
-            <div class="steps-timeline">
+            <div class="steps-grid">
 
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Personal Information</h4>
-                        <p>Provide your accurate legal details. All information you submit must be truthful and verifiable.</p>
+                <div class="step-item expanded" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <div class="step-title">
+                            <h4>Personal Information</h4>
+                            <p>Provide your accurate legal details</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li><strong>Full Name</strong> — Enter your legal first and last name as they appear on official documents</li>
@@ -562,11 +633,16 @@
                     </div>
                 </div>
 
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Contact Details</h4>
-                        <p>We need a valid phone number to verify your identity and keep you informed about choir activities.</p>
+                <div class="step-item" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <div class="step-title">
+                            <h4>Contact Details</h4>
+                            <p>Valid phone number required for verification</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li><strong>Phone Number</strong> — You will receive a one-time verification code via SMS. A valid, active number is required.</li>
@@ -577,11 +653,16 @@
                     </div>
                 </div>
 
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Additional Information</h4>
-                        <p>Optional details that help us better organize our choir sections and activities.</p>
+                <div class="step-item" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <div class="step-title">
+                            <h4>Additional Information</h4>
+                            <p>Optional details to help organize sections</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li><strong>Academic Qualification</strong> — Helps us understand the educational background of our members</li>
@@ -592,11 +673,16 @@
                     </div>
                 </div>
 
-                <div class="step-item">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>Privacy &amp; Data Protection</h4>
-                        <p>We take your privacy seriously. Here's how we handle your information.</p>
+                <div class="step-item" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">4</span>
+                        <div class="step-title">
+                            <h4>Privacy &amp; Data Protection</h4>
+                            <p>How we handle your information</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li>Your personal data is stored securely and used <strong>only for choir management purposes</strong></li>
@@ -608,11 +694,16 @@
                     </div>
                 </div>
 
-                <div class="step-item">
-                    <div class="step-number">5</div>
-                    <div class="step-content">
-                        <h4>Code of Conduct</h4>
-                        <p>As a member, you are expected to uphold the values and standards of our choir community.</p>
+                <div class="step-item" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">5</span>
+                        <div class="step-title">
+                            <h4>Code of Conduct</h4>
+                            <p>Uphold our choir values and standards</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li><strong>Attendance</strong> — Attend rehearsals and events punctually. Notify leadership in advance if unable to attend</li>
@@ -624,11 +715,16 @@
                     </div>
                 </div>
 
-                <div class="step-item">
-                    <div class="step-number">6</div>
-                    <div class="step-content">
-                        <h4>Complete Your Registration</h4>
-                        <p>After agreeing to these guidelines, you will proceed to the registration form to submit your details.</p>
+                <div class="step-item" onclick="toggleStep(this)">
+                    <div class="step-header">
+                        <span class="step-number">6</span>
+                        <div class="step-title">
+                            <h4>Complete Your Registration</h4>
+                            <p>Final steps to become a member</p>
+                        </div>
+                        <span class="step-toggle">&#9660;</span>
+                    </div>
+                    <div class="step-body">
                         <div class="step-details">
                             <ul>
                                 <li>Verify your phone number with the OTP code sent via SMS</li>
@@ -666,6 +762,10 @@
     </div>
 
     <script>
+        function toggleStep(el) {
+            el.classList.toggle('expanded');
+        }
+
         function toggleAgreement(checked) {
             const box = document.getElementById('agreementBox');
             const btn = document.getElementById('proceedBtn');

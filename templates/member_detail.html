@@ -1,32 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="page-header" style="display:flex;align-items:center;gap:20px;">
+<div class="member-profile-card">
     {% if member.photo %}
-    <img src="{{ url_for('member_photo', filename=member.photo) }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:3px solid #e94560;">
+    <img src="{{ url_for('member_photo', filename=member.photo) }}" alt="Photo">
+    {% else %}
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Photo" style="opacity:0.3;">
     {% endif %}
     <div>
         <h1>{{ member.first_name }} {{ member.last_name }}</h1>
         <p>{{ member.section }} &middot; Joined {{ member.join_date }}
-        {% if member.other_names %} &middot; {{ member.other_names }}{% endif %}</p>
+        {% if member.other_names %} &middot; {{ member.other_names }}{% endif %}
+        {% if member.country and member.country != 'Nigeria' %} &middot; {{ member.country }}{% endif %}</p>
     </div>
 </div>
 
-<div class="cards" style="margin-bottom:24px;">
+    <div class="form-card" style="max-width:100%;margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div><strong style="color:#1a1a2e;font-size:13px;">State:</strong><br><span style="color:#555;">{{ member.state_of_origin or 'Unassigned' }}</span></div>
+            <div><strong style="color:#1a1a2e;font-size:13px;">Country:</strong><br><span style="color:#555;">{{ member.country or 'Nigeria' }}</span></div>
+        </div>
+    </div>
+
+    <div class="cards" style="margin-bottom:24px;">
     <div class="card accent-1">
+        <div class="card-icon">&#128176;</div>
         <div class="card-value">{{ settings.currency }}{{ "%.2f"|format(payments|sum(attribute='amount')) }}</div>
         <div class="card-label">Total Paid</div>
     </div>
     <div class="card accent-2">
+        <div class="card-icon">&#128203;</div>
         <div class="card-value">{{ payments|length }}</div>
         <div class="card-label">Payments</div>
     </div>
     <div class="card accent-3">
+        <div class="card-icon">&#9989;</div>
         <div class="card-value">{{ attendance|length }}</div>
         <div class="card-label">Attendance Records</div>
     </div>
 </div>
 
-<div style="display:flex;gap:8px;margin-bottom:20px;">
+<div class="btn-group" style="margin-bottom:20px;">
     <a href="{{ url_for('member_edit', id=member.id) }}" class="btn btn-secondary">Edit Member</a>
     <a href="{{ url_for('finance', member_id=member.id) }}" class="btn btn-primary">View Payments</a>
 </div>

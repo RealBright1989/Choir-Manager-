@@ -18,7 +18,7 @@
     </div>
 </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+<div class="dashboard-grid">
     <div class="form-card">
         <h3 style="margin-bottom:16px;">Record Payment</h3>
         <form method="POST" action="{{ url_for('finance_add') }}">
@@ -75,7 +75,7 @@
                     <td><a href="{{ url_for('finance_delete', id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this payment?')">Delete</a></td>
                 </tr>
                 {% else %}
-                <tr><td colspan="5" style="text-align:center;color:#999;">No payments recorded.</td></tr>
+                <tr><td colspan="5" class="empty-table">No payments recorded.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -93,7 +93,7 @@
                 <td>{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="2" style="text-align:center;color:#999;">No members.</td></tr>
+            <tr><td colspan="2" class="empty-table">No members.</td></tr>
             {% endfor %}
         </tbody>
     </table>

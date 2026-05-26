@@ -5,6 +5,99 @@
     <p>View summaries and insights</p>
 </div>
 
+<!-- Tabs -->
+<div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #eef2f6;padding-bottom:0;">
+    <a href="{{ url_for('reports') }}" class="btn {% if section == 'standard' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">Standard Reports</a>
+    <a href="{{ url_for('reports', section='hierarchy') }}" class="btn {% if section == 'hierarchy' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">&#128230; Hierarchy Report (Zone→Area→State→International)</a>
+</div>
+
+{% if section == 'hierarchy' %}
+
+<!-- Hierarchy Filters -->
+<div class="form-card" style="max-width:100%;margin-bottom:24px;">
+    <form method="GET" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+        <div>
+            <label style="margin:0 0 4px;">Zone</label>
+            <select name="zone">
+                <option value="">All Zones</option>
+                {% for z in zones %}<option value="{{ z }}" {{ 'selected' if filters.zone == z }}>{{ z }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="margin:0 0 4px;">Area</label>
+            <select name="area">
+                <option value="">All Areas</option>
+                {% for a in areas %}<option value="{{ a }}" {{ 'selected' if filters.area == a }}>{{ a }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="margin:0 0 4px;">State</label>
+            <select name="state">
+                <option value="">All States</option>
+                {% for s in states %}<option value="{{ s }}" {{ 'selected' if filters.state == s }}>{{ s }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="margin:0 0 4px;">Country</label>
+            <select name="country">
+                <option value="">All Countries</option>
+                {% for c in countries %}<option value="{{ c }}" {{ 'selected' if filters.country == c }}>{{ c }}</option>{% endfor %}
+            </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:6px;">
+            <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+            <a href="{{ url_for('reports', section='hierarchy') }}" class="btn btn-outline btn-sm">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Export Buttons -->
+<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+    <a href="{{ url_for('reports_hierarchy_pdf', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-danger btn-sm">&#128196; Download PDF</a>
+    <a href="{{ url_for('reports_hierarchy_excel', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-success btn-sm">&#128230; Export Excel</a>
+</div>
+
+<!-- Grand Total -->
+<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:14px;padding:18px 24px;color:#fff;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;">
+    <div><strong style="color:#e94560;">{{ grand.members }}</strong> Members</div>
+    <div><strong style="color:#f39c12;">{{ grand.payments }}</strong> Payments</div>
+    <div><strong style="color:#16a085;">{{ settings.currency }}{{ "%.2f"|format(grand.total) }}</strong> Total</div>
+</div>
+
+<!-- Hierarchy Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Level / Name</th>
+                <th>Members</th>
+                <th>Payments</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in flat %}
+            <tr style="{% if item.level == 'country' %}background:#f0f4ff;font-weight:700;color:#0f3460;{% elif item.level == 'state' %}font-weight:600;color:#1a1a2e;{% elif item.level == 'area' %}color:#16a085;{% elif item.level == 'zone' %}color:#b8860b;{% endif %}">
+                <td>{{ loop.index }}</td>
+                <td>
+                    {% if item.level == 'country' %}&#127758; {% elif item.level == 'state' %}&nbsp;&nbsp;&#128205; {% elif item.level == 'area' %}&nbsp;&nbsp;&nbsp;&nbsp;&#128204; {% elif item.level == 'zone' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#128204; {% else %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#128100; {% endif %}
+                    {{ item.name }}
+                </td>
+                <td>{{ item.members }}</td>
+                <td>{{ item.payments }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(item.total) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="empty-table">No data found. Add members with Zone/Area assignments first.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+
+<!-- Standard Reports -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
     <a href="{{ url_for('export_members') }}" class="btn btn-secondary btn-sm">&#128230; Export Members</a>
     <a href="{{ url_for('export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Export Payments</a>
@@ -21,7 +114,7 @@
                 {% for s in section_counts %}
                 <tr><td>{{ s.section }}</td><td><strong>{{ s.count }}</strong></td></tr>
                 {% else %}
-                <tr><td colspan="2" style="color:#999;">No members</td></tr>
+                <tr><td colspan="2" style="color:#999;text-align:center;">No members</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -79,4 +172,6 @@
         </table>
     </div>
 </div>
+
+{% endif %}
 {% endblock %}

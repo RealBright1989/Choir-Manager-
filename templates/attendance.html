@@ -55,9 +55,7 @@
                 </select>
             </div>
             {% else %}
-            <p style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">
-                No members registered yet. <a href="{{ url_for('member_add') }}" style="color:#e94560;">Add members first.</a>
-            </p>
+            <p class="empty-table" style="grid-column:1/-1;">No members registered yet. <a href="{{ url_for('member_add') }}" style="color:#e94560;">Add members first.</a></p>
             {% endfor %}
         </div>
         {% endif %}

@@ -11,6 +11,10 @@ from flask import (
     flash, send_from_directory, session, Response
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from io import BytesIO
+from fpdf import FPDF
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -107,7 +111,7 @@ def init_db():
             expires_at TEXT NOT NULL
         );
     """)
-    for col in ["dob", "state_of_origin", "lga", "nin_number", "academic_qualification", "country", "passport_number", "photo", "other_names"]:
+    for col in ["dob", "state_of_origin", "lga", "nin_number", "academic_qualification", "country", "passport_number", "photo", "other_names", "zone", "area"]:
         try:
             cur.execute(f"ALTER TABLE members ADD COLUMN {col} TEXT")
         except sqlite3.OperationalError:
@@ -620,8 +624,8 @@ def member_add():
         cur.execute("""INSERT INTO members
                        (first_name, last_name, other_names, phone, email, section, join_date, address, notes,
                         dob, state_of_origin, lga, nin_number, academic_qualification,
-                        country, passport_number, photo)
-                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        country, passport_number, photo, zone, area)
+                       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                     (fn, ln, request.form.get("other_names", "").strip(), request.form.get("phone", "").strip(), email,
                      request.form.get("section", "Soprano"), join_date,
                      request.form.get("address", "").strip(), request.form.get("notes", "").strip(),
@@ -629,7 +633,8 @@ def member_add():
                      request.form.get("lga", "").strip(), request.form.get("nin_number", "").strip(),
                      request.form.get("academic_qualification", "").strip(),
                      request.form.get("country", "Nigeria").strip(),
-                     request.form.get("passport_number", "").strip(), photo_filename))
+                     request.form.get("passport_number", "").strip(), photo_filename,
+                     request.form.get("zone", "").strip(), request.form.get("area", "").strip()))
         conn.commit()
         conn.close()
         flash("Member added successfully!", "success")
@@ -679,7 +684,7 @@ def member_edit(id):
         cur.execute("""UPDATE members SET first_name=?, last_name=?, other_names=?, phone=?, email=?, section=?,
                        join_date=?, address=?, notes=?,
                        dob=?, state_of_origin=?, lga=?, nin_number=?, academic_qualification=?,
-                       country=?, passport_number=?, photo=?
+                       country=?, passport_number=?, photo=?, zone=?, area=?
                        WHERE id=?""",
                     (fn, ln, request.form.get("other_names", "").strip(), request.form.get("phone", "").strip(), email,
                      request.form.get("section", "Soprano"), join_date,
@@ -688,7 +693,8 @@ def member_edit(id):
                      request.form.get("lga", "").strip(), request.form.get("nin_number", "").strip(),
                      request.form.get("academic_qualification", "").strip(),
                      request.form.get("country", "Nigeria").strip(),
-                     request.form.get("passport_number", "").strip(), photo_filename, id))
+                     request.form.get("passport_number", "").strip(), photo_filename,
+                     request.form.get("zone", "").strip(), request.form.get("area", "").strip(), id))
         conn.commit()
         conn.close()
         flash("Member updated!", "success")
@@ -860,11 +866,35 @@ def finance_delete(id):
 
 # ─── Reports ──────────────────────────────────────────────────────
 
-@app.route("/reports")
+@app.route("/reports", defaults={"section": "standard"}, methods=["GET"])
+@app.route("/reports/<section>")
 @login_required
-def reports():
+def reports(section="standard"):
     conn = get_db()
     cur = conn.cursor()
+
+    if section == "hierarchy":
+        zone_f = request.args.get("zone", "")
+        area_f = request.args.get("area", "")
+        state_f = request.args.get("state", "")
+        country_f = request.args.get("country", "")
+
+        cur.execute("SELECT DISTINCT zone FROM members WHERE zone IS NOT NULL AND zone != '' ORDER BY zone")
+        zones = [r["zone"] for r in cur.fetchall()]
+        cur.execute("SELECT DISTINCT area FROM members WHERE area IS NOT NULL AND area != '' ORDER BY area")
+        areas = [r["area"] for r in cur.fetchall()]
+        cur.execute("SELECT DISTINCT state_of_origin FROM members WHERE state_of_origin IS NOT NULL AND state_of_origin != '' ORDER BY state_of_origin")
+        states = [r["state_of_origin"] for r in cur.fetchall()]
+        cur.execute("SELECT DISTINCT country FROM members WHERE country IS NOT NULL AND country != '' ORDER BY country")
+        countries = [r["country"] for r in cur.fetchall()]
+        conn.close()
+
+        flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
+        return render_template("reports.html", section="hierarchy", flat=flat, grand=grand,
+                               zones=zones, areas=areas, states=states, countries=countries,
+                               filters={"zone": zone_f, "area": area_f, "state": state_f, "country": country_f})
+
+    # Standard reports
     cur.execute("""SELECT m.first_name, m.last_name, m.section, m.join_date,
                    COALESCE(SUM(p.amount), 0) as total_paid,
                    COUNT(p.id) as payment_count
@@ -881,12 +911,270 @@ def reports():
                    FROM attendance a GROUP BY a.status""")
     attendance_summary = cur.fetchall()
     conn.close()
-    return render_template("reports.html", member_financials=member_financials,
+    return render_template("reports.html", section="standard",
+                           member_financials=member_financials,
                            monthly_summary=monthly_summary, section_counts=section_counts,
                            attendance_summary=attendance_summary)
 
 
-# ─── Export / Backup ──────────────────────────────────────────────
+# ─── Zone → Area → State → International Report ──────────────────
+
+def get_hierarchical_report(zone_filter="", area_filter="", state_filter="", country_filter=""):
+    conn = get_db()
+    cur = conn.cursor()
+    where = []
+    params = []
+    if zone_filter:
+        where.append("m.zone LIKE ?")
+        params.append(f"%{zone_filter}%")
+    if area_filter:
+        where.append("m.area LIKE ?")
+        params.append(f"%{area_filter}%")
+    if state_filter:
+        where.append("m.state_of_origin LIKE ?")
+        params.append(f"%{state_filter}%")
+    if country_filter:
+        where.append("m.country LIKE ?")
+        params.append(f"%{country_filter}%")
+    w = " WHERE " + " AND ".join(where) if where else ""
+    cur.execute(f"""SELECT m.*, COALESCE(SUM(p.amount),0) as total_paid, COUNT(p.id) as payment_count
+                    FROM members m LEFT JOIN payments p ON m.id=p.member_id
+                    {w} GROUP BY m.id ORDER BY m.country, m.state_of_origin, m.area, m.zone, m.last_name""", params)
+    rows = cur.fetchall()
+    conn.close()
+
+    hierarchy = {}
+    for r in rows:
+        zone = r["zone"] or "Unassigned"
+        area = r["area"] or "Unassigned"
+        state = r["state_of_origin"] or "Unassigned"
+        country = r["country"] or "Unassigned"
+
+        hierarchy.setdefault(country, {}).setdefault(state, {}).setdefault(area, {}).setdefault(zone, [])
+        hierarchy[country][state][area][zone].append(r)
+
+    flat = []
+    grand = {"members": 0, "payments": 0, "total": 0}
+    for country in sorted(hierarchy):
+        cdata = hierarchy[country]
+        c_mem = sum(len(z) for s in cdata.values() for a in s.values() for z in a.values())
+        c_pay = sum(r["payment_count"] for s in cdata.values() for a in s.values() for z in a.values() for r in z)
+        c_tot = sum(r["total_paid"] for s in cdata.values() for a in s.values() for z in a.values() for r in z)
+        flat.append({"level": "country", "name": country, "members": c_mem, "payments": c_pay, "total": c_tot})
+        grand["members"] += c_mem; grand["payments"] += c_pay; grand["total"] += c_tot
+        for state in sorted(cdata):
+            sdata = cdata[state]
+            s_mem = sum(len(z) for a in sdata.values() for z in a.values())
+            s_pay = sum(r["payment_count"] for a in sdata.values() for z in a.values() for r in z)
+            s_tot = sum(r["total_paid"] for a in sdata.values() for z in a.values() for r in z)
+            flat.append({"level": "state", "name": state, "members": s_mem, "payments": s_pay, "total": s_tot})
+            for area in sorted(sdata):
+                adata = sdata[area]
+                a_mem = sum(len(z) for z in adata.values())
+                a_pay = sum(r["payment_count"] for z in adata.values() for r in z)
+                a_tot = sum(r["total_paid"] for z in adata.values() for r in z)
+                flat.append({"level": "area", "name": area, "members": a_mem, "payments": a_pay, "total": a_tot})
+                for zone in sorted(adata):
+                    zdata = adata[zone]
+                    z_mem = len(zdata)
+                    z_pay = sum(r["payment_count"] for r in zdata)
+                    z_tot = sum(r["total_paid"] for r in zdata)
+                    flat.append({"level": "zone", "name": zone, "members": z_mem, "payments": z_pay, "total": z_tot})
+                    for r in zdata:
+                        flat.append({"level": "member", "name": f"{r['first_name']} {r['last_name']}", "section": r["section"], "phone": r["phone"], "members": 1, "payments": r["payment_count"], "total": r["total_paid"]})
+    return flat, hierarchy, grand
+
+
+@app.route("/hierarchy-report")
+@login_required
+def hierarchy_report():
+    zone_f = request.args.get("zone", "")
+    area_f = request.args.get("area", "")
+    state_f = request.args.get("state", "")
+    country_f = request.args.get("country", "")
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT DISTINCT zone FROM members WHERE zone IS NOT NULL AND zone != '' ORDER BY zone")
+    zones = [r["zone"] for r in cur.fetchall()]
+    cur.execute("SELECT DISTINCT area FROM members WHERE area IS NOT NULL AND area != '' ORDER BY area")
+    areas = [r["area"] for r in cur.fetchall()]
+    cur.execute("SELECT DISTINCT state_of_origin FROM members WHERE state_of_origin IS NOT NULL AND state_of_origin != '' ORDER BY state_of_origin")
+    states = [r["state_of_origin"] for r in cur.fetchall()]
+    cur.execute("SELECT DISTINCT country FROM members WHERE country IS NOT NULL AND country != '' ORDER BY country")
+    countries = [r["country"] for r in cur.fetchall()]
+    conn.close()
+
+    flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
+    return render_template("hierarchy_report.html", flat=flat, grand=grand,
+                           zones=zones, areas=areas, states=states, countries=countries,
+                           filters={"zone": zone_f, "area": area_f, "state": state_f, "country": country_f})
+
+
+@app.route("/reports/hierarchy/pdf")
+@login_required
+def reports_hierarchy_pdf():
+    zone_f = request.args.get("zone", "")
+    area_f = request.args.get("area", "")
+    state_f = request.args.get("state", "")
+    country_f = request.args.get("country", "")
+    flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key='choir_name'")
+    row = cur.fetchone()
+    choir_name = row["value"] if row else "Choir"
+    cur.execute("SELECT value FROM settings WHERE key='currency'")
+    row = cur.fetchone()
+    currency = row["value"] if row else "$"
+    conn.close()
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+
+    # Header
+    pdf.set_font("Helvetica", "B", 18)
+    pdf.set_text_color(233, 69, 96)
+    pdf.cell(0, 12, f"{choir_name}", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.set_text_color(26, 26, 46)
+    pdf.cell(0, 10, "Hierarchical Report (Zone > Area > State > International)", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 8, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(6)
+
+    # Grand total
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_fill_color(26, 26, 46)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 10, f"  Grand Total: {grand['members']} Members | {grand['payments']} Payments | {currency}{grand['total']:.2f}", fill=True, new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+
+    # Table header
+    col_w = [10, 90, 30, 30, 30]
+    headers = ["#", "Level / Name", "Members", "Payments", "Amount"]
+    pdf.set_font("Helvetica", "B", 9)
+    pdf.set_fill_color(233, 69, 96)
+    pdf.set_text_color(255, 255, 255)
+    for i, h in enumerate(headers):
+        pdf.cell(col_w[i], 8, h, border=1, fill=True, align="C" if i > 1 else "L")
+    pdf.ln()
+
+    # Rows
+    pdf.set_font("Helvetica", "", 8)
+    level_colors = {
+        "country": (15, 52, 96),
+        "state": (26, 26, 46),
+        "area": (22, 160, 133),
+        "zone": (243, 156, 18),
+        "member": (100, 100, 100),
+    }
+    level_prefix = {"country": "  ", "state": "    ", "area": "      ", "zone": "        ", "member": "          "}
+    for idx, item in enumerate(flat, 1):
+        pdf.set_text_color(*level_colors.get(item["level"], (0, 0, 0)))
+        pdf.set_font("Helvetica", "B" if item["level"] != "member" else "", 8)
+        name = level_prefix.get(item["level"], "") + item["name"]
+        pdf.cell(col_w[0], 7, str(idx), border=1, align="C")
+        pdf.cell(col_w[1], 7, name, border=1)
+        pdf.cell(col_w[2], 7, str(item["members"]), border=1, align="C")
+        pdf.cell(col_w[3], 7, str(item["payments"]), border=1, align="C")
+        pdf.cell(col_w[4], 7, f"{currency}{item['total']:.2f}", border=1, align="R")
+        pdf.ln()
+
+    buf = BytesIO()
+    pdf.output(buf)
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype="application/pdf",
+                    headers={"Content-Disposition": f"attachment; filename=hierarchy_report_{datetime.now().strftime('%Y%m%d')}.pdf"})
+
+
+@app.route("/reports/hierarchy/excel")
+@login_required
+def reports_hierarchy_excel():
+    zone_f = request.args.get("zone", "")
+    area_f = request.args.get("area", "")
+    state_f = request.args.get("state", "")
+    country_f = request.args.get("country", "")
+    flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM settings WHERE key='choir_name'")
+    row = cur.fetchone()
+    choir_name = row["value"] if row else "Choir"
+    cur.execute("SELECT value FROM settings WHERE key='currency'")
+    row = cur.fetchone()
+    currency = row["value"] if row else "$"
+    conn.close()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Hierarchy Report"
+
+    # Styles
+    title_font = Font(bold=True, size=16, color="E94560")
+    header_fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    header_font = Font(bold=True, size=10, color="FFFFFF")
+    alt_fill = PatternFill(start_color="F4F6F9", end_color="F4F6F9", fill_type="solid")
+    thin = Side(style="thin", color="D0D7E0")
+
+    ws.merge_cells("A1:E1")
+    ws["A1"] = f"{choir_name} - Hierarchical Report"
+    ws["A1"].font = title_font
+    ws["A1"].alignment = Alignment(horizontal="center")
+
+    ws.merge_cells("A2:E2")
+    ws["A2"] = f"Zone > Area > State > International  |  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    ws["A2"].font = Font(size=9, color="666666")
+    ws["A2"].alignment = Alignment(horizontal="center")
+
+    # Grand total
+    ws.merge_cells("A4:E4")
+    ws["A4"] = f"Grand Total: {grand['members']} Members | {grand['payments']} Payments | {currency}{grand['total']:.2f}"
+    ws["A4"].font = Font(bold=True, size=11, color="FFFFFF")
+    ws["A4"].fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    ws["A4"].alignment = Alignment(horizontal="left")
+
+    # Headers
+    headers = ["#", "Level / Name", "Members", "Payments", "Amount"]
+    for ci, h in enumerate(headers, 1):
+        cell = ws.cell(row=6, column=ci, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+
+    # Data
+    level_prefix = {"country": "  ", "state": "    ", "area": "      ", "zone": "        ", "member": "          "}
+    for ri, item in enumerate(flat, 7):
+        name = level_prefix.get(item["level"], "") + item["name"]
+        vals = [ri - 6, name, item["members"], item["payments"], f"{currency}{item['total']:.2f}"]
+        for ci, v in enumerate(vals, 1):
+            cell = ws.cell(row=ri, column=ci, value=v)
+            cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+            cell.font = Font(bold=(item["level"] != "member"), size=9,
+                             color={"country": "0F3460", "state": "1A1A2E", "area": "16A085", "zone": "F39C12", "member": "555555"}.get(item["level"], "000000"))
+            if ci > 2:
+                cell.alignment = Alignment(horizontal="center")
+        if (ri - 7) % 2:
+            for ci in range(1, 6):
+                ws.cell(row=ri, column=ci).fill = alt_fill
+
+    ws.column_dimensions["A"].width = 6
+    ws.column_dimensions["B"].width = 60
+    ws.column_dimensions["C"].width = 12
+    ws.column_dimensions["D"].width = 12
+    ws.column_dimensions["E"].width = 15
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return Response(buf.getvalue(),
+                    mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=hierarchy_report_{datetime.now().strftime('%Y%m%d')}.xlsx"})
 
 def _export_csv(columns, rows, filename):
     output = io.StringIO()
@@ -912,7 +1200,7 @@ def export_members():
     return _export_csv(
         ["id", "first_name", "last_name", "other_names", "phone", "email", "section", "join_date", "address",
          "dob", "state_of_origin", "lga", "nin_number", "academic_qualification",
-         "country", "passport_number", "notes"],
+         "country", "passport_number", "zone", "area", "notes"],
         rows, "members.csv"
     )
 

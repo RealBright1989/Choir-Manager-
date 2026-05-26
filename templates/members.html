@@ -16,7 +16,7 @@
     <a href="{{ url_for('member_add') }}" class="btn btn-primary">+ Add Member</a>
 </div>
 
-<div class="table-container">
+        <div class="table-container">
     <table>
         <thead>
             <tr>
@@ -36,17 +36,16 @@
                     {% if m.photo %}
                     <img src="{{ url_for('member_photo', filename=m.photo) }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
                     {% else %}
-                    <span style="display:inline-block;width:40px;height:40px;border-radius:50%;background:#eee;text-align:center;line-height:40px;font-size:14px;color:#999;">?</span>
+                    <span class="avatar-placeholder">?</span>
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{{ url_for('member_detail', id=m.id) }}" style="color:#e94560;font-weight:600;text-decoration:none;">{{ m.first_name }} {{ m.last_name }}</a>
-                    {% if m.other_names %}<br><span style="font-size:12px;color:#888;">{{ m.other_names }}</span>{% endif %}
+                    <a href="{{ url_for('member_detail', id=m.id) }}" class="member-link">{{ m.first_name }} {{ m.last_name }}</a>
+                    {% if m.other_names %}<br><span class="member-subtitle">{{ m.other_names }}</span>{% endif %}
                 </td>
                 <td>{{ m.phone or '-' }}</td>
                 <td>{{ m.email or '-' }}</td>
                 <td><span class="badge badge-info">{{ m.section }}</span></td>
-                <td>{{ m.join_date }}</td>
                 <td>{{ settings.currency }}{{ "%.2f"|format(payment_totals.get(m.id, 0)) }}</td>
                 <td class="actions-cell">
                     <a href="{{ url_for('member_edit', id=m.id) }}" class="btn btn-secondary btn-sm">Edit</a>
@@ -54,7 +53,7 @@
                 </td>
             </tr>
             {% else %}
-            <tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">No members registered yet.</td></tr>
+            <tr><td colspan="7" class="empty-table">No members registered yet.</td></tr>
             {% endfor %}
         </tbody>
     </table>
