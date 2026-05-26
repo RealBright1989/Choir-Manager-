@@ -21,7 +21,7 @@
 <div class="dashboard-grid">
     <div class="form-card">
         <h3 style="margin-bottom:16px;">Record Payment</h3>
-        <form method="POST" action="{{ url_for('finance_add') }}">
+        <form method="POST" action="{{ url_for('finance.finance_add') }}">
             <label>Member *</label>
             <select name="member_id" required>
                 <option value="">Select member...</option>
@@ -59,7 +59,7 @@
                     {% endfor %}
                 </select>
                 {% if selected_member %}
-                <a href="{{ url_for('finance') }}" class="btn btn-outline btn-sm">Clear</a>
+                <a href="{{ url_for('finance.finance') }}" class="btn btn-outline btn-sm">Clear</a>
                 {% endif %}
             </form>
         </div>
@@ -72,7 +72,7 @@
                     <td>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
                     <td>{{ p.payment_date }}</td>
                     <td>{{ p.payment_for or '-' }}</td>
-                    <td><a href="{{ url_for('finance_delete', id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this payment?')">Delete</a></td>
+                    <td><a href="{{ url_for('finance.finance_delete', id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this payment?')">Delete</a></td>
                 </tr>
                 {% else %}
                 <tr><td colspan="5" class="empty-table">No payments recorded.</td></tr>

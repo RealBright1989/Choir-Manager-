@@ -13,7 +13,7 @@
         <a href="{{ links.facebook_url }}" target="_blank" class="btn btn-primary">Open Facebook</a>
         {% else %}
         <p style="color:#999;font-size:13px;">No link set</p>
-        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        <a href="{{ url_for('settings_bp.settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
         {% endif %}
     </div>
 
@@ -24,7 +24,7 @@
         <a href="{{ links.youtube_url }}" target="_blank" class="btn btn-danger">Open YouTube</a>
         {% else %}
         <p style="color:#999;font-size:13px;">No link set</p>
-        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        <a href="{{ url_for('settings_bp.settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
         {% endif %}
     </div>
 
@@ -35,7 +35,7 @@
         <a href="{{ links.instagram_url }}" target="_blank" class="btn btn-primary" style="background:#e4405f;">Open Instagram</a>
         {% else %}
         <p style="color:#999;font-size:13px;">No link set</p>
-        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        <a href="{{ url_for('settings_bp.settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
         {% endif %}
     </div>
 
@@ -46,7 +46,7 @@
         <a href="{{ links.tiktok_url }}" target="_blank" class="btn btn-secondary">Open TikTok</a>
         {% else %}
         <p style="color:#999;font-size:13px;">No link set</p>
-        <a href="{{ url_for('settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
+        <a href="{{ url_for('settings_bp.settings') }}" class="btn btn-outline btn-sm">Configure in Settings</a>
         {% endif %}
     </div>
 </div>

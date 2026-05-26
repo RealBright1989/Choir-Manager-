@@ -7,8 +7,8 @@
 
 <!-- Tabs -->
 <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #eef2f6;padding-bottom:0;">
-    <a href="{{ url_for('reports') }}" class="btn {% if section == 'standard' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">Standard Reports</a>
-    <a href="{{ url_for('reports', section='hierarchy') }}" class="btn {% if section == 'hierarchy' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">&#128230; Hierarchy Report (Zone→Area→State→International)</a>
+    <a href="{{ url_for('reports.reports') }}" class="btn {% if section == 'standard' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">Standard Reports</a>
+    <a href="{{ url_for('reports.reports', section='hierarchy') }}" class="btn {% if section == 'hierarchy' %}btn-primary{% else %}btn-outline{% endif %} btn-sm" style="border-radius:10px 10px 0 0;padding:10px 20px;border-bottom:none;">&#128230; Hierarchy Report (Zone→Area→State→International)</a>
 </div>
 
 {% if section == 'hierarchy' %}
@@ -46,15 +46,15 @@
         </div>
         <div style="display:flex;align-items:flex-end;gap:6px;">
             <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
-            <a href="{{ url_for('reports', section='hierarchy') }}" class="btn btn-outline btn-sm">Clear</a>
+            <a href="{{ url_for('reports.reports', section='hierarchy') }}" class="btn btn-outline btn-sm">Clear</a>
         </div>
     </form>
 </div>
 
 <!-- Export Buttons -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-    <a href="{{ url_for('reports_hierarchy_pdf', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-danger btn-sm">&#128196; Download PDF</a>
-    <a href="{{ url_for('reports_hierarchy_excel', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-success btn-sm">&#128230; Export Excel</a>
+    <a href="{{ url_for('reports.reports_hierarchy_pdf', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-danger btn-sm">&#128196; Download PDF</a>
+    <a href="{{ url_for('reports.reports_hierarchy_excel', zone=filters.zone, area=filters.area, state=filters.state, country=filters.country) }}" class="btn btn-success btn-sm">&#128230; Export Excel</a>
 </div>
 
 <!-- Grand Total -->
@@ -99,10 +99,10 @@
 
 <!-- Standard Reports -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-    <a href="{{ url_for('export_members') }}" class="btn btn-secondary btn-sm">&#128230; Export Members</a>
-    <a href="{{ url_for('export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Export Payments</a>
-    <a href="{{ url_for('export_attendance') }}" class="btn btn-secondary btn-sm">&#128230; Export Attendance</a>
-    <a href="{{ url_for('export_backup') }}" class="btn btn-primary btn-sm">&#128230; Full Backup (CSV)</a>
+    <a href="{{ url_for('reports.export_members') }}" class="btn btn-secondary btn-sm">&#128230; Export Members</a>
+    <a href="{{ url_for('reports.export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Export Payments</a>
+    <a href="{{ url_for('reports.export_attendance') }}" class="btn btn-secondary btn-sm">&#128230; Export Attendance</a>
+    <a href="{{ url_for('reports.export_backup') }}" class="btn btn-primary btn-sm">&#128230; Full Backup (CSV)</a>
 </div>
 
 <div class="report-grid">

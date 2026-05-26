@@ -744,19 +744,19 @@
                     <input type="checkbox" id="agreeCheck" onclick="toggleAgreement(this.checked)">
                     <div class="agree-text">
                         <strong>I have read and understood all the guidelines above</strong><br>
-                        I confirm that the information I will provide is accurate, and I agree to abide by the <a class="link" href="{{ url_for('terms') }}" onclick="event.stopPropagation();">Terms of Service</a> and Code of Conduct of {{ settings.choir_name }}.
+                        I confirm that the information I will provide is accurate, and I agree to abide by the <a class="link" href="{{ url_for('landing.terms') }}" onclick="event.stopPropagation();">Terms of Service</a> and Code of Conduct of {{ settings.choir_name }}.
                     </div>
                 </label>
             </div>
 
             <!-- Actions -->
             <div class="action-row">
-                <a href="{{ url_for('landing') }}" class="btn-back">&larr; Back</a>
-                <a href="{{ url_for('member_join') }}" id="proceedBtn" class="btn-proceed">Proceed to Registration &rarr;</a>
+                <a href="{{ url_for('landing.landing') }}" class="btn-back">&larr; Back</a>
+                <a href="{{ url_for('members.member_join') }}" id="proceedBtn" class="btn-proceed">Proceed to Registration &rarr;</a>
             </div>
 
             <div class="footer-note">
-                Already a member? <a href="{{ url_for('login') }}">Sign in to your account</a>
+                Already a member? <a href="{{ url_for('auth.login') }}">Sign in to your account</a>
             </div>
         </div>
     </div>

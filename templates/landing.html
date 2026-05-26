@@ -204,21 +204,21 @@
             <span>{{ settings.choir_name }}</span>
         </div>
         <div>
-            <a href="{{ url_for('login') }}" class="btn btn-primary btn-sm" style="text-decoration:none;">Login</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm" style="text-decoration:none;">Login</a>
         </div>
     </header>
 
     <section class="hero">
         <h1>Welcome to <span>{{ settings.choir_name }}</span></h1>
         <p>Manage your choir members, track attendance, record payments, upload songs, and generate reports — all in one place.</p>
-        <a href="{{ url_for('join_guidelines') }}" class="btn-hero">Join the Choir</a>
-        <a href="{{ url_for('login') }}" class="btn-hero-secondary">Sign In</a>
+        <a href="{{ url_for('landing.join_guidelines') }}" class="btn-hero">Join the Choir</a>
+        <a href="{{ url_for('auth.login') }}" class="btn-hero-secondary">Sign In</a>
         <div class="links-row">
-            <a href="{{ url_for('signup') }}">System User Registration</a>
+            <a href="{{ url_for('auth.signup') }}">System User Registration</a>
             <span>|</span>
-            <a href="{{ url_for('user_manual') }}">&#128214; User Manual</a>
+            <a href="{{ url_for('landing.user_manual') }}">&#128214; User Manual</a>
             <span>|</span>
-            <a href="{{ url_for('terms') }}">Terms of Service</a>
+            <a href="{{ url_for('landing.terms') }}">Terms of Service</a>
         </div>
     </section>
 
@@ -310,9 +310,9 @@
     <footer class="landing-footer">
         &copy; {{ now().year }} {{ settings.choir_name }}. All rights reserved. Powered by Choir Management System.
         <br>
-        <a href="{{ url_for('terms') }}">Terms of Service</a>
+        <a href="{{ url_for('landing.terms') }}">Terms of Service</a>
         &middot;
-        <a href="{{ url_for('user_manual') }}">User Manual</a>
+        <a href="{{ url_for('landing.user_manual') }}">User Manual</a>
     </footer>
 </body>
 </html>

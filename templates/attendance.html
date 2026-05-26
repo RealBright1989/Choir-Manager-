@@ -10,12 +10,12 @@
         <label style="font-weight:600;">Date:</label>
         <input type="date" name="date" value="{{ selected_date }}">
         <button type="submit" class="btn btn-secondary btn-sm">Load</button>
-        <a href="{{ url_for('attendance') }}" class="btn btn-outline btn-sm">Today</a>
+        <a href="{{ url_for('attendance.attendance') }}" class="btn btn-outline btn-sm">Today</a>
     </form>
 </div>
 
 <div class="form-card" style="max-width:100%;">
-    <form method="POST" action="{{ url_for('attendance_take') }}">
+    <form method="POST" action="{{ url_for('attendance.attendance_take') }}">
         <input type="hidden" name="date" value="{{ selected_date }}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h3 style="font-size:16px;">Attendance for {{ selected_date }}</h3>
@@ -55,7 +55,7 @@
                 </select>
             </div>
             {% else %}
-            <p class="empty-table" style="grid-column:1/-1;">No members registered yet. <a href="{{ url_for('member_add') }}" style="color:#e94560;">Add members first.</a></p>
+            <p class="empty-table" style="grid-column:1/-1;">No members registered yet. <a href="{{ url_for('members.member_add') }}" style="color:#e94560;">Add members first.</a></p>
             {% endfor %}
         </div>
         {% endif %}
@@ -71,7 +71,7 @@
             {% for d in available_dates %}
             <tr>
                 <td>{{ d }}</td>
-                <td><a href="{{ url_for('attendance', date=d) }}" class="btn btn-outline btn-sm">View</a></td>
+                <td><a href="{{ url_for('attendance.attendance', date=d) }}" class="btn btn-outline btn-sm">View</a></td>
             </tr>
             {% endfor %}
         </tbody>

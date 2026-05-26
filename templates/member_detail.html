@@ -2,7 +2,7 @@
 {% block content %}
 <div class="member-profile-card">
     {% if member.photo %}
-    <img src="{{ url_for('member_photo', filename=member.photo) }}" alt="Photo">
+    <img src="{{ url_for('members.member_photo', filename=member.photo) }}" alt="Photo">
     {% else %}
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Photo" style="opacity:0.3;">
     {% endif %}
@@ -40,8 +40,8 @@
 </div>
 
 <div class="btn-group" style="margin-bottom:20px;">
-    <a href="{{ url_for('member_edit', id=member.id) }}" class="btn btn-secondary">Edit Member</a>
-    <a href="{{ url_for('finance', member_id=member.id) }}" class="btn btn-primary">View Payments</a>
+    <a href="{{ url_for('members.member_edit', id=member.id) }}" class="btn btn-secondary">Edit Member</a>
+    <a href="{{ url_for('finance.finance', member_id=member.id) }}" class="btn btn-primary">View Payments</a>
 </div>
 
 <div class="table-container">

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.db-journal
+*.db-wal
+.env
+.venv/
+venv/
+.git/
+.gitignore
+ngrok.exe
+gh.exe
+flask_*.txt

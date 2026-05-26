@@ -17,33 +17,36 @@
             <p>Management System</p>
         </div>
         <nav>
-            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+            <a href="{{ url_for('general.dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
                 <span class="icon">&#9632;</span> Dashboard
             </a>
-            <a href="{{ url_for('members') }}" class="{{ 'active' if request.endpoint in ('members','member_add','member_edit','member_detail') else '' }}">
+            <a href="{{ url_for('members.members') }}" class="{{ 'active' if request.endpoint in ('members','member_add','member_edit','member_detail') else '' }}">
                 <span class="icon">&#128101;</span> Members
             </a>
-            <a href="{{ url_for('attendance') }}" class="{{ 'active' if request.endpoint == 'attendance' else '' }}">
+            <a href="{{ url_for('attendance.attendance') }}" class="{{ 'active' if request.endpoint == 'attendance' else '' }}">
                 <span class="icon">&#9989;</span> Attendance
             </a>
-            <a href="{{ url_for('finance') }}" class="{{ 'active' if request.endpoint == 'finance' else '' }}">
+            <a href="{{ url_for('finance.finance') }}" class="{{ 'active' if request.endpoint == 'finance' else '' }}">
                 <span class="icon">&#128176;</span> Finance
             </a>
-            <a href="{{ url_for('reports') }}" class="{{ 'active' if request.endpoint == 'reports' else '' }}">
+            <a href="{{ url_for('reports.reports') }}" class="{{ 'active' if request.endpoint == 'reports' else '' }}">
                 <span class="icon">&#128200;</span> Reports
             </a>
-            <a href="{{ url_for('songs') }}" class="{{ 'active' if request.endpoint in ('songs','song_add') else '' }}">
+            <a href="{{ url_for('songs.songs') }}" class="{{ 'active' if request.endpoint in ('songs','song_add') else '' }}">
                 <span class="icon">&#9835;</span> Songs
             </a>
-            <a href="{{ url_for('social') }}" class="{{ 'active' if request.endpoint == 'social' else '' }}">
+            <a href="{{ url_for('social.social') }}" class="{{ 'active' if request.endpoint == 'social' else '' }}">
                 <span class="icon">&#128279;</span> Social
             </a>
             {% if session.get('role') == 'admin' %}
-            <a href="{{ url_for('users') }}" class="{{ 'active' if request.endpoint == 'users' else '' }}">
+            <a href="{{ url_for('users_bp.users') }}" class="{{ 'active' if request.endpoint == 'users_bp.users' else '' }}">
                 <span class="icon">&#128736;</span> Users
             </a>
+            <a href="{{ url_for('general.audit_log') }}" class="{{ 'active' if request.endpoint == 'general.audit_log' else '' }}">
+                <span class="icon">&#128214;</span> Audit Log
+            </a>
             {% endif %}
-            <a href="{{ url_for('settings') }}" class="{{ 'active' if request.endpoint == 'settings' else '' }}">
+            <a href="{{ url_for('settings_bp.settings') }}" class="{{ 'active' if request.endpoint == 'settings' else '' }}">
                 <span class="icon">&#9881;</span> Settings
             </a>
         </nav>
@@ -53,7 +56,7 @@
                 Signed in as <strong>{{ session.get('username', '') }}</strong>
                 <span>{{ session.get('role', '') }}</span>
             </div>
-            <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
         </div>
     </aside>
 

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Audit Log</h1>
+    <p>Record of all create, update, and delete actions</p>
+</div>
+
+<div class="table-card" style="padding:0;">
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Entity</th>
+                <th>ID</th>
+                <th>Details</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td style="white-space:nowrap;font-size:12px;">{{ log.timestamp }}</td>
+                <td>{{ log.username }}</td>
+                <td>
+                    <span class="badge badge-{{ 'success' if log.action == 'create' else 'warning' if log.action == 'update' else 'danger' }}">
+                        {{ log.action }}
+                    </span>
+                </td>
+                <td>{{ log.entity_type }}</td>
+                <td>{{ log.entity_id or '-' }}</td>
+                <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ log.details or '' }}</td>
+                <td style="font-size:12px;color:#888;">{{ log.ip_address }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:#888;padding:30px;">No audit records yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<div style="display:flex;justify-content:center;gap:8px;margin-top:20px;">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('general.audit_log', page=pagination.prev_num) }}" class="btn btn-secondary">Previous</a>
+    {% endif %}
+    <span style="padding:8px 12px;color:#888;font-size:14px;">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+    {% if pagination.has_next %}
+    <a href="{{ url_for('general.audit_log', page=pagination.next_num) }}" class="btn btn-secondary">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

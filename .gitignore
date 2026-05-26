@@ -6,8 +6,10 @@ song_uploads/
 member_photos/
 ngrok.exe
 .env
+
 *.egg-info/
 dist/
 build/
 .venv/
 venv/
+flask_*.txt

@@ -10,10 +10,10 @@
         <input type="text" name="search" placeholder="Search by name or phone..." value="{{ search }}">
         <button type="submit" class="btn btn-secondary btn-sm">Search</button>
         {% if search %}
-        <a href="{{ url_for('members') }}" class="btn btn-outline btn-sm">Clear</a>
+        <a href="{{ url_for('members.members') }}" class="btn btn-outline btn-sm">Clear</a>
         {% endif %}
     </form>
-    <a href="{{ url_for('member_add') }}" class="btn btn-primary">+ Add Member</a>
+    <a href="{{ url_for('members.member_add') }}" class="btn btn-primary">+ Add Member</a>
 </div>
 
         <div class="table-container">
@@ -34,13 +34,13 @@
             <tr>
                 <td>
                     {% if m.photo %}
-                    <img src="{{ url_for('member_photo', filename=m.photo) }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
+                    <img src="{{ url_for('members.member_photo', filename=m.photo) }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
                     {% else %}
                     <span class="avatar-placeholder">?</span>
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{{ url_for('member_detail', id=m.id) }}" class="member-link">{{ m.first_name }} {{ m.last_name }}</a>
+                    <a href="{{ url_for('members.member_detail', id=m.id) }}" class="member-link">{{ m.first_name }} {{ m.last_name }}</a>
                     {% if m.other_names %}<br><span class="member-subtitle">{{ m.other_names }}</span>{% endif %}
                 </td>
                 <td>{{ m.phone or '-' }}</td>
@@ -48,8 +48,8 @@
                 <td><span class="badge badge-info">{{ m.section }}</span></td>
                 <td>{{ settings.currency }}{{ "%.2f"|format(payment_totals.get(m.id, 0)) }}</td>
                 <td class="actions-cell">
-                    <a href="{{ url_for('member_edit', id=m.id) }}" class="btn btn-secondary btn-sm">Edit</a>
-                    <a href="{{ url_for('member_delete', id=m.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this member?')">Delete</a>
+                    <a href="{{ url_for('members.member_edit', id=m.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                    <a href="{{ url_for('members.member_delete', id=m.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this member?')">Delete</a>
                 </td>
             </tr>
             {% else %}

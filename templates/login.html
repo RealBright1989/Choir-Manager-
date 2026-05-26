@@ -201,7 +201,7 @@
 
                 <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;font-size:13px;color:#666;margin-top:12px;">
                     <input type="checkbox" id="agreeTerms" onchange="document.getElementById('loginBtn').disabled=!this.checked" style="margin-top:2px;width:15px;height:15px;accent-color:#e94560;">
-                    <span>I agree to the <a href="{{ url_for('terms') }}" style="color:#e94560;text-decoration:underline;">Terms of Service</a></span>
+                    <span>I agree to the <a href="{{ url_for('landing.terms') }}" style="color:#e94560;text-decoration:underline;">Terms of Service</a></span>
                 </label>
 
                 <input type="hidden" name="csrf_token" value="{{ csrf() }}">
@@ -209,8 +209,12 @@
                 <button type="submit" id="loginBtn" class="btn-login" disabled>Sign In</button>
             </form>
 
+            <div style="text-align:center;margin-top:14px;">
+                <a href="{{ url_for('auth.forgot_password') }}" style="color:#888;font-size:13px;text-decoration:none;">Forgot password?</a>
+            </div>
+
             <div class="back-link">
-                <a href="{{ url_for('landing') }}">&larr; Back to Home</a>
+                <a href="{{ url_for('landing.landing') }}">&larr; Back to Home</a>
             </div>
         </div>
     </div>

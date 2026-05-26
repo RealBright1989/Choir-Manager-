@@ -57,7 +57,7 @@
                 <td>{{ u.created_at }}</td>
                 <td>
                     {% if u.id != session.user_id %}
-                    <a href="{{ url_for('user_delete', id=u.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete user {{ u.username }}?')">Delete</a>
+                    <a href="{{ url_for('users_bp.user_delete', id=u.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete user {{ u.username }}?')">Delete</a>
                     {% else %}
                     <span style="color:#999;font-size:13px;">(you)</span>
                     {% endif %}
