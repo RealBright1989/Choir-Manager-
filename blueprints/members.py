@@ -1,8 +1,11 @@
 import os
 from datetime import date, datetime
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_from_directory
+from io import BytesIO
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_from_directory, Response, current_app
+from werkzeug.security import generate_password_hash
 from utils import login_required, validate_csrf, validate_required, validate_email, generate_otp, send_otp_sms, secrets, log_audit
-from models import db, Member, Payment, Attendance, PhoneVerification
+from models import db, Member, Payment, Attendance, PhoneVerification, User, Setting
+from fpdf import FPDF
 
 bp = Blueprint("members", __name__)
 PHOTO_FOLDER = "member_photos"
@@ -14,10 +17,6 @@ def member_join():
         if not validate_csrf():
             return redirect(url_for("members.member_join"))
         phone = request.form.get("phone", "").strip()
-        pv = PhoneVerification.query.filter_by(phone=phone, verified=1).first()
-        if not pv:
-            flash("Please verify your phone number first.", "danger")
-            return redirect(url_for("members.member_join"))
         fn = request.form.get("first_name", "").strip()
         ln = request.form.get("last_name", "").strip()
         other_names = request.form.get("other_names", "").strip()
@@ -42,6 +41,14 @@ def member_join():
         if email:
             e = validate_email(email)
             if e: errs.append(e)
+        password = request.form.get("password", "").strip()
+        confirm = request.form.get("confirm_password", "").strip()
+        if not password:
+            errs.append("Password is required")
+        elif password != confirm:
+            errs.append("Passwords do not match")
+        elif len(password) < 4:
+            errs.append("Password must be at least 4 characters")
         photo_filename = ""
         if "photo" in request.files:
             f = request.files["photo"]
@@ -59,11 +66,19 @@ def member_join():
                     photo=photo_filename, notes="Self-registered via join form")
         db.session.add(m)
         db.session.flush()
+        username = email if email else f"user_{phone.replace('+','')}"
+        if User.query.filter_by(username=username).first():
+            db.session.rollback()
+            flash("A user with this email/phone already exists. Please sign in instead.", "danger")
+            return redirect(url_for("members.member_join"))
+        u = User(username=username, password_hash=generate_password_hash(password), role="viewer",
+                 created_at=date.today().strftime("%Y-%m-%d"), email=email)
+        db.session.add(u)
         PhoneVerification.query.filter_by(phone=phone).delete()
         db.session.commit()
         log_audit("create", "member", m.id, f"Self-registration: {fn} {ln}")
-        flash("Registration submitted successfully!", "success")
-        return redirect(url_for("landing.landing"))
+        flash("Registration submitted successfully! You can now sign in.", "success")
+        return redirect(url_for("auth.login"))
     return render_template("member_join.html")
 
 
@@ -239,4 +254,140 @@ def member_detail(id):
         return redirect(url_for("members.members"))
     payments = Payment.query.filter_by(member_id=id).order_by(Payment.payment_date.desc()).all()
     attendance_records = Attendance.query.filter_by(member_id=id).order_by(Attendance.date.desc()).all()
-    return render_template("member_detail.html", member=member, payments=payments, attendance=attendance_records)
+    settings = Setting.query.first()
+    return render_template("member_detail.html", member=member, payments=payments, attendance=attendance_records, settings=settings)
+
+
+@bp.route("/members/<int:id>/pdf")
+@login_required
+def member_pdf(id):
+    member = db.session.get(Member, id)
+    if not member:
+        flash("Member not found.", "danger")
+        return redirect(url_for("members.members"))
+    payments = Payment.query.filter_by(member_id=id).order_by(Payment.payment_date.desc()).all()
+    attendance_records = Attendance.query.filter_by(member_id=id).order_by(Attendance.date.desc()).all()
+    curr = (db.session.get(Setting, "currency").value if db.session.get(Setting, "currency") else "$") + " "
+    total_paid = sum(p.amount for p in payments)
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 18)
+    logo_path = current_app.root_path + "/static/logo_watermark.png"
+    if os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=8, w=16)
+
+    pdf.ln(6)
+    pdf.set_y(16)
+    pdf.cell(0, 10, f"{member.first_name} {member.last_name}", align="R")
+    pdf.ln(14)
+
+    if member.photo:
+        photo_path = os.path.join(current_app.root_path, "member_photos", member.photo)
+        if os.path.exists(photo_path):
+            try:
+                pdf.image(photo_path, x=82, y=30, w=46, h=58)
+            except Exception:
+                pass
+            pdf.ln(60)
+        else:
+            pdf.ln(10)
+    else:
+        pdf.ln(10)
+
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_fill_color(233, 69, 96)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 8, "  PERSONAL INFORMATION", fill=True)
+    pdf.ln(10)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", "", 9)
+
+    fields = [
+        ("Section", member.section),
+        ("Phone", member.phone),
+        ("Email", member.email or "-"),
+        ("Date of Birth", member.dob or "-"),
+        ("Country of Origin", member.country or "Nigeria"),
+        ("State of Origin", member.state_of_origin or "-"),
+        ("LGA", member.lga or "-"),
+        ("NIN", member.nin_number or "-"),
+    ]
+    is_nigeria = not member.country or member.country.lower() == "nigeria"
+    if not is_nigeria:
+        fields.append(("Passport / ID", member.passport_number or "-"))
+    fields += [
+        ("Qualification", member.academic_qualification or "-"),
+        ("Zone", member.zone or "-"),
+        ("Area", member.area or "-"),
+        ("Joined", member.join_date),
+    ]
+    for label, value in fields:
+        pdf.cell(50, 6, f"  {label}:")
+        pdf.cell(0, 6, value)
+        pdf.ln(6)
+
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_fill_color(233, 69, 96)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 8, "  FINANCIAL SUMMARY", fill=True)
+    pdf.ln(10)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", "", 9)
+    pdf.cell(50, 6, "  Total Paid:")
+    pdf.cell(0, 6, f"{curr}{total_paid:.2f}")
+    pdf.ln(6)
+    pdf.cell(50, 6, "  Payments Made:")
+    pdf.cell(0, 6, str(len(payments)))
+    pdf.ln(10)
+
+    if payments:
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_fill_color(26, 26, 46)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(0, 7, "  PAYMENT HISTORY", fill=True)
+        pdf.ln(8)
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_fill_color(240, 240, 240)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(35, 6, "Date", border=1, fill=True)
+        pdf.cell(25, 6, "Amount", border=1, fill=True)
+        pdf.cell(50, 6, "For", border=1, fill=True)
+        pdf.cell(0, 6, "Notes", border=1, fill=True)
+        pdf.ln()
+        pdf.set_font("Helvetica", "", 8)
+        for p in payments:
+            pdf.cell(35, 5, p.payment_date, border=1)
+            pdf.cell(25, 5, f"{curr}{p.amount:.2f}", border=1)
+            pdf.cell(50, 5, (p.payment_for or "-")[:28], border=1)
+            pdf.cell(0, 5, (p.notes or "-")[:40], border=1)
+            pdf.ln()
+
+    if attendance_records:
+        pdf.ln(4)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_fill_color(26, 26, 46)
+        pdf.set_text_color(255, 255, 255)
+        pdf.cell(0, 7, "  ATTENDANCE HISTORY", fill=True)
+        pdf.ln(8)
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_fill_color(240, 240, 240)
+        pdf.set_text_color(0, 0, 0)
+        pdf.cell(35, 6, "Date", border=1, fill=True)
+        pdf.cell(25, 6, "Status", border=1, fill=True)
+        pdf.cell(0, 6, "Notes", border=1, fill=True)
+        pdf.ln()
+        pdf.set_font("Helvetica", "", 8)
+        for a in attendance_records:
+            pdf.cell(35, 5, a.date, border=1)
+            pdf.cell(25, 5, a.status, border=1)
+            pdf.cell(0, 5, (a.notes or "-")[:60], border=1)
+            pdf.ln()
+
+    buf = BytesIO()
+    pdf.output(buf)
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype="application/pdf",
+                    headers={"Content-Disposition": f"attachment; filename={member.first_name}_{member.last_name}_profile.pdf"})

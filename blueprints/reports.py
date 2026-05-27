@@ -1,9 +1,16 @@
 from datetime import datetime, date
-from flask import Blueprint, render_template, request, Response
-from utils import login_required, export_csv, get_hierarchical_report, generate_hierarchy_pdf, generate_hierarchy_excel
+from flask import Blueprint, render_template, request, Response, current_app
+from utils import login_required, export_excel, export_pdf, get_hierarchical_report, generate_hierarchy_pdf, generate_hierarchy_excel
 from models import db, Member, Payment, Attendance, Setting, Song, User
-import csv as csv_mod
-import io as io_mod
+from io import BytesIO
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+
+
+def _paths():
+    root = current_app.root_path
+    return root + "/static/logo_watermark.png"
 
 bp = Blueprint("reports", __name__)
 
@@ -50,9 +57,32 @@ def reports(section="standard"):
 @login_required
 def export_members():
     rows = Member.query.order_by(Member.last_name, Member.first_name).all()
-    return export_csv(["id", "first_name", "last_name", "other_names", "phone", "email", "section", "join_date",
-                       "address", "dob", "state_of_origin", "lga", "nin_number", "academic_qualification",
-                       "country", "passport_number", "zone", "area", "notes"], rows, "members.csv")
+    headers = ["id", "First Name", "Last Name", "Other Names", "Phone", "Email", "Section", "Join Date",
+               "Address", "DOB", "State of Origin", "LGA", "NIN", "Qualification",
+               "Country", "Passport No", "Zone", "Area", "Notes"]
+    data = []
+    for m in rows:
+        data.append((m.id, m.first_name, m.last_name, m.other_names or "", m.phone or "", m.email or "",
+                     m.section, m.join_date, m.address or "", m.dob or "", m.state_of_origin or "",
+                     m.lga or "", m.nin_number or "", m.academic_qualification or "", m.country or "",
+                     m.passport_number or "", m.zone or "", m.area or "", m.notes or ""))
+    buf = export_excel("Members Export", headers, data, "members.xlsx", logo_path=_paths()[0])
+    return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=members_{date.today().strftime('%Y%m%d')}.xlsx"})
+
+
+@bp.route("/export/members/pdf")
+@login_required
+def export_members_pdf():
+    rows = Member.query.order_by(Member.last_name, Member.first_name).all()
+    headers = ["ID", "First Name", "Last Name", "Phone", "Email", "Section", "Join Date", "DOB", "State", "Country"]
+    data = []
+    for m in rows:
+        data.append((m.id, m.first_name, m.last_name, m.phone or "", m.email or "",
+                     m.section, m.join_date, m.dob or "", m.state_of_origin or "", m.country or "Nigeria"))
+    buf = export_pdf("Members Report", headers, data, "members.pdf", logo_path=_paths())
+    return Response(buf.getvalue(), mimetype="application/pdf",
+                    headers={"Content-Disposition": f"attachment; filename=members_{date.today().strftime('%Y%m%d')}.pdf"})
 
 
 @bp.route("/export/payments")
@@ -62,8 +92,25 @@ def export_payments():
         db.select(Payment.id, Member.first_name, Member.last_name, Payment.amount, Payment.payment_date, Payment.payment_for, Payment.notes)
         .join(Member).order_by(Payment.payment_date.desc())
     ).all()
-    return export_csv(["id", "first_name", "last_name", "amount", "payment_date", "payment_for", "notes"],
-                      rows, "payments.csv")
+    headers = ["id", "First Name", "Last Name", "Amount", "Date", "Payment For", "Notes"]
+    data = [(r.id, r.first_name, r.last_name, float(r.amount), r.payment_date, r.payment_for or "", r.notes or "") for r in rows]
+    buf = export_excel("Payments Export", headers, data, "payments.xlsx", logo_path=_paths()[0])
+    return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=payments_{date.today().strftime('%Y%m%d')}.xlsx"})
+
+
+@bp.route("/export/payments/pdf")
+@login_required
+def export_payments_pdf():
+    rows = db.session.execute(
+        db.select(Payment.id, Member.first_name, Member.last_name, Payment.amount, Payment.payment_date, Payment.payment_for, Payment.notes)
+        .join(Member).order_by(Payment.payment_date.desc())
+    ).all()
+    headers = ["ID", "First Name", "Last Name", "Amount", "Date", "For", "Notes"]
+    data = [(r.id, r.first_name, r.last_name, r.amount, r.payment_date, r.payment_for or "", r.notes or "") for r in rows]
+    buf = export_pdf("Payments Report", headers, data, "payments.pdf", logo_path=_paths())
+    return Response(buf.getvalue(), mimetype="application/pdf",
+                    headers={"Content-Disposition": f"attachment; filename=payments_{date.today().strftime('%Y%m%d')}.pdf"})
 
 
 @bp.route("/export/attendance")
@@ -73,63 +120,112 @@ def export_attendance():
         db.select(Attendance.id, Member.first_name, Member.last_name, Attendance.date, Attendance.status, Attendance.notes)
         .join(Member).order_by(Attendance.date.desc())
     ).all()
-    return export_csv(["id", "first_name", "last_name", "date", "status", "notes"], rows, "attendance.csv")
+    headers = ["id", "First Name", "Last Name", "Date", "Status", "Notes"]
+    data = [(r.id, r.first_name, r.last_name, r.date, r.status, r.notes or "") for r in rows]
+    buf = export_excel("Attendance Export", headers, data, "attendance.xlsx", logo_path=_paths()[0])
+    return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=attendance_{date.today().strftime('%Y%m%d')}.xlsx"})
+
+
+@bp.route("/export/attendance/pdf")
+@login_required
+def export_attendance_pdf():
+    rows = db.session.execute(
+        db.select(Attendance.id, Member.first_name, Member.last_name, Attendance.date, Attendance.status, Attendance.notes)
+        .join(Member).order_by(Attendance.date.desc())
+    ).all()
+    headers = ["ID", "First Name", "Last Name", "Date", "Status", "Notes"]
+    data = [(r.id, r.first_name, r.last_name, r.date, r.status, r.notes or "") for r in rows]
+    buf = export_pdf("Attendance Report", headers, data, "attendance.pdf", logo_path=_paths())
+    return Response(buf.getvalue(), mimetype="application/pdf",
+                    headers={"Content-Disposition": f"attachment; filename=attendance_{date.today().strftime('%Y%m%d')}.pdf"})
 
 
 @bp.route("/export/backup")
 @login_required
 def export_backup():
-    output = io_mod.StringIO()
+    wb = Workbook()
+    thin = Border(
+        left=Side(style="thin", color="D0D7E0"),
+        right=Side(style="thin", color="D0D7E0"),
+        top=Side(style="thin", color="D0D7E0"),
+        bottom=Side(style="thin", color="D0D7E0")
+    )
+    header_fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    header_font = Font(bold=True, size=10, color="FFFFFF")
+
+    def write_sheet(ws, title, headers, rows):
+        ws.title = title[:31]
+        uc = [h.upper() for h in headers]
+        for ci, h in enumerate(uc, 1):
+            cell = ws.cell(row=1, column=ci, value=h)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.border = thin
+        for ri, row in enumerate(rows, 2):
+            for ci, val in enumerate(row, 1):
+                cell = ws.cell(row=ri, column=ci, value=val)
+                cell.border = thin
+                cell.font = Font(size=9)
+                if isinstance(val, float):
+                    cell.number_format = '#,##0.00'
+        for ci, h in enumerate(headers, 1):
+            ws.column_dimensions[get_column_letter(ci)].width = max(len(h) + 2, 14)
+
     members = Member.query.all()
     if members:
-        cols = ["id", "first_name", "last_name", "other_names", "phone", "email", "section", "join_date", "address",
-                "dob", "state_of_origin", "lga", "nin_number", "academic_qualification", "country",
-                "passport_number", "photo", "zone", "area", "notes"]
-        output.write("--- members ---\n")
-        csv_mod.writer(output).writerow(cols)
+        cols = ["ID", "First Name", "Last Name", "Other Names", "Phone", "Email", "Section", "Join Date",
+                "Address", "DOB", "State", "LGA", "NIN", "Qualification", "Country", "Passport No",
+                "Photo", "Zone", "Area", "Notes"]
+        data = []
         for m in members:
-            csv_mod.writer(output).writerow([getattr(m, c, "") or "" for c in cols])
-        output.write("\n")
+            data.append(tuple(getattr(m, c.lower().replace(" ", "_").replace(".",""), "") or "" for c in
+                              ["ID", "First Name", "Last Name", "Other Names", "Phone", "Email", "Section",
+                               "Join Date", "Address", "DOB", "State", "LGA", "NIN", "Qualification",
+                               "Country", "Passport No", "Photo", "Zone", "Area", "Notes"]))
+        write_sheet(wb.active, "Members", cols, data)
+
     payments = Payment.query.all()
     if payments:
-        cols = ["id", "member_id", "amount", "payment_date", "payment_for", "notes"]
-        output.write("--- payments ---\n")
-        csv_mod.writer(output).writerow(cols)
-        for p in payments:
-            csv_mod.writer(output).writerow([getattr(p, c, "") or "" for c in cols])
-        output.write("\n")
+        ws = wb.create_sheet()
+        cols = ["ID", "Member ID", "Amount", "Date", "For", "Notes"]
+        data = [(p.id, p.member_id, p.amount, p.payment_date, p.payment_for or "", p.notes or "") for p in payments]
+        write_sheet(ws, "Payments", cols, data)
+
     attendance = Attendance.query.all()
     if attendance:
-        cols = ["id", "member_id", "date", "status", "notes"]
-        output.write("--- attendance ---\n")
-        csv_mod.writer(output).writerow(cols)
-        for a in attendance:
-            csv_mod.writer(output).writerow([getattr(a, c, "") or "" for c in cols])
-        output.write("\n")
-    songs = db.session.query(Song).all()
+        ws = wb.create_sheet()
+        cols = ["ID", "Member ID", "Date", "Status", "Notes"]
+        data = [(a.id, a.member_id, a.date, a.status, a.notes or "") for a in attendance]
+        write_sheet(ws, "Attendance", cols, data)
+
+    songs = Song.query.all()
     if songs:
-        cols = ["id", "title", "composer", "lyrics", "audio_file", "upload_date", "notes"]
-        output.write("--- songs ---\n")
-        csv_mod.writer(output).writerow(cols)
-        for s in songs:
-            csv_mod.writer(output).writerow([getattr(s, c, "") or "" for c in cols])
-        output.write("\n")
+        ws = wb.create_sheet()
+        cols = ["ID", "Title", "Composer", "Lyrics", "Audio File", "Upload Date", "Notes"]
+        data = [(s.id, s.title, s.composer or "", s.lyrics or "", s.audio_file or "", s.upload_date, s.notes or "") for s in songs]
+        write_sheet(ws, "Songs", cols, data)
+
     settings = Setting.query.all()
     if settings:
-        output.write("--- settings ---\n")
-        csv_mod.writer(output).writerow(["key", "value"])
-        for s in settings:
-            csv_mod.writer(output).writerow([s.key, s.value or ""])
-        output.write("\n")
-    users = db.session.query(User).all()
+        ws = wb.create_sheet()
+        cols = ["Key", "Value"]
+        data = [(s.key, s.value or "") for s in settings]
+        write_sheet(ws, "Settings", cols, data)
+
+    users = User.query.all()
     if users:
-        cols = ["id", "username", "role", "created_at"]
-        output.write("--- users ---\n")
-        csv_mod.writer(output).writerow(cols)
-        for u in users:
-            csv_mod.writer(output).writerow([getattr(u, c, "") or "" for c in cols])
-    return Response(output.getvalue(), mimetype="text/csv",
-                    headers={"Content-Disposition": f"attachment; filename=choir_full_backup_{date.today().strftime('%Y%m%d')}.csv"})
+        ws = wb.create_sheet()
+        cols = ["ID", "Username", "Role", "Created At"]
+        data = [(u.id, u.username, u.role, u.created_at) for u in users]
+        write_sheet(ws, "Users", cols, data)
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    headers={"Content-Disposition": f"attachment; filename=choir_full_backup_{date.today().strftime('%Y%m%d')}.xlsx"})
 
 
 @bp.route("/reports/hierarchy/pdf")
@@ -142,7 +238,7 @@ def reports_hierarchy_pdf():
     flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
     choir_name = db.session.get(Setting, "choir_name").value if db.session.get(Setting, "choir_name") else "Choir"
     currency = db.session.get(Setting, "currency").value if db.session.get(Setting, "currency") else "$"
-    buf = generate_hierarchy_pdf(flat, grand, choir_name, currency)
+    buf = generate_hierarchy_pdf(flat, grand, choir_name, currency, logo_path=_paths())
     return Response(buf.getvalue(), mimetype="application/pdf",
                     headers={"Content-Disposition": f"attachment; filename=hierarchy_report_{datetime.now().strftime('%Y%m%d')}.pdf"})
 
@@ -157,6 +253,6 @@ def reports_hierarchy_excel():
     flat, hierarchy, grand = get_hierarchical_report(zone_f, area_f, state_f, country_f)
     choir_name = db.session.get(Setting, "choir_name").value if db.session.get(Setting, "choir_name") else "Choir"
     currency = db.session.get(Setting, "currency").value if db.session.get(Setting, "currency") else "$"
-    buf = generate_hierarchy_excel(flat, grand, choir_name, currency)
+    buf = generate_hierarchy_excel(flat, grand, choir_name, currency, logo_path=_paths())
     return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": f"attachment; filename=hierarchy_report_{datetime.now().strftime('%Y%m%d')}.xlsx"})

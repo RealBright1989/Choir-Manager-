@@ -15,7 +15,7 @@ def test_finance_list(client):
 
 def test_add_payment(client):
     login(client)
-    rv = client.post("/finance/add", data={
+    rv = client.post("/finance/income/add", data={
         "member_id": 1,
         "amount": 50.00,
         "payment_date": "2026-05-26",

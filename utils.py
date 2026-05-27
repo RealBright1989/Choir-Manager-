@@ -11,6 +11,8 @@ from io import BytesIO
 from fpdf import FPDF
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from openpyxl.drawing.image import Image as XlImage
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -269,16 +271,20 @@ def get_hierarchical_report(zone_filter="", area_filter="", state_filter="", cou
                     z_tot = sum(tp for _, tp, _ in zdata)
                     flat.append({"level": "zone", "name": zone, "members": z_mem, "payments": z_pay, "total": z_tot})
                     for m, tp, pc in zdata:
-                        flat.append({"level": "member", "name": f"{m.first_name} {m.last_name}", "section": m.section, "phone": m.phone, "members": 1, "payments": pc, "total": tp})
+                        flat.append({"level": "member", "name": f"{m.first_name} {m.last_name}", "section": m.section, "phone": m.phone or "", "dob": m.dob or "", "members": 1, "payments": pc, "total": tp})
     return flat, hierarchy, grand
 
 
 # ─── PDF Report Helper ─────────────────────────────────────────────
 
-def generate_hierarchy_pdf(flat, grand, choir_name, currency):
+def generate_hierarchy_pdf(flat, grand, choir_name, currency, logo_path=None):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.add_page()
+
+    if logo_path and os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=8, w=16)
+
     pdf.set_font("Helvetica", "B", 18)
     pdf.set_text_color(233, 69, 96)
     pdf.cell(0, 12, f"{choir_name}", align="C", new_x="LMARGIN", new_y="NEXT")
@@ -321,56 +327,227 @@ def generate_hierarchy_pdf(flat, grand, choir_name, currency):
     return buf
 
 
+def export_pdf(title, headers, rows, filename, logo_path=None):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=20)
+    pdf.add_page()
+
+    if logo_path and os.path.exists(logo_path):
+        pdf.image(logo_path, x=10, y=8, w=16)
+
+    pdf.ln(8)
+    pdf.set_font("Helvetica", "B", 18)
+    pdf.set_text_color(233, 69, 96)
+    pdf.cell(0, 14, title, align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(130, 130, 130)
+    pdf.cell(0, 8, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(8)
+
+    ncols = len(headers)
+    page_w = pdf.w - 2 * pdf.l_margin
+    col_w = [max(page_w / ncols, 18) for _ in range(ncols)]
+
+    uc_headers = [h.upper() for h in headers]
+    pdf.set_font("Helvetica", "B", 8)
+    pdf.set_fill_color(26, 26, 46)
+    pdf.set_text_color(255, 255, 255)
+    for i, h in enumerate(uc_headers):
+        align = "C" if i > 0 else "L"
+        pdf.cell(col_w[i], 9, f" {h} ", border=1, fill=True, align=align)
+    pdf.ln()
+
+    pdf.set_font("Helvetica", "", 8)
+    for ri, row in enumerate(rows):
+        if ri % 2 == 0:
+            pdf.set_fill_color(244, 246, 249)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+
+        row_h = 8
+        for ci, val in enumerate(row):
+            s = str(val) if val is not None else ""
+            if isinstance(val, float):
+                s = f"{val:,.2f}"
+            align = "C" if ci > 0 else "L"
+            pdf.set_text_color(50, 50, 50)
+            pdf.cell(col_w[ci], row_h, f" {s} ", border=1, fill=True, align=align)
+        pdf.ln()
+
+    buf = BytesIO()
+    pdf.output(buf)
+    buf.seek(0)
+    return buf
+
+
 # ─── Excel Report Helper ───────────────────────────────────────────
 
-def generate_hierarchy_excel(flat, grand, choir_name, currency):
+def generate_hierarchy_excel(flat, grand, choir_name, currency, logo_path=None):
     wb = Workbook()
     ws = wb.active
     ws.title = "Hierarchy Report"
+
+    if logo_path and os.path.exists(logo_path):
+        img = XlImage(logo_path)
+        img.width = 60
+        img.height = 60
+        ws.add_image(img, "A1")
+
     title_font = Font(bold=True, size=16, color="E94560")
     header_fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
     header_font = Font(bold=True, size=10, color="FFFFFF")
     alt_fill = PatternFill(start_color="F4F6F9", end_color="F4F6F9", fill_type="solid")
-    thin = Side(style="thin", color="D0D7E0")
-    ws.merge_cells("A1:E1")
-    ws["A1"] = f"{choir_name} - Hierarchical Report"
-    ws["A1"].font = title_font
-    ws["A1"].alignment = Alignment(horizontal="center")
-    ws.merge_cells("A2:E2")
-    ws["A2"] = f"Zone > Area > State > International  |  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-    ws["A2"].font = Font(size=9, color="666666")
-    ws["A2"].alignment = Alignment(horizontal="center")
-    ws.merge_cells("A4:E4")
-    ws["A4"] = f"Grand Total: {grand['members']} Members | {grand['payments']} Payments | {currency}{grand['total']:.2f}"
-    ws["A4"].font = Font(bold=True, size=11, color="FFFFFF")
-    ws["A4"].fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
-    ws["A4"].alignment = Alignment(horizontal="left")
-    headers = ["#", "Level / Name", "Members", "Payments", "Amount"]
+    thin = Border(
+        left=Side(style="thin", color="D0D7E0"),
+        right=Side(style="thin", color="D0D7E0"),
+        top=Side(style="thin", color="D0D7E0"),
+        bottom=Side(style="thin", color="D0D7E0")
+    )
+    ws.merge_cells("A1:H1")
+    c = ws["A1"]
+    c.value = f"{choir_name} - Hierarchical Report"
+    c.font = title_font
+    c.alignment = Alignment(horizontal="center")
+    ws.row_dimensions[1].height = 30
+
+    ws.merge_cells("A2:H2")
+    c = ws["A2"]
+    c.value = f"Zone > Area > State > International  |  Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    c.font = Font(size=9, color="666666")
+    c.alignment = Alignment(horizontal="center")
+
+    ws.merge_cells("A4:H4")
+    c = ws["A4"]
+    c.value = f"Grand Total: {grand['members']} Members  |  {grand['payments']} Payments  |  {currency}{grand['total']:.2f}"
+    c.font = Font(bold=True, size=11, color="FFFFFF")
+    c.fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    c.alignment = Alignment(horizontal="left")
+
+    headers = ["#", "LEVEL / NAME", "SECTION", "PHONE", "DATE OF BIRTH", "MEMBERS", "PAYMENTS", "AMOUNT"]
     for ci, h in enumerate(headers, 1):
         cell = ws.cell(row=6, column=ci, value=h)
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal="center", vertical="center")
-        cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
+        cell.border = thin
+
     level_prefix = {"country": "  ", "state": "    ", "area": "      ", "zone": "        ", "member": "          "}
     for ri, item in enumerate(flat, 7):
         name = level_prefix.get(item["level"], "") + item["name"]
-        vals = [ri - 6, name, item["members"], item["payments"], f"{currency}{item['total']:.2f}"]
+        row_num = ri - 6
+        is_member = item["level"] == "member"
+        phone_val = item.get("phone", "") if is_member else ""
+        section_val = item.get("section", "") if is_member else ""
+        dob_val = item.get("dob", "") if is_member else ""
+        members_val = item["members"]
+        payments_val = item["payments"]
+        amount_val = item["total"]
+
+        vals = [row_num, name, section_val, phone_val, dob_val, members_val, payments_val, amount_val]
         for ci, v in enumerate(vals, 1):
             cell = ws.cell(row=ri, column=ci, value=v)
-            cell.border = Border(top=thin, bottom=thin, left=thin, right=thin)
-            cell.font = Font(bold=(item["level"] != "member"), size=9,
-                             color={"country": "0F3460", "state": "1A1A2E", "area": "16A085", "zone": "F39C12", "member": "555555"}.get(item["level"], "000000"))
-            if ci > 2:
+            cell.border = thin
+            cell.font = Font(
+                bold=not is_member, size=9,
+                color={"country": "0F3460", "state": "1A1A2E", "area": "16A085", "zone": "F39C12", "member": "555555"}.get(item["level"], "000000")
+            )
+            if ci >= 6:
                 cell.alignment = Alignment(horizontal="center")
+            if ci == 8:
+                cell.number_format = '#,##0.00'
         if (ri - 7) % 2:
-            for ci in range(1, 6):
+            for ci in range(1, 9):
                 ws.cell(row=ri, column=ci).fill = alt_fill
+
     ws.column_dimensions["A"].width = 6
-    ws.column_dimensions["B"].width = 60
-    ws.column_dimensions["C"].width = 12
-    ws.column_dimensions["D"].width = 12
-    ws.column_dimensions["E"].width = 15
+    ws.column_dimensions["B"].width = 50
+    ws.column_dimensions["C"].width = 14
+    ws.column_dimensions["D"].width = 20
+    ws.column_dimensions["E"].width = 16
+    ws.column_dimensions["F"].width = 12
+    ws.column_dimensions["G"].width = 12
+    ws.column_dimensions["H"].width = 18
+
+    for row in ws.iter_rows(min_row=6, max_row=len(flat)+6, min_col=1, max_col=8):
+        for cell in row:
+            cell.border = thin
+
+    buf = BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def export_excel(title, headers, rows, filename, logo_path=None):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = title[:31]
+
+    if logo_path and os.path.exists(logo_path):
+        img = XlImage(logo_path)
+        img.width = 60
+        img.height = 60
+        ws.add_image(img, "A1")
+
+    title_font = Font(bold=True, size=14, color="E94560")
+    header_fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    header_font = Font(bold=True, size=10, color="FFFFFF")
+    alt_fill = PatternFill(start_color="F4F6F9", end_color="F4F6F9", fill_type="solid")
+    thin = Border(
+        left=Side(style="thin", color="D0D7E0"),
+        right=Side(style="thin", color="D0D7E0"),
+        top=Side(style="thin", color="D0D7E0"),
+        bottom=Side(style="thin", color="D0D7E0")
+    )
+
+    last_col = get_column_letter(len(headers))
+    ws.merge_cells(f"A1:{last_col}1")
+    c = ws["A1"]
+    c.value = title
+    c.font = title_font
+    c.alignment = Alignment(horizontal="center")
+    ws.row_dimensions[1].height = 28
+
+    uc_headers = [h.upper() for h in headers]
+    for ci, h in enumerate(uc_headers, 1):
+        cell = ws.cell(row=3, column=ci, value=h)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        cell.border = thin
+
+    for ri, row in enumerate(rows, 4):
+        for ci, val in enumerate(row, 1):
+            cell = ws.cell(row=ri, column=ci, value=val)
+            cell.border = thin
+            cell.font = Font(size=9, color="333333")
+            if isinstance(val, float):
+                cell.number_format = '#,##0.00'
+                cell.alignment = Alignment(horizontal="center")
+            elif isinstance(val, int):
+                cell.alignment = Alignment(horizontal="center")
+        if (ri - 4) % 2:
+            for ci in range(1, len(headers) + 1):
+                ws.cell(row=ri, column=ci).fill = alt_fill
+
+    col_widths = {0: 6}
+    for ci, h in enumerate(headers):
+        col_widths[ci] = max(len(h) + 2, 12)
+        if h.lower() in ("amount", "total", "fee"):
+            col_widths[ci] = 16
+        elif h.lower() in ("phone", "email", "address", "notes"):
+            col_widths[ci] = 22
+        elif h.lower() in ("name", "first_name", "last_name", "title", "composer"):
+            col_widths[ci] = 18
+    for ci, w in col_widths.items():
+        ws.column_dimensions[get_column_letter(ci + 1)].width = w
+
+    for row in ws.iter_rows(min_row=3, max_row=len(rows) + 3, min_col=1, max_col=len(headers)):
+        for cell in row:
+            cell.border = thin
+
     buf = BytesIO()
     wb.save(buf)
     buf.seek(0)

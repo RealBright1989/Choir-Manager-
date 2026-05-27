@@ -1,83 +1,304 @@
 {% extends "base.html" %}
-{% block content %}
-<div class="member-profile-card">
-    {% if member.photo %}
-    <img src="{{ url_for('members.member_photo', filename=member.photo) }}" alt="Photo">
-    {% else %}
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Photo" style="opacity:0.3;">
-    {% endif %}
-    <div>
-        <h1>{{ member.first_name }} {{ member.last_name }}</h1>
-        <p>{{ member.section }} &middot; Joined {{ member.join_date }}
-        {% if member.other_names %} &middot; {{ member.other_names }}{% endif %}
-        {% if member.country and member.country != 'Nigeria' %} &middot; {{ member.country }}{% endif %}</p>
-    </div>
-</div>
+{% block extra_head %}
+<style>
+.profile-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 20px;
+    padding: 36px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    position: relative;
+    overflow: hidden;
+}
+.profile-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(233,69,96,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+    background: #2a2a4a;
+}
+.profile-avatar-placeholder {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; color: rgba(255,255,255,0.3);
+    border: 4px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+}
+.profile-info { flex: 1; position: relative; z-index: 1; }
+.profile-info h1 { font-size: 30px; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px; }
+.profile-info .badge-section { display: inline-block; background: rgba(233,69,96,0.2); color: #e94560; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-right: 8px; }
+.profile-info .badge-joined { display: inline-block; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); padding: 4px 14px; border-radius: 20px; font-size: 13px; }
+.profile-meta { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 16px; }
+.profile-meta-item { font-size: 13px; color: rgba(255,255,255,0.5); }
+.profile-meta-item strong { color: rgba(255,255,255,0.8); font-weight: 600; }
+.profile-actions { display: flex; gap: 10px; flex-shrink: 0; position: relative; z-index: 1; }
+.profile-actions .btn { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+.profile-actions .btn-edit { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+.profile-actions .btn-edit:hover { background: rgba(255,255,255,0.2); }
+.profile-actions .btn-pay { background: #e94560; color: #fff; }
+.profile-actions .btn-pay:hover { background: #d63850; }
+.profile-actions .btn-delete { background: rgba(220,53,69,0.15); color: #ff6b7a; border: 1px solid rgba(220,53,69,0.3); }
+.profile-actions .btn-delete:hover { background: rgba(220,53,69,0.25); }
 
-    <div class="form-card" style="max-width:100%;margin-bottom:20px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
-            <div><strong style="color:#1a1a2e;font-size:13px;">State:</strong><br><span style="color:#555;">{{ member.state_of_origin or 'Unassigned' }}</span></div>
-            <div><strong style="color:#1a1a2e;font-size:13px;">Country:</strong><br><span style="color:#555;">{{ member.country or 'Nigeria' }}</span></div>
+.info-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 28px;
+}
+.info-card {
+    background: #fff; border-radius: 14px; padding: 18px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+}
+.info-card .label { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-card .value { font-size: 14px; color: #1a1a2e; font-weight: 500; }
+.info-card .value.missing { color: #ccc; font-style: italic; }
+
+.stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-bottom: 28px;
+}
+.stat-card {
+    background: #fff; border-radius: 16px; padding: 22px; text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
+.stat-card .stat-icon { font-size: 28px; margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 700; color: #1a1a2e; letter-spacing: -0.5px; }
+.stat-card .stat-label { font-size: 12px; color: #888; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.stat-card.stat-1 { border-top: 4px solid #e94560; }
+.stat-card.stat-2 { border-top: 4px solid #0f3460; }
+.stat-card.stat-3 { border-top: 4px solid #16a085; }
+
+.tab-nav {
+    display: flex; gap: 0; margin-bottom: 0;
+    background: #fff; border-radius: 14px 14px 0 0; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5; border-bottom: none;
+}
+.tab-btn {
+    flex: 1; padding: 14px 20px; text-align: center; font-size: 14px; font-weight: 600;
+    color: #888; background: transparent; border: none; cursor: pointer;
+    border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.tab-btn:hover { color: #1a1a2e; background: #fafbfc; }
+.tab-btn.active { color: #e94560; border-bottom-color: #e94560; background: #fff; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.tab-panel {
+    background: #fff; border-radius: 0 0 14px 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+    overflow: hidden;
+}
+.tab-panel table { border: none; margin-bottom: 0; }
+.tab-panel table thead { background: #f8f9fb; }
+.tab-panel table th { font-size: 11px; color: #888; }
+.tab-panel .empty-state { padding: 40px 20px; text-align: center; color: #999; font-size: 14px; }
+
+@media (max-width: 768px) {
+    .profile-header { flex-direction: column; text-align: center; padding: 24px; }
+    .profile-header::before { display: none; }
+    .profile-meta { justify-content: center; }
+    .profile-actions { flex-wrap: wrap; justify-content: center; }
+    .stats-row { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; }
+    .tab-btn { font-size: 12px; padding: 12px 8px; }
+    }
+    .btn-view {
+        background: rgba(255,255,255,0.12); color: #fff;
+        border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-view:hover { background: rgba(255,255,255,0.2); }
+    .viewer-overlay {
+        display: none; position: fixed; z-index: 9999;
+        left: 0; top: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        justify-content: center; align-items: center;
+    }
+    .viewer-overlay.active { display: flex; }
+    .viewer-overlay img {
+        max-width: 90vw; max-height: 90vh;
+        border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+    .viewer-close {
+        position: absolute; top: 20px; right: 30px;
+        color: #fff; font-size: 36px; cursor: pointer;
+        background: none; border: none; line-height: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    {% if member.photo %}
+    <img class="profile-avatar" src="{{ url_for('members.member_photo', filename=member.photo) }}" alt="Photo">
+    {% else %}
+    <div class="profile-avatar-placeholder">&#128100;</div>
+    {% endif %}
+    <div class="profile-info">
+        <h1>{{ member.first_name }} {{ member.last_name }}</h1>
+        <div>
+            <span class="badge-section">{{ member.section }}</span>
+            <span class="badge-joined">Joined {{ member.join_date }}</span>
+        </div>
+        <div class="profile-meta">
+            {% if member.email %}<span class="profile-meta-item"><strong>Email:</strong> {{ member.email }}</span>{% endif %}
+            <span class="profile-meta-item"><strong>Phone:</strong> {{ member.phone }}</span>
+            <span class="profile-meta-item"><strong>NIN:</strong> {{ member.nin_number or '-' }}</span>
+
         </div>
     </div>
-
-    <div class="cards" style="margin-bottom:24px;">
-    <div class="card accent-1">
-        <div class="card-icon">&#128176;</div>
-        <div class="card-value">{{ settings.currency }}{{ "%.2f"|format(payments|sum(attribute='amount')) }}</div>
-        <div class="card-label">Total Paid</div>
-    </div>
-    <div class="card accent-2">
-        <div class="card-icon">&#128203;</div>
-        <div class="card-value">{{ payments|length }}</div>
-        <div class="card-label">Payments</div>
-    </div>
-    <div class="card accent-3">
-        <div class="card-icon">&#9989;</div>
-        <div class="card-value">{{ attendance|length }}</div>
-        <div class="card-label">Attendance Records</div>
+    <div class="profile-actions">
+        <a href="{{ url_for('members.member_edit', id=member.id) }}" class="btn btn-edit">Edit</a>
+        <a href="{{ url_for('members.member_pdf', id=member.id) }}" class="btn btn-pay">PDF</a>
+        {% if member.photo %}
+        <a href="#" onclick="openViewer(); return false;" class="btn btn-view">View</a>
+        {% endif %}
+        <a href="{{ url_for('members.member_delete', id=member.id) }}" class="btn btn-delete" onclick="return confirm('Delete this member?')">Delete</a>
     </div>
 </div>
 
-<div class="btn-group" style="margin-bottom:20px;">
-    <a href="{{ url_for('members.member_edit', id=member.id) }}" class="btn btn-secondary">Edit Member</a>
-    <a href="{{ url_for('finance.finance', member_id=member.id) }}" class="btn btn-primary">View Payments</a>
+<div class="info-grid">
+    <div class="info-card">
+        <div class="label">Date of Birth</div>
+        <div class="value">{{ member.dob or 'Not provided' }}</div>
+    </div>
+    <div class="info-card">
+        <div class="label">Country of Origin</div>
+        <div class="value">{{ member.country or 'Nigeria' }}</div>
+    </div>
+    <div class="info-card">
+        <div class="label">State of Origin</div>
+        <div class="value {{ 'missing' if not member.state_of_origin }}">{{ member.state_of_origin or 'Not provided' }}</div>
+    </div>
+    <div class="info-card">
+        <div class="label">LGA</div>
+        <div class="value {{ 'missing' if not member.lga }}">{{ member.lga or 'Not provided' }}</div>
+    </div>
+    <div class="info-card">
+        <div class="label">Academic Qualification</div>
+        <div class="value {{ 'missing' if not member.academic_qualification }}">{{ member.academic_qualification or 'Not provided' }}</div>
+    </div>
+    {% if member.country and member.country.lower() != 'nigeria' and member.country != '' %}
+    <div class="info-card">
+        <div class="label">Passport / ID</div>
+        <div class="value {{ 'missing' if not member.passport_number }}">{{ member.passport_number or 'Not provided' }}</div>
+    </div>
+    {% endif %}
+    {% if member.zone %}
+    <div class="info-card">
+        <div class="label">Zone</div>
+        <div class="value">{{ member.zone }}</div>
+    </div>
+    {% endif %}
+    {% if member.area %}
+    <div class="info-card">
+        <div class="label">Area</div>
+        <div class="value">{{ member.area }}</div>
+    </div>
+    {% endif %}
 </div>
 
-<div class="table-container">
-    <div class="table-header"><h3>Payment History</h3></div>
-    <table>
-        <thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Notes</th></tr></thead>
-        <tbody>
-            {% for p in payments %}
-            <tr>
-                <td>{{ p.payment_date }}</td>
-                <td>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
-                <td>{{ p.payment_for or '-' }}</td>
-                <td>{{ p.notes or '-' }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="4" style="text-align:center;color:#999;">No payments recorded.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="stats-row">
+    <div class="stat-card stat-1">
+        <div class="stat-icon">&#128176;</div>
+        <div class="stat-value">{{ settings.currency }}{{ "%.2f"|format(payments|sum(attribute='amount')) }}</div>
+        <div class="stat-label">Total Paid</div>
+    </div>
+    <div class="stat-card stat-2">
+        <div class="stat-icon">&#128203;</div>
+        <div class="stat-value">{{ payments|length }}</div>
+        <div class="stat-label">Payments Made</div>
+    </div>
+    <div class="stat-card stat-3">
+        <div class="stat-icon">&#9989;</div>
+        <div class="stat-value">{{ attendance|length }}</div>
+        <div class="stat-label">Attendance Records</div>
+    </div>
 </div>
 
-<div class="table-container">
-    <div class="table-header"><h3>Attendance History</h3></div>
-    <table>
-        <thead><tr><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
-        <tbody>
-            {% for a in attendance %}
-            <tr>
-                <td>{{ a.date }}</td>
-                <td><span class="badge {{ 'badge-success' if a.status=='Present' else 'badge-danger' if a.status=='Absent' else 'badge-warning' }}">{{ a.status }}</span></td>
-                <td>{{ a.notes or '-' }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="3" style="text-align:center;color:#999;">No attendance records.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" onclick="switchTab('payments')">Payment History</button>
+    <button class="tab-btn" onclick="switchTab('attendance')">Attendance History</button>
 </div>
+
+<div class="tab-panel">
+    <div id="tabPayments" class="tab-content active">
+        {% if payments %}
+        <table>
+            <thead><tr><th>Date</th><th>Amount</th><th>For</th><th>Notes</th></tr></thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.payment_date }}</td>
+                    <td><strong>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</strong></td>
+                    <td>{{ p.payment_for or '-' }}</td>
+                    <td>{{ p.notes or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No payment records found.</div>
+        {% endif %}
+    </div>
+    <div id="tabAttendance" class="tab-content">
+        {% if attendance %}
+        <table>
+            <thead><tr><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+            <tbody>
+                {% for a in attendance %}
+                <tr>
+                    <td>{{ a.date }}</td>
+                    <td><span class="badge {{ 'badge-success' if a.status=='Present' else 'badge-danger' if a.status=='Absent' else 'badge-warning' }}">{{ a.status }}</span></td>
+                    <td>{{ a.notes or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No attendance records found.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div id="photoViewer" class="viewer-overlay" onclick="closeViewer()">
+    <button class="viewer-close" onclick="closeViewer()">&times;</button>
+    <img src="{{ url_for('members.member_photo', filename=member.photo) }}" alt="{{ member.first_name }}'s photo">
+</div>
+
+<script>
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    if (name === 'payments') {
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        document.getElementById('tabPayments').classList.add('active');
+    } else {
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        document.getElementById('tabAttendance').classList.add('active');
+    }
+}
+function openViewer() {
+    document.getElementById('photoViewer').classList.add('active');
+}
+function closeViewer() {
+    document.getElementById('photoViewer').classList.remove('active');
+}
+</script>
 {% endblock %}

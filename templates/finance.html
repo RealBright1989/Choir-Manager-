@@ -1,27 +1,149 @@
 {% extends "base.html" %}
+{% block extra_head %}
+<style>
+.statement-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid #f0f2f5;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+.statement-header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.statement-header h2 { font-size: 18px; font-weight: 700; margin: 0; }
+.statement-header .month-nav { display: flex; gap: 8px; align-items: center; }
+.statement-header .month-nav select {
+    padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1); color: #fff; font-size: 13px; cursor: pointer;
+}
+.statement-header .month-nav select option { color: #1a1a2e; background: #fff; }
+.statement-header .month-nav .btn-go {
+    padding: 6px 14px; border-radius: 8px; border: none;
+    background: #e94560; color: #fff; font-size: 13px; cursor: pointer;
+}
+.statement-body { padding: 24px 28px; }
+.balance-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; border-radius: 10px; margin-bottom: 8px;
+    font-size: 15px;
+}
+.balance-row.bf { background: #f0f4ff; color: #1a1a2e; }
+.balance-row.income { background: #e8f8f0; color: #16a085; }
+.balance-row.expense { background: #fde8e8; color: #e74c3c; }
+.balance-row.closing { background: #1a1a2e; color: #fff; font-weight: 700; font-size: 16px; }
+.balance-row .label { font-weight: 600; }
+.balance-row .value { font-weight: 700; font-family: 'Courier New', monospace; }
+.statement-body hr { border: none; border-top: 2px dashed #ddd; margin: 12px 0; }
+
+.form-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;
+}
+.form-card-inner {
+    background: #fff; border-radius: 14px; padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+}
+.form-card-inner h3 {
+    font-size: 15px; font-weight: 700; margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 2px solid #f0f2f5;
+}
+.form-card-inner h3.income-title { color: #16a085; }
+.form-card-inner h3.expense-title { color: #e74c3c; }
+.form-card-inner label { display: block; font-size: 12px; font-weight: 600; color: #888; margin-bottom: 3px; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-card-inner input, .form-card-inner select, .form-card-inner textarea {
+    width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; box-sizing: border-box;
+}
+.form-card-inner input:focus, .form-card-inner select:focus, .form-card-inner textarea:focus {
+    outline: none; border-color: #e94560; box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+}
+.form-card-inner .btn { margin-top: 14px; width: 100%; padding: 10px; font-size: 14px; }
+
+.transactions-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;
+}
+.transaction-table {
+    background: #fff; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+}
+.transaction-table .tt-header {
+    padding: 14px 18px; font-size: 14px; font-weight: 700; display: flex;
+    justify-content: space-between; align-items: center;
+}
+.transaction-table .tt-header.inc { background: #e8f8f0; color: #16a085; }
+.transaction-table .tt-header.exp { background: #fde8e8; color: #e74c3c; }
+.transaction-table table { border: none; margin-bottom: 0; font-size: 13px; }
+.transaction-table table th { font-size: 11px; color: #888; background: #f8f9fb; }
+.transaction-table table td { padding: 8px 10px; }
+.transaction-table .empty-state { padding: 24px; text-align: center; color: #999; font-size: 13px; }
+
+@media (max-width: 768px) {
+    .form-grid, .transactions-grid { grid-template-columns: 1fr; }
+    .statement-header { flex-direction: column; text-align: center; }
+    .statement-body { padding: 16px; }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <h1>Finance</h1>
-    <p>Track dues and payments</p>
+    <p>Monthly income and expense report</p>
 </div>
 
-<div class="cards">
-    <div class="card accent-1">
-        <div class="card-icon">&#128176;</div>
-        <div class="card-value">{{ settings.currency }}{{ "%.2f"|format(total_collected) }}</div>
-        <div class="card-label">Total Collected</div>
+<div class="statement-card">
+    <div class="statement-header">
+        <h2>&#128176; Financial Statement</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <form class="month-nav" method="GET" style="display:flex;gap:6px;align-items:center;">
+                <select name="year" onchange="this.form.submit()">
+                    {% for y in years %}
+                    <option value="{{ y }}" {{ 'selected' if year == y else '' }}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+                <select name="month" onchange="this.form.submit()">
+                    {% for m in range(1, 13) %}
+                    <option value="{{ m }}" {{ 'selected' if month == m else '' }}>{{ "%02d"|format(m) }} - {{ ["January","February","March","April","May","June","July","August","September","October","November","December"][m-1] }}</option>
+                    {% endfor %}
+                </select>
+                <noscript><button type="submit" class="btn-go">Go</button></noscript>
+            </form>
+            <a href="{{ url_for('finance.finance_export_excel', year=year, month=month) }}" class="btn btn-success btn-sm" style="padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">&#128230; Excel</a>
+            <a href="{{ url_for('finance.finance_export_pdf', year=year, month=month) }}" class="btn btn-danger btn-sm" style="padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">&#128196; PDF</a>
+        </div>
     </div>
-    <div class="card accent-2">
-        <div class="card-icon">&#128203;</div>
-        <div class="card-value">{{ total_count }}</div>
-        <div class="card-label">Total Transactions</div>
+    <div class="statement-body">
+        <div class="balance-row bf">
+            <span class="label">Balance Brought Forward</span>
+            <span class="value">{{ settings.currency }}{{ "%.2f"|format(balance_bf) }}</span>
+        </div>
+        <div class="balance-row income">
+            <span class="label">&#43; Total Income ({{ selected_date }})</span>
+            <span class="value">{{ settings.currency }}{{ "%.2f"|format(income) }}</span>
+        </div>
+        <div class="balance-row expense">
+            <span class="label">&minus; Total Expenditure ({{ selected_date }})</span>
+            <span class="value">{{ settings.currency }}{{ "%.2f"|format(expenses) }}</span>
+        </div>
+        <hr>
+        <div class="balance-row closing">
+            <span class="label">Closing Balance</span>
+            <span class="value">{{ settings.currency }}{{ "%.2f"|format(closing_balance) }}</span>
+        </div>
     </div>
 </div>
 
-<div class="dashboard-grid">
-    <div class="form-card">
-        <h3 style="margin-bottom:16px;">Record Payment</h3>
-        <form method="POST" action="{{ url_for('finance.finance_add') }}">
+<div class="form-grid">
+    <div class="form-card-inner">
+        <h3 class="income-title">&#128200; Record Income</h3>
+        <form method="POST" action="{{ url_for('finance.finance_income_add') }}">
             <label>Member *</label>
             <select name="member_id" required>
                 <option value="">Select member...</option>
@@ -29,68 +151,110 @@
                 <option value="{{ m.id }}">{{ m.first_name }} {{ m.last_name }}</option>
                 {% endfor %}
             </select>
-
             <label>Amount ({{ settings.currency }}) *</label>
             <input type="number" step="0.01" name="amount" required>
-
             <label>Date *</label>
             <input type="date" name="payment_date" value="{{ now().strftime('%Y-%m-%d') }}" required>
-
-            <label>Payment For</label>
+            <label>Income For</label>
             <input type="text" name="payment_for" placeholder="e.g. January dues">
-
             <label>Notes</label>
-            <textarea name="notes"></textarea>
-
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary">Record Payment</button>
-            </div>
+            <textarea name="notes" rows="2"></textarea>
+            <input type="hidden" name="csrf_token" value="{{ csrf() }}">
+            <button type="submit" class="btn btn-primary" style="background:#16a085;">Record Income</button>
         </form>
     </div>
-
-    <div class="table-container">
-        <div class="table-header">
-            <h3>Payments</h3>
-            <form method="GET" style="display:flex;gap:8px;">
-                <select name="member_id" onchange="this.form.submit()">
-                    <option value="">All members</option>
-                    {% for m in members %}
-                    <option value="{{ m.id }}" {{ 'selected' if selected_member == m.id|string else '' }}>{{ m.first_name }} {{ m.last_name }}</option>
-                    {% endfor %}
-                </select>
-                {% if selected_member %}
-                <a href="{{ url_for('finance.finance') }}" class="btn btn-outline btn-sm">Clear</a>
-                {% endif %}
-            </form>
-        </div>
-        <table>
-            <thead><tr><th>Member</th><th>Amount</th><th>Date</th><th>For</th><th>Action</th></tr></thead>
-            <tbody>
-                {% for p in payments %}
-                <tr>
-                    <td>{{ p.first_name }} {{ p.last_name }}</td>
-                    <td>{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
-                    <td>{{ p.payment_date }}</td>
-                    <td>{{ p.payment_for or '-' }}</td>
-                    <td><a href="{{ url_for('finance.finance_delete', id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this payment?')">Delete</a></td>
-                </tr>
-                {% else %}
-                <tr><td colspan="5" class="empty-table">No payments recorded.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="form-card-inner">
+        <h3 class="expense-title">&#128200; Record Expense</h3>
+        <form method="POST" action="{{ url_for('finance.finance_expense_add') }}">
+            <label>Description *</label>
+            <input type="text" name="description" required placeholder="e.g. Transport, Printing">
+            <label>Amount ({{ settings.currency }}) *</label>
+            <input type="number" step="0.01" name="amount" required>
+            <label>Date *</label>
+            <input type="date" name="expense_date" value="{{ now().strftime('%Y-%m-%d') }}" required>
+            <label>Category</label>
+            <select name="category">
+                <option value="">Select category...</option>
+                <option value="Transport">Transport</option>
+                <option value="Food & Refreshment">Food & Refreshment</option>
+                <option value="Printing & Stationery">Printing & Stationery</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Uniform">Uniform</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Event">Event</option>
+                <option value="Other">Other</option>
+            </select>
+            <label>Notes</label>
+            <textarea name="notes" rows="2"></textarea>
+            <input type="hidden" name="csrf_token" value="{{ csrf() }}">
+            <button type="submit" class="btn btn-primary" style="background:#e74c3c;">Record Expense</button>
+        </form>
     </div>
 </div>
 
-<div class="table-container" style="margin-top:24px;">
-    <div class="table-header"><h3>Member Payment Totals</h3></div>
+<div class="transactions-grid">
+    <div class="transaction-table">
+        <div class="tt-header inc">
+            <span>&#128176; Income ({{ payments|length }})</span>
+            <span>{{ settings.currency }}{{ "%.2f"|format(income) }}</span>
+        </div>
+        {% if payments %}
+        <table>
+            <thead><tr><th>Date</th><th>Member</th><th>Amount</th><th>For</th><th></th></tr></thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    <td>{{ p.payment_date }}</td>
+                    <td>{{ p.member.first_name }} {{ p.member.last_name }}</td>
+                    <td style="color:#16a085;font-weight:600;">{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
+                    <td>{{ p.payment_for or '-' }}</td>
+                    <td><a href="{{ url_for('finance.finance_income_delete', id=p.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this income entry?')" style="padding:3px 8px;font-size:11px;">&times;</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No income recorded this month.</div>
+        {% endif %}
+    </div>
+
+    <div class="transaction-table">
+        <div class="tt-header exp">
+            <span>&#128200; Expenditure ({{ expense_list|length }})</span>
+            <span>{{ settings.currency }}{{ "%.2f"|format(expenses) }}</span>
+        </div>
+        {% if expense_list %}
+        <table>
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Category</th><th></th></tr></thead>
+            <tbody>
+                {% for e in expense_list %}
+                <tr>
+                    <td>{{ e.expense_date }}</td>
+                    <td>{{ e.description }}</td>
+                    <td style="color:#e74c3c;font-weight:600;">({{ settings.currency }}{{ "%.2f"|format(e.amount) }})</td>
+                    <td>{{ e.category or '-' }}</td>
+                    <td><a href="{{ url_for('finance.finance_expense_delete', id=e.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this expense?')" style="padding:3px 8px;font-size:11px;">&times;</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">No expenses recorded this month.</div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="transaction-table" style="margin-top:24px;">
+    <div class="tt-header" style="background:#f0f4ff;color:#1a1a2e;">
+        <span>&#128202; Member Payment Totals (All Time)</span>
+    </div>
     <table>
         <thead><tr><th>Member</th><th>Total Paid</th></tr></thead>
         <tbody>
             {% for m in member_totals %}
             <tr>
                 <td>{{ m.first_name }} {{ m.last_name }}</td>
-                <td>{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
+                <td style="font-weight:600;color:#16a085;">{{ settings.currency }}{{ "%.2f"|format(m.total) }}</td>
             </tr>
             {% else %}
             <tr><td colspan="2" class="empty-table">No members.</td></tr>

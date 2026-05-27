@@ -427,17 +427,21 @@
                     </div>
                 </div>
 
-                <div id="otpSection" style="display:none;margin-top:8px;padding:14px;background:#f8f9fa;border-radius:8px;border:1px solid #eee;">
-                    <label style="margin-top:0;">Phone Verification</label>
-                    <div style="display:flex;gap:8px;margin-bottom:8px;">
-                        <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" style="flex:1;" maxlength="6">
-                        <button type="button" id="verifyOtpBtn" class="btn btn-success btn-sm" style="padding:10px 16px;">Verify</button>
+                <input type="hidden" name="phone_verified" id="phoneVerified" value="1">
+
+                <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
+
+                <label style="color:#1a1a2e;font-size:14px;font-weight:700;">Create Account Login</label>
+
+                <div class="form-row">
+                    <div>
+                        <label>Password *</label>
+                        <input type="password" name="password" required minlength="4" placeholder="At least 4 characters">
                     </div>
-                    <div style="display:flex;gap:8px;">
-                        <button type="button" id="sendOtpBtn" class="btn btn-secondary btn-sm">Send OTP</button>
-                        <span id="otpStatus" style="font-size:13px;color:#888;align-self:center;"></span>
+                    <div>
+                        <label>Confirm Password *</label>
+                        <input type="password" name="confirm_password" required minlength="4">
                     </div>
-                    <input type="hidden" name="phone_verified" id="phoneVerified" value="0">
                 </div>
 
                 <input type="hidden" name="csrf_token" value="{{ csrf() }}">
@@ -493,90 +497,6 @@ function updateLGAs() {
     }
 }
 
-// ─── Phone OTP Verification ───
-const phoneInput = document.getElementById('phoneInput');
-const otpSection = document.getElementById('otpSection');
-const sendOtpBtn = document.getElementById('sendOtpBtn');
-const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-const otpInput = document.getElementById('otpInput');
-const otpStatus = document.getElementById('otpStatus');
-const phoneVerified = document.getElementById('phoneVerified');
-const submitBtn = document.getElementById('submitBtn');
-
-let phoneVerifiedFlag = false;
-
-phoneInput.addEventListener('input', function() {
-    if (this.value.trim().length >= 10) {
-        otpSection.style.display = 'block';
-    } else {
-        otpSection.style.display = 'none';
-        phoneVerifiedFlag = false;
-        submitBtn.disabled = true;
-    }
-});
-
-sendOtpBtn.addEventListener('click', function() {
-    const phone = phoneInput.value.trim();
-    if (!phone) { otpStatus.textContent = 'Enter a phone number'; return; }
-    otpStatus.textContent = 'Sending...';
-    sendOtpBtn.disabled = true;
-
-    const formData = new FormData();
-    formData.append('phone', phone);
-
-    fetch('/join/send-otp', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                otpStatus.textContent = 'OTP sent! Check your phone (or server console in dev mode).';
-                otpStatus.style.color = '#16a085';
-            } else {
-                otpStatus.textContent = data.error || 'Failed to send OTP';
-                otpStatus.style.color = '#e74c3c';
-                sendOtpBtn.disabled = false;
-            }
-        })
-        .catch(() => {
-            otpStatus.textContent = 'Network error';
-            otpStatus.style.color = '#e74c3c';
-            sendOtpBtn.disabled = false;
-        });
-});
-
-verifyOtpBtn.addEventListener('click', function() {
-    const phone = phoneInput.value.trim();
-    const otp = otpInput.value.trim();
-    if (!otp) { otpStatus.textContent = 'Enter the OTP code'; return; }
-    otpStatus.textContent = 'Verifying...';
-    verifyOtpBtn.disabled = true;
-
-    const formData = new FormData();
-    formData.append('phone', phone);
-    formData.append('otp', otp);
-
-    fetch('/join/verify-otp', { method: 'POST', body: formData })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                otpStatus.textContent = 'Phone verified!';
-                otpStatus.style.color = '#16a085';
-                phoneVerifiedFlag = true;
-                phoneVerified.value = '1';
-                submitBtn.disabled = false;
-                sendOtpBtn.disabled = true;
-                otpInput.disabled = true;
-                verifyOtpBtn.disabled = true;
-            } else {
-                otpStatus.textContent = data.error || 'Invalid OTP';
-                otpStatus.style.color = '#e74c3c';
-                verifyOtpBtn.disabled = false;
-            }
-        })
-        .catch(() => {
-            otpStatus.textContent = 'Network error';
-            otpStatus.style.color = '#e74c3c';
-            verifyOtpBtn.disabled = false;
-        });
-});
+document.getElementById('submitBtn').disabled = false;
 </script>
 </html>

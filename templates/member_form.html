@@ -182,6 +182,7 @@
         <label>Notes</label>
         <textarea name="notes">{{ member.notes if member else '' }}</textarea>
 
+        <input type="hidden" name="csrf_token" value="{{ csrf() }}">
         <div class="btn-group">
             <button type="submit" class="btn btn-primary">Save</button>
             <a href="{{ url_for('members.members') }}" class="btn btn-outline">Cancel</a>

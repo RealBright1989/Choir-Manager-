@@ -48,6 +48,7 @@
                 <td><span class="badge badge-info">{{ m.section }}</span></td>
                 <td>{{ settings.currency }}{{ "%.2f"|format(payment_totals.get(m.id, 0)) }}</td>
                 <td class="actions-cell">
+                    <a href="{{ url_for('members.member_detail', id=m.id) }}" class="btn btn-secondary btn-sm">View</a>
                     <a href="{{ url_for('members.member_edit', id=m.id) }}" class="btn btn-secondary btn-sm">Edit</a>
                     <a href="{{ url_for('members.member_delete', id=m.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this member?')">Delete</a>
                 </td>

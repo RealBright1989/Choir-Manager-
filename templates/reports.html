@@ -99,10 +99,13 @@
 
 <!-- Standard Reports -->
 <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-    <a href="{{ url_for('reports.export_members') }}" class="btn btn-secondary btn-sm">&#128230; Export Members</a>
-    <a href="{{ url_for('reports.export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Export Payments</a>
-    <a href="{{ url_for('reports.export_attendance') }}" class="btn btn-secondary btn-sm">&#128230; Export Attendance</a>
-    <a href="{{ url_for('reports.export_backup') }}" class="btn btn-primary btn-sm">&#128230; Full Backup (CSV)</a>
+    <a href="{{ url_for('reports.export_members') }}" class="btn btn-secondary btn-sm">&#128230; Members Excel</a>
+    <a href="{{ url_for('reports.export_members_pdf') }}" class="btn btn-danger btn-sm">&#128196; Members PDF</a>
+    <a href="{{ url_for('reports.export_payments') }}" class="btn btn-secondary btn-sm">&#128230; Payments Excel</a>
+    <a href="{{ url_for('reports.export_payments_pdf') }}" class="btn btn-danger btn-sm">&#128196; Payments PDF</a>
+    <a href="{{ url_for('reports.export_attendance') }}" class="btn btn-secondary btn-sm">&#128230; Attendance Excel</a>
+    <a href="{{ url_for('reports.export_attendance_pdf') }}" class="btn btn-danger btn-sm">&#128196; Attendance PDF</a>
+    <a href="{{ url_for('reports.export_backup') }}" class="btn btn-primary btn-sm">&#128230; Full Backup</a>
 </div>
 
 <div class="report-grid">

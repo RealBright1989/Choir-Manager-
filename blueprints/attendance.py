@@ -11,10 +11,19 @@ bp = Blueprint("attendance", __name__)
 def attendance():
     date_filter = request.args.get("date", date.today().strftime("%Y-%m-%d"))
     available_dates = [r[0] for r in Attendance.query.with_entities(Attendance.date).distinct().order_by(Attendance.date.desc()).all()]
-    records = Attendance.query.join(Member).add_columns(
-        Member.first_name, Member.last_name, Member.section
-    ).filter(Attendance.date == date_filter).order_by(Member.last_name, Member.first_name).all()
+    attendance_map = {}
+    for a in Attendance.query.filter_by(date=date_filter).all():
+        attendance_map[a.member_id] = a.status
     members = Member.query.order_by(Member.last_name, Member.first_name).all()
+    records = []
+    for m in members:
+        records.append({
+            "member_id": m.id,
+            "first_name": m.first_name,
+            "last_name": m.last_name,
+            "section": m.section,
+            "status": attendance_map.get(m.id, "Present")
+        })
     return render_template("attendance.html", records=records, members=members,
                            available_dates=available_dates, selected_date=date_filter)
 

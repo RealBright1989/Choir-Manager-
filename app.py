@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
-from models import db, User, Setting
+from models import db, User, Setting, Expense
 from utils import generate_csrf
 
 app = Flask(__name__)
