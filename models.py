@@ -44,10 +44,40 @@ class Payment(db.Model):
     __tablename__ = "payments"
     id = db.Column(db.Integer, primary_key=True)
     member_id = db.Column(db.Integer, db.ForeignKey("members.id"), nullable=False)
+    invoice_id = db.Column(db.Integer, db.ForeignKey("invoices.id"))
     amount = db.Column(db.Float, nullable=False)
     payment_date = db.Column(db.String(10), nullable=False)
     payment_for = db.Column(db.String(200))
     notes = db.Column(db.Text)
+
+
+class Invoice(db.Model):
+    __tablename__ = "invoices"
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_number = db.Column(db.String(20), unique=True, nullable=False)
+    member_id = db.Column(db.Integer, db.ForeignKey("members.id"), nullable=False)
+    issue_date = db.Column(db.String(10), nullable=False)
+    due_date = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="unpaid")
+    subtotal = db.Column(db.Float, nullable=False, default=0)
+    total = db.Column(db.Float, nullable=False, default=0)
+    paid_amount = db.Column(db.Float, nullable=False, default=0)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.String(19), nullable=False)
+
+    member = db.relationship("Member", backref="invoices")
+    items = db.relationship("InvoiceItem", backref="invoice", lazy="dynamic", cascade="all, delete-orphan")
+    payments = db.relationship("Payment", backref="invoice", lazy="dynamic", cascade="all, delete-orphan")
+
+
+class InvoiceItem(db.Model):
+    __tablename__ = "invoice_items"
+    id = db.Column(db.Integer, primary_key=True)
+    invoice_id = db.Column(db.Integer, db.ForeignKey("invoices.id"), nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    unit_price = db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
 
 
 class Attendance(db.Model):

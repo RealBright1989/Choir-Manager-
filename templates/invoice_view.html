@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<style>
+.invoice-header {
+    background: #fff; border-radius: 14px; padding: 32px; margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f2f5;
+    display: flex; justify-content: space-between; align-items: flex-start;
+}
+.invoice-number { font-size: 24px; font-weight: 700; color: #1a1a2e; letter-spacing: -0.5px; }
+.invoice-status { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.invoice-status.paid { background: #e8f5e9; color: #2e7d32; }
+.invoice-status.unpaid { background: #fff3e0; color: #e65100; }
+.invoice-status.partial { background: #fff8e1; color: #f57f17; }
+.invoice-status.cancelled { background: #ffebee; color: #c62828; }
+.invoice-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.invoice-info-item .lbl { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+.invoice-info-item .val { font-size: 14px; color: #1a1a2e; font-weight: 500; }
+.invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+.invoice-table th { background: #1a1a2e; color: #fff; padding: 10px 16px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.invoice-table td { padding: 10px 16px; border-bottom: 1px solid #f0f2f5; font-size: 14px; }
+.invoice-table tr:nth-child(even) td { background: #fafbfc; }
+.invoice-total { text-align: right; font-size: 18px; font-weight: 700; padding: 16px; border-top: 2px solid #1a1a2e; }
+.action-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="invoice-header">
+    <div>
+        <div class="invoice-number">{{ invoice.invoice_number }}</div>
+        <div style="margin-top:8px;">
+            <span class="invoice-status {{ invoice.status }}">{{ invoice.status.upper() }}</span>
+        </div>
+    </div>
+    <div class="action-bar">
+        <a href="{{ url_for('invoices.invoice_pdf', id=invoice.id, which='invoice') }}" class="btn btn-primary">Invoice PDF</a>
+        {% if invoice.status == 'paid' or invoice.paid_amount > 0 %}
+        <a href="{{ url_for('invoices.invoice_pdf', id=invoice.id, which='receipt') }}" class="btn btn-secondary">Receipt PDF</a>
+        {% endif %}
+        {% if invoice.status != 'paid' %}
+        <a href="{{ url_for('invoices.invoice_mark_paid', id=invoice.id) }}" class="btn btn-success" onclick="return confirm('Mark invoice as fully paid?')">Mark Paid</a>
+        {% endif %}
+        <a href="{{ url_for('invoices.invoice_delete', id=invoice.id) }}" class="btn btn-danger" onclick="return confirm('Delete this invoice?')">Delete</a>
+    </div>
+</div>
+
+<div class="card" style="padding:24px;margin-bottom:24px;">
+    <div class="invoice-info-grid">
+        <div class="invoice-info-item">
+            <div class="lbl">Member</div>
+            <div class="val">{{ invoice.member.first_name }} {{ invoice.member.last_name }}</div>
+        </div>
+        <div class="invoice-info-item">
+            <div class="lbl">Phone</div>
+            <div class="val">{{ invoice.member.phone or '-' }}</div>
+        </div>
+        <div class="invoice-info-item">
+            <div class="lbl">Issue Date</div>
+            <div class="val">{{ invoice.issue_date }}</div>
+        </div>
+        <div class="invoice-info-item">
+            <div class="lbl">Due Date</div>
+            <div class="val">{{ invoice.due_date }}</div>
+        </div>
+    </div>
+
+    <h3 style="margin-bottom:12px;">Items</h3>
+    <table class="invoice-table">
+        <thead>
+            <tr><th>Description</th><th>Qty</th><th>Unit Price</th><th style="text-align:right;">Amount</th></tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(item.unit_price) }}</td>
+                <td style="text-align:right;">{{ settings.currency }}{{ "%.2f"|format(item.amount) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="invoice-total">
+        Total: {{ settings.currency }}{{ "%.2f"|format(invoice.total) }}
+    </div>
+
+    {% if invoice.paid_amount > 0 %}
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f2f5;">
+        <div style="display:flex;justify-content:flex-end;gap:40px;font-size:14px;">
+            <div><strong>Paid:</strong> {{ settings.currency }}{{ "%.2f"|format(invoice.paid_amount) }}</div>
+            {% set bal = invoice.total - invoice.paid_amount %}
+            <div><strong>Balance:</strong> {{ settings.currency }}{{ "%.2f"|format(bal if bal > 0 else 0) }}</div>
+        </div>
+        <div style="margin-top:12px;">
+            <h4 style="margin-bottom:8px;">Payments on this Invoice</h4>
+            <table class="invoice-table">
+                <thead><tr><th>Date</th><th style="text-align:right;">Amount</th><th>Notes</th></tr></thead>
+                <tbody>
+                    {% for p in invoice.payments %}
+                    <tr>
+                        <td>{{ p.payment_date }}</td>
+                        <td style="text-align:right;">{{ settings.currency }}{{ "%.2f"|format(p.amount) }}</td>
+                        <td>{{ p.notes or '-' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" style="text-align:center;color:#999;">No linked payments</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if invoice.notes %}
+    <div style="margin-top:16px;padding:16px;background:#f9f9f9;border-radius:8px;">
+        <div style="font-size:11px;font-weight:600;color:#999;text-transform:uppercase;">Notes</div>
+        <div style="font-size:14px;color:#555;">{{ invoice.notes }}</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

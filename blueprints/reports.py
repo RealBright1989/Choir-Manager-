@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from flask import Blueprint, render_template, request, Response, current_app
+from flask import Blueprint, render_template, request, Response, current_app, send_from_directory
 from utils import login_required, export_excel, export_pdf, get_hierarchical_report, generate_hierarchy_pdf, generate_hierarchy_excel
 from models import db, Member, Payment, Attendance, Setting, Song, User
 from io import BytesIO
@@ -256,3 +256,24 @@ def reports_hierarchy_excel():
     buf = generate_hierarchy_excel(flat, grand, choir_name, currency, logo_path=_paths())
     return Response(buf.getvalue(), mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                     headers={"Content-Disposition": f"attachment; filename=hierarchy_report_{datetime.now().strftime('%Y%m%d')}.xlsx"})
+
+
+@bp.route("/reports/backups")
+@login_required
+def backups_list():
+    backup_dir = os.path.join(current_app.root_path, "backups")
+    os.makedirs(backup_dir, exist_ok=True)
+    files = []
+    for f in sorted(os.listdir(backup_dir), reverse=True):
+        if f.startswith("auto_backup_") and f.endswith(".xlsx"):
+            fpath = os.path.join(backup_dir, f)
+            size = os.path.getsize(fpath)
+            files.append({"name": f, "size": f"{size / 1024:.1f} KB", "ts": f.replace("auto_backup_", "").replace(".xlsx", "")})
+    return render_template("backups.html", backups=files)
+
+
+@bp.route("/reports/backups/<filename>")
+@login_required
+def backups_download(filename):
+    backup_dir = os.path.join(current_app.root_path, "backups")
+    return send_from_directory(backup_dir, filename, as_attachment=True)

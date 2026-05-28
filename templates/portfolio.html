@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bright Okon · Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a1a; color: #e0e0e0; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+        header { text-align: center; padding: 60px 0 40px; }
+        header h1 { font-size: 48px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+        header h1 span { color: #e94560; }
+        header p { font-size: 18px; color: #888; margin-top: 8px; }
+        .links { display: flex; justify-content: center; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+        .links a { color: #e94560; text-decoration: none; font-size: 14px; font-weight: 500; padding: 8px 20px; border: 1px solid #e94560; border-radius: 8px; transition: 0.2s; }
+        .links a:hover { background: #e94560; color: #fff; }
+        section { margin: 50px 0; }
+        h2 { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        h2::after { content: ''; flex: 1; height: 1px; background: #2a2a4a; }
+        .card { background: #12122a; border-radius: 14px; padding: 28px; margin-bottom: 20px; border: 1px solid #2a2a4a; transition: 0.2s; }
+        .card:hover { border-color: #e94560; transform: translateY(-2px); }
+        .card h3 { font-size: 18px; color: #fff; margin-bottom: 8px; }
+        .card p { color: #999; font-size: 14px; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .tag { background: #1a1a3e; color: #e94560; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .stat-card { background: #12122a; border-radius: 14px; padding: 24px; text-align: center; border: 1px solid #2a2a4a; }
+        .stat-card .num { font-size: 36px; font-weight: 800; color: #e94560; }
+        .stat-card .lbl { font-size: 13px; color: #888; margin-top: 4px; }
+        @media (max-width: 768px) {
+            .project-grid { grid-template-columns: 1fr; }
+            .stat-grid { grid-template-columns: 1fr; }
+            header h1 { font-size: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bright <span>Okon</span></h1>
+            <p>Python Backend Developer · Flask · SQLAlchemy · Full-Stack</p>
+            <div class="links">
+                <a href="https://github.com/RealBright1989" target="_blank">GitHub</a>
+                <a href="https://linkedin.com/in/your-profile" target="_blank">LinkedIn</a>
+                <a href="mailto:your.email@example.com">Email</a>
+                <a href="{{ url_for('landing.landing') }}">Choir Manager App</a>
+            </div>
+        </header>
+
+        <section>
+            <h2>About Me</h2>
+            <div class="card">
+                <p>I build full-stack web applications with Python, Flask, and SQLAlchemy. I'm passionate about clean architecture, automated testing, and solving real-world problems with code. Currently focused on building production-ready applications and expanding my skills in cloud deployment and API design.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Skills</h2>
+            <div class="card">
+                <div class="tags">
+                    <span class="tag">Python</span><span class="tag">Flask</span>
+                    <span class="tag">SQLAlchemy</span><span class="tag">PostgreSQL</span>
+                    <span class="tag">SQLite</span><span class="tag">Alembic</span>
+                    <span class="tag">Docker</span><span class="tag">Git</span>
+                    <span class="tag">HTML/CSS</span><span class="tag">JavaScript</span>
+                    <span class="tag">Jinja2</span><span class="tag">pytest</span>
+                    <span class="tag">REST APIs</span><span class="tag">fpdf2</span>
+                    <span class="tag">openpyxl</span><span class="tag">GitHub Actions</span>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Stats</h2>
+            <div class="stat-grid">
+                <div class="stat-card"><div class="num">32+</div><div class="lbl">Tests Passing</div></div>
+                <div class="stat-card"><div class="num">11</div><div class="lbl">Blueprint Modules</div></div>
+                <div class="stat-card"><div class="num">4</div><div class="lbl">Deploy Targets</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Projects</h2>
+            <div class="project-grid">
+                <div class="card">
+                    <h3>Choir Management System</h3>
+                    <p>Full-featured web app with member CRUD, attendance tracking, finance management, professional PDF invoices/receipts, Excel reports, role-based auth, and REST API. Dockerized with CI/CD.</p>
+                    <div class="tags">
+                        <span class="tag">Flask</span><span class="tag">SQLAlchemy</span>
+                        <span class="tag">PostgreSQL</span><span class="tag">Docker</span>
+                        <span class="tag">pytest</span><span class="tag">GitHub Actions</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>More coming soon</h3>
+                    <p>Building more projects to demonstrate my skills. Stay tuned!</p>
+                    <div class="tags"><span class="tag">In Progress</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Contact</h2>
+            <div class="card" style="text-align:center;">
+                <p style="margin-bottom:12px;">Interested in working together? Let's connect.</p>
+                <div class="links" style="margin-top:0;">
+                    <a href="mailto:your.email@example.com">Send Email</a>
+                    <a href="https://github.com/RealBright1989">GitHub</a>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align:center;padding:40px 0;color:#555;font-size:13px;">
+            &copy; 2026 Bright Okon
+        </footer>
+    </div>
+</body>
+</html>

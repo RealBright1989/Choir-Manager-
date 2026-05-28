@@ -29,6 +29,9 @@
             <a href="{{ url_for('finance.finance') }}" class="{{ 'active' if request.endpoint == 'finance' else '' }}">
                 <span class="icon">&#128176;</span> Finance
             </a>
+            <a href="{{ url_for('invoices.invoices') }}" class="{{ 'active' if request.endpoint in ('invoices','invoice_create','invoice_view') else '' }}">
+                <span class="icon">&#128196;</span> Invoices
+            </a>
             <a href="{{ url_for('reports.reports') }}" class="{{ 'active' if request.endpoint == 'reports' else '' }}">
                 <span class="icon">&#128200;</span> Reports
             </a>

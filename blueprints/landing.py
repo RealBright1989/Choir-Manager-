@@ -28,3 +28,8 @@ def user_manual():
 @bp.route("/terms")
 def terms():
     return render_template("terms.html")
+
+
+@bp.route("/portfolio")
+def portfolio():
+    return render_template("portfolio.html")

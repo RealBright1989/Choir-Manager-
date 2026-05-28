@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Invoices</h1>
+    <p>Manage invoices and receipts</p>
+</div>
+<div style="margin-bottom:20px;">
+    <a href="{{ url_for('invoices.invoice_create') }}" class="btn btn-primary">+ New Invoice</a>
+</div>
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Member</th>
+                <th>Issue Date</th>
+                <th>Due Date</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices %}
+            <tr>
+                <td><a href="{{ url_for('invoices.invoice_view', id=inv.id) }}">{{ inv.invoice_number }}</a></td>
+                <td>{{ inv.member.first_name }} {{ inv.member.last_name }}</td>
+                <td>{{ inv.issue_date }}</td>
+                <td>{{ inv.due_date }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(inv.total) }}</td>
+                <td>{{ settings.currency }}{{ "%.2f"|format(inv.paid_amount) }}</td>
+                <td>
+                    {% if inv.status == 'paid' %}
+                    <span class="badge badge-success">PAID</span>
+                    {% elif inv.status == 'partial' %}
+                    <span class="badge badge-warning">PARTIAL</span>
+                    {% elif inv.status == 'cancelled' %}
+                    <span class="badge badge-danger">CANCELLED</span>
+                    {% else %}
+                    <span class="badge badge-secondary">UNPAID</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('invoices.invoice_view', id=inv.id) }}" class="btn btn-secondary btn-sm">View</a>
+                    <a href="{{ url_for('invoices.invoice_pdf', id=inv.id, which='invoice') }}" class="btn btn-secondary btn-sm">PDF</a>
+                    {% if inv.status != 'paid' %}
+                    <a href="{{ url_for('invoices.invoice_mark_paid', id=inv.id) }}" class="btn btn-success btn-sm" onclick="return confirm('Mark as paid?')">Pay</a>
+                    {% endif %}
+                    <a href="{{ url_for('invoices.invoice_delete', id=inv.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete invoice?')">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="empty-table">No invoices yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

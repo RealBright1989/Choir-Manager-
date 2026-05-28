@@ -22,8 +22,9 @@ os.makedirs(app.config["PHOTO_FOLDER"], exist_ok=True)
 db.init_app(app)
 
 with app.app_context():
-    from utils import init_db_data
+    from utils import init_db_data, auto_backup
     db.create_all()
+    auto_backup()
     init_db_data()
 
 from blueprints.auth import bp as auth_bp
@@ -37,6 +38,8 @@ from blueprints.users_bp import bp as users_bp
 from blueprints.landing import bp as landing_bp
 from blueprints.social import bp as social_bp
 from blueprints.general import bp as general_bp
+from blueprints.invoices import bp as invoices_bp
+from blueprints.api import bp as api_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(members_bp)
@@ -49,6 +52,8 @@ app.register_blueprint(users_bp)
 app.register_blueprint(landing_bp)
 app.register_blueprint(social_bp)
 app.register_blueprint(general_bp)
+app.register_blueprint(invoices_bp)
+app.register_blueprint(api_bp)
 
 
 @app.context_processor

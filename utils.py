@@ -552,3 +552,76 @@ def export_excel(title, headers, rows, filename, logo_path=None):
     wb.save(buf)
     buf.seek(0)
     return buf
+
+
+def auto_backup():
+    """Create a timestamped full backup of all data to the backups/ folder."""
+    from models import Member, Payment, Attendance, Song, Expense, Invoice, InvoiceItem, User
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    backup_dir = os.path.join(current_app.root_path, "backups")
+    os.makedirs(backup_dir, exist_ok=True)
+
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = os.path.join(backup_dir, f"auto_backup_{ts}.xlsx")
+
+    wb = Workbook()
+    thin = Border(left=Side(style="thin", color="D0D7E0"), right=Side(style="thin", color="D0D7E0"),
+                  top=Side(style="thin", color="D0D7E0"), bottom=Side(style="thin", color="D0D7E0"))
+    hdr_fill = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
+    hdr_font = Font(bold=True, size=10, color="FFFFFF")
+
+    def write_sheet(ws, title, headers, rows):
+        ws.title = title[:31]
+        for ci, h in enumerate(headers, 1):
+            c = ws.cell(row=1, column=ci, value=h.upper())
+            c.font = hdr_font; c.fill = hdr_fill; c.alignment = Alignment(horizontal="center"); c.border = thin
+        for ri, row in enumerate(rows, 2):
+            for ci, val in enumerate(row, 1):
+                c = ws.cell(row=ri, column=ci, value=val)
+                c.border = thin; c.font = Font(size=9)
+                if isinstance(val, float): c.number_format = '#,##0.00'
+        for ci in range(1, len(headers) + 1):
+            ws.column_dimensions[get_column_letter(ci)].width = 16
+
+    members = Member.query.all()
+    if members:
+        cols = ["ID", "First Name", "Last Name", "Other Names", "Phone", "Email", "Section", "Join Date",
+                "DOB", "State", "LGA", "NIN", "Qualification", "Country", "Passport No", "Zone", "Area"]
+        data = [(m.id, m.first_name, m.last_name, m.other_names or "", m.phone or "", m.email or "",
+                m.section, m.join_date, m.dob or "", m.state_of_origin or "", m.lga or "",
+                m.nin_number or "", m.academic_qualification or "", m.country or "",
+                m.passport_number or "", m.zone or "", m.area or "") for m in members]
+        write_sheet(wb.active, "Members", cols, data)
+
+    for model_cls, title, cols, extract in [
+        (Payment, "Payments", ["ID", "Member ID", "Invoice ID", "Amount", "Date", "For", "Notes"],
+         lambda r: (r.id, r.member_id, r.invoice_id or 0, r.amount, r.payment_date, r.payment_for or "", r.notes or "")),
+        (Attendance, "Attendance", ["ID", "Member ID", "Date", "Status", "Notes"],
+         lambda r: (r.id, r.member_id, r.date, r.status, r.notes or "")),
+        (Song, "Songs", ["ID", "Title", "Composer", "Upload Date", "Notes"],
+         lambda r: (r.id, r.title, r.composer or "", r.upload_date, r.notes or "")),
+        (Expense, "Expenses", ["ID", "Description", "Amount", "Date", "Category", "Notes"],
+         lambda r: (r.id, r.description, r.amount, r.expense_date, r.category or "", r.notes or "")),
+        (Invoice, "Invoices", ["ID", "Invoice #", "Member ID", "Issue Date", "Due Date", "Status", "Subtotal", "Total", "Paid"],
+         lambda r: (r.id, r.invoice_number, r.member_id, r.issue_date, r.due_date, r.status, r.subtotal, r.total, r.paid_amount)),
+        (InvoiceItem, "Invoice Items", ["ID", "Invoice ID", "Description", "Qty", "Unit Price", "Amount"],
+         lambda r: (r.id, r.invoice_id, r.description, r.quantity, r.unit_price, r.amount)),
+        (User, "Users", ["ID", "Username", "Role", "Created", "Email"],
+         lambda r: (r.id, r.username, r.role, r.created_at, r.email or "")),
+    ]:
+        rows = model_cls.query.all()
+        if rows:
+            ws = wb.create_sheet()
+            write_sheet(ws, title, cols, [extract(r) for r in rows])
+
+    wb.save(filename)
+
+    backups = sorted([f for f in os.listdir(backup_dir) if f.startswith("auto_backup_") and f.endswith(".xlsx")])
+    while len(backups) > 10:
+        os.remove(os.path.join(backup_dir, backups.pop(0)))
+
+    logger.info(f"Auto-backup saved: {filename}")
+    return filename
