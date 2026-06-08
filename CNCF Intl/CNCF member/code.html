@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Music Library | BCS CNCF Sovereign Leadership</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .waveform-bar {
+            transition: height 0.2s ease;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#0a3d91",
+                        "on-primary-fixed": "#001947",
+                        "tertiary-fixed": "#ffdbcd",
+                        "surface-variant": "#d8e3fb",
+                        "surface": "#f9f9ff",
+                        "inverse-on-surface": "#ecf1ff",
+                        "surface-tint": "#345baf",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#521a00",
+                        "surface-container-high": "#dee8ff",
+                        "inverse-primary": "#b1c5ff",
+                        "secondary-fixed": "#ffe088",
+                        "surface-dim": "#cfdaf2",
+                        "secondary": "#735c00",
+                        "on-secondary": "#ffffff",
+                        "primary": "#002868",
+                        "primary-fixed": "#dae2ff",
+                        "background": "#f9f9ff",
+                        "secondary-fixed-dim": "#e9c349",
+                        "outline-variant": "#c4c6d3",
+                        "on-background": "#111c2d",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f0f3ff",
+                        "outline": "#747783",
+                        "on-tertiary-fixed": "#360f00",
+                        "on-tertiary-container": "#ff9162",
+                        "on-surface-variant": "#434652",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-tertiary-fixed-variant": "#7c2e04",
+                        "tertiary-container": "#762900",
+                        "on-error": "#ffffff",
+                        "on-surface": "#111c2d",
+                        "secondary-container": "#fed65b",
+                        "tertiary-fixed-dim": "#ffb597",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#144296",
+                        "on-primary-container": "#8dadff",
+                        "surface-bright": "#f9f9ff",
+                        "surface-container-highest": "#d8e3fb",
+                        "surface-container": "#e7eeff",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#263143",
+                        "on-secondary-container": "#745c00",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#574500",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "stack-lg": "24px",
+                        "gutter": "24px",
+                        "section-gap": "48px",
+                        "base": "8px",
+                        "container-padding-mobile": "16px",
+                        "stack-md": "16px",
+                        "container-padding-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-[280px] bg-[#1E293B] flex flex-col z-50 overflow-y-auto sidebar-scroll border-r border-outline-variant shadow-md">
+<div class="p-stack-lg flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-secondary-fixed font-bold leading-tight">Sovereign Leadership</h1>
+<p class="font-label-sm text-label-sm text-surface-variant/70">BCS CNCF Admin</p>
+</div>
+</div>
+<nav class="mt-4 flex-grow px-3">
+<div class="space-y-1">
+<!-- Navigation Items based on JSON -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">groups</span> Members
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">record_voice_over</span> Voice Sections
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">how_to_reg</span> Attendance
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_month</span> Rehearsals
+                </a>
+<!-- Active Tab: Music Library -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg border-l-4 border-secondary-fixed bg-primary-container/20 text-secondary-fixed-dim font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_music</span> Music Library
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">event_note</span> Service Planning
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">event</span> Events
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">mail</span> Communication
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">school</span> Training
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">checkroom</span> Uniform Management
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span> Finance
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">description</span> Documents
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">analytics</span> Reports
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">verified_user</span> Approvals
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+</div>
+</nav>
+<div class="p-4 border-t border-outline-variant/30">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-surface-variant hover:bg-error/20 hover:text-error transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">logout</span> Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] w-[calc(100%-280px)] h-screen flex flex-col relative">
+<!-- Top Navigation Bar -->
+<header class="h-16 flex justify-between items-center px-gutter bg-surface/80 backdrop-blur-xl border-b border-outline-variant z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-black text-primary">BCS CNCF</h2>
+<div class="h-6 w-[1px] bg-outline-variant mx-2"></div>
+<div class="relative w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-label-md focus:ring-2 focus:ring-primary-container transition-all" placeholder="Search for songs, composers, or hymnals..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all">chat_bubble</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all">add_circle</button>
+</div>
+<div class="flex items-center gap-3 pl-6 border-l border-outline-variant">
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface leading-none">Admin Lead</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Sovereign Admin</p>
+</div>
+<img alt="User Profile" class="w-10 h-10 rounded-full border-2 border-primary-fixed shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpbVvQ1Oe5twL84iVITEIwBdQfNpbwS2gry06fZuwztHxmlwXJGObCAyqdq5dU8jTrgxwMiKCbRY5Vgyc2CCxUSyPiKy8rfSyzQeQdfcJAhkbs_6Tp6kb5ecTc_xPMpqBe5gwlGjl1qFWwBKv8TucK08Pt8GVlFi-KuPPyNR5iuF1tiIAevhez6W_ill9ZK2yb34TbeFdbLM10UEolvZ6bqJU1I01C9jW5_y4C-FtSM2Pw02v81uTQ_M2iqed4ZNRBlFCTbjmFqds"/>
+</div>
+</div>
+</header>
+<!-- Sub-Header & Filters -->
+<section class="p-gutter pb-0 space-y-6">
+<div class="flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Music Library</h1>
+<p class="text-on-surface-variant mt-1">Manage and access the complete sacred music repertoire of BCS CNCF.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-2.5 rounded-lg font-label-md text-label-md shadow-lg hover:bg-primary-container transition-all">
+<span class="material-symbols-outlined">upload</span> Upload Music
+                </button>
+</div>
+<!-- Category Filters -->
+<div class="flex items-center justify-between border-b border-outline-variant">
+<div class="flex gap-8">
+<button class="pb-3 border-b-2 border-primary text-primary font-bold font-label-md text-label-md transition-all">All Repertoire</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-all">Sheet Music</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-all">Practice Tracks</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-all">Video Tutorials</button>
+<button class="pb-3 border-b-2 border-transparent text-on-surface-variant hover:text-primary font-label-md text-label-md transition-all">Hymnals</button>
+</div>
+<div class="flex items-center gap-2 pb-2">
+<button class="p-2 rounded-lg bg-surface-container-high text-primary"><span class="material-symbols-outlined">grid_view</span></button>
+<button class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+</div>
+</div>
+</section>
+<!-- Main Content Scroll Area -->
+<section class="flex-grow overflow-y-auto p-gutter pt-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Music Card 1 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-high mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" data-alt="A detailed digital rendering of an ornate, vintage sheet music cover titled Hallelujah Chorus. The paper is slightly aged with ivory tones and features elegant black calligraphy and subtle gold leaf patterns around the edges. The scene is lit by soft, warm morning light, evoking a sense of reverence and timeless musical tradition within a professional choral library." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALLB5aIkXrEjaatmfbYUhGCZwUbph9JdR8hV9HLiqcGE3XJPR99E3xGFgdZLvUfBmHqQzCGWYKqAyawvOfytjRGfJE8bT-nXBy_I5lVDzpmu65yjZtd6tqiWj06W6HYj_Lg__TuqfJFy6WmWxjJi7agpGbIQuPWNu6oFSlTAQGoc7A_6EBQEeL4WaSbS4n7_zQkXN5A0CROjrZe2k2Ae8P87qQl8Aa2QQ4I28fYRpw_J5lHq3b0VkNBAjKH0ZQwmo-R7dOYs_XGec"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-sm">
+<button class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300" onclick="playTrack('Hallelujah Chorus', 'G.F. Handel')">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight">Hallelujah Chorus</h3>
+<span class="text-secondary font-bold text-label-sm">Key: D Major</span>
+</div>
+<p class="text-on-surface-variant font-body-sm italic">G.F. Handel</p>
+<div class="flex gap-1.5 pt-2">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">S</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">A</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">T</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">B</span>
+</div>
+<div class="pt-4 flex justify-between items-center border-t border-outline-variant/30">
+<div class="flex gap-3">
+<button class="material-symbols-outlined text-primary text-xl hover:scale-110 transition-transform">picture_as_pdf</button>
+<button class="material-symbols-outlined text-primary text-xl hover:scale-110 transition-transform">headphones</button>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-secondary transition-colors">more_vert</button>
+</div>
+</div>
+</div>
+<!-- Music Card 2 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm hover:shadow-xl transition-all duration-300">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-high mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" data-alt="A clean, minimalist sheet music display showing the opening notes of The Lord is My Shepherd. The staff lines are crisp and black against a premium, matte white background. The lighting is bright and even, creating a focused, scholarly environment. Gold accents appear on a bookmark resting at the edge of the frame, symbolizing excellence and divine guidance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB58jrze4sW2Xe9SRALrjaCLhQxmD0-UdHa4V6xhK4FdH5LrLaYOLOFoRQOFGKVV50czJJTHi7xEmYYxE92OMI8ALhqE2u3uHNgB7gzVn6p-ME-cepnXF5-NnmbpiTSrJKJ752dcuS7YrPVG4Uq-4o2hGOX6JWO3UrNT8PXYS6SnqD93BsoZWqEL9g9D6IN3nluedBZ_L499zR9oVHmEo0QufH_TR0MyR9K2vmEHbhapm2wNORRGmlGHoewtgxa4XwlGpHnM8V22Qc"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-sm">
+<button class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight">The Lord is My Shepherd</h3>
+<span class="text-secondary font-bold text-label-sm">Key: Eb</span>
+</div>
+<p class="text-on-surface-variant font-body-sm italic">H. Goodall</p>
+<div class="flex gap-1.5 pt-2">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">S</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant/40 text-on-surface-variant/50 text-[10px] font-bold">A</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant/40 text-on-surface-variant/50 text-[10px] font-bold">T</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">B</span>
+</div>
+<div class="pt-4 flex justify-between items-center border-t border-outline-variant/30">
+<div class="flex gap-3">
+<button class="material-symbols-outlined text-primary text-xl">picture_as_pdf</button>
+<button class="material-symbols-outlined text-primary text-xl">headphones</button>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">more_vert</button>
+</div>
+</div>
+</div>
+<!-- Music Card 3 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm hover:shadow-xl transition-all duration-300">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-high mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" data-alt="A close-up photograph of a contemporary choral score titled 'Abide With Me', featuring complex harmonies and multiple voice lines. The lighting is cinematic, with a soft cool-toned shadow across the page, highlighting the sharp black ink of the musical symbols. The aesthetic is professional and modern, using a color palette of deep navy blues and crisp whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnNei2HPGjBPElkVLKXVFLnTph1J_o3nt8tmSodYQaXG3loXdaEGdiyfTTork4vImkX1STyu6tORj1yzSc2GeL5sG5HWWaXhbKbxrT0xb3vf4Wivi1qWor-HxUWNdM17lcXHMFJRElPkejtyDO-ZH2pXHrct71LR4uUOpBVNnK4c4QsF2S37U-3L2AZCQt86ek7pw-6T5LjpARJRxr51zUKRCCNCstQ74HtJkIJfyMtBwfXOS1uY-mo3bcefN8S5c7V8Q2fr5VFiI"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-sm">
+<button class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight">Abide With Me</h3>
+<span class="text-secondary font-bold text-label-sm">Key: C</span>
+</div>
+<p class="text-on-surface-variant font-body-sm italic">Traditional Arr.</p>
+<div class="flex gap-1.5 pt-2">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">S</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">A</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">T</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">B</span>
+</div>
+<div class="pt-4 flex justify-between items-center border-t border-outline-variant/30">
+<div class="flex gap-3">
+<button class="material-symbols-outlined text-primary text-xl">picture_as_pdf</button>
+<button class="material-symbols-outlined text-primary text-xl">headphones</button>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">more_vert</button>
+</div>
+</div>
+</div>
+<!-- Music Card 4 -->
+<div class="group bg-surface-container-lowest rounded-xl border border-outline-variant p-4 shadow-sm hover:shadow-xl transition-all duration-300">
+<div class="aspect-[3/4] rounded-lg bg-surface-container-high mb-4 overflow-hidden relative">
+<img class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" data-alt="An abstract artistic representation of a conductor's baton resting on a musical score of 'Ave Maria'. The focus is sharp on the wooden texture of the baton, while the notes in the background are softly blurred. The color palette is composed of rich dark blues and contrasting gold light reflections, creating a premium and authoritative feel suitable for a high-end music management system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhntgLwD1MlAnt38TBcc_6lqJQbW3DjnUPNaLh3Lb-xq33eb7q6YQItA60nWk9f5v3y9HVgAB-HMpatW_sI0k0_YBzJXz2Veqnlp9eK4yogolXcH_NYzqDVCFA6WBJHDtitDYdSUjpJn3ss6a2TDW4ZpmCgXuaFDTkLumAA7v5HiQvdlZb-XXj-C98w_oxBPOBfbXkxfmssq3ZnFco4lyvOeN5Mh992ARKxZE6TFXryg2WlDFtiewKTI-O3z_qVF_K5WIebX0S_B0"/>
+<div class="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 backdrop-blur-sm">
+<button class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight">Ave Maria</h3>
+<span class="text-secondary font-bold text-label-sm">Key: G</span>
+</div>
+<p class="text-on-surface-variant font-body-sm italic">F. Schubert</p>
+<div class="flex gap-1.5 pt-2">
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">S</span>
+<span class="px-2 py-0.5 rounded bg-primary-container/10 text-primary text-[10px] font-bold">A</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant/40 text-on-surface-variant/50 text-[10px] font-bold">T</span>
+<span class="px-2 py-0.5 rounded bg-surface-variant/40 text-on-surface-variant/50 text-[10px] font-bold">B</span>
+</div>
+<div class="pt-4 flex justify-between items-center border-t border-outline-variant/30">
+<div class="flex gap-3">
+<button class="material-symbols-outlined text-primary text-xl">picture_as_pdf</button>
+<button class="material-symbols-outlined text-primary text-xl">headphones</button>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant">more_vert</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- "Now Playing" Mini Player -->
+<div class="absolute bottom-0 left-0 w-full h-24 bg-surface-container-lowest border-t border-outline-variant flex items-center px-gutter translate-y-0 transition-transform duration-500 shadow-[0_-4px_20px_rgba(10,61,145,0.08)]" id="player">
+<div class="flex items-center gap-4 w-1/4">
+<div class="w-12 h-12 rounded bg-primary overflow-hidden">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP7Hu4XE1y0M-2iB9SwfSkAyNNsZ3aoII1jRj659SsuFymEF3BOr4THqxLKRzjMaZ41vi8-VizPAe9AP--qrTWeEcNiC0AXOIhfi2ai27tAAgVv-blqU-ZWBfrcmQidSstUDW6kJPVu-PMgb9SFCVh4T_2GHeX-ZkKOMHBM80q6_w55KwlYNebMyz30MKe_U7EVD2UPdZdQwR2sK0l2PrEDzCiqOwrOBfrFdddUAyr86ktDao53yIChvlljN3z8Vj62lk6K5FgjEo"/>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface leading-tight" id="track-name">Hallelujah Chorus</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant" id="track-composer">G.F. Handel</p>
+</div>
+</div>
+<!-- Waveform & Controls -->
+<div class="flex-grow flex flex-col items-center gap-2">
+<div class="flex items-center gap-6">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">shuffle</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">skip_previous</button>
+<button class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">skip_next</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">repeat</button>
+</div>
+<div class="flex items-center gap-3 w-full max-w-2xl">
+<span class="text-[10px] font-mono text-on-surface-variant">02:14</span>
+<div class="flex-grow h-8 flex items-end gap-1 overflow-hidden" id="waveform">
+<!-- Waveform bars generated by JS -->
+</div>
+<span class="text-[10px] font-mono text-on-surface-variant">04:35</span>
+</div>
+</div>
+<!-- Voice Selection & Volume -->
+<div class="flex items-center justify-end gap-6 w-1/4">
+<div class="flex bg-surface-container rounded-full p-1 border border-outline-variant">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-primary bg-white shadow-sm">S</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">A</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">T</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">B</button>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">volume_up</span>
+<div class="w-24 h-1 bg-outline-variant rounded-full overflow-hidden relative">
+<div class="absolute inset-0 bg-primary w-2/3"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Generate simulated waveform
+        const waveform = document.getElementById('waveform');
+        for (let i = 0; i < 60; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'waveform-bar w-1.5 bg-primary/20 rounded-full transition-all duration-300';
+            const randomHeight = Math.floor(Math.random() * 24) + 4;
+            bar.style.height = randomHeight + 'px';
+            if (i < 30) bar.classList.replace('bg-primary/20', 'bg-primary');
+            waveform.appendChild(bar);
+        }
+
+        // Animate waveform
+        setInterval(() => {
+            const bars = document.querySelectorAll('.waveform-bar');
+            bars.forEach(bar => {
+                const randomHeight = Math.floor(Math.random() * 24) + 4;
+                bar.style.height = randomHeight + 'px';
+            });
+        }, 150);
+
+        function playTrack(title, composer) {
+            document.getElementById('track-name').textContent = title;
+            document.getElementById('track-composer').textContent = composer;
+            
+            const player = document.getElementById('player');
+            player.classList.remove('translate-y-full');
+            
+            // Interaction feedback
+            const playBtn = player.querySelector('button .material-symbols-outlined');
+            playBtn.textContent = 'pause';
+        }
+    </script>
+</body></html>

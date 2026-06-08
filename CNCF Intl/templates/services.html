@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Service Planning{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Service Planning</h2>
+        <p>{{ plans|length }} service plan{{ 's' if plans|length != 1 else '' }}</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ url_for('services.add') }}" class="btn btn-primary">
+            <span class="material-symbols-outlined" style="font-size:18px;">add</span> New Plan
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr><th>Title</th><th>Date</th><th>Location</th><th>Conductor</th><th style="text-align:right;">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for p in plans %}
+                <tr>
+                    <td><span style="font-weight:600;">{{ p.title }}</span></td>
+                    <td>{{ p.date }}</td>
+                    <td>{{ p.location or '—' }}</td>
+                    <td>{{ p.conductor or '—' }}</td>
+                    <td style="text-align:right;">
+                        <a href="{{ url_for('services.edit', id=p.id) }}" class="btn btn-ghost btn-sm">Edit</a>
+                        <form method="POST" action="{{ url_for('services.delete', id=p.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ p.title }}?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align:center;color:var(--outline);padding:60px 20px;">
+                    <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:12px;">event_note</span>
+                    No service plans yet.
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

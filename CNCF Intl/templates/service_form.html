@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if plan else 'New' }} Service Plan{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="breadcrumb">
+            <a href="{{ url_for('services.list') }}" style="color:var(--outline);text-decoration:none;">Service Planning</a>
+            <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
+            <span class="current">{{ 'Edit' if plan else 'New' }} Plan</span>
+        </div>
+        <h2>{{ 'Edit' if plan else 'New' }} Service Plan</h2>
+    </div>
+</div>
+
+<div class="card" style="max-width:800px;">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('services.edit', id=plan.id) if plan else url_for('services.add') }}">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" name="title" value="{{ plan.title or '' }}" required placeholder="e.g. Sunday Divine Worship, Evening Vespers">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" name="date" value="{{ plan.date or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" value="{{ plan.location or '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Conductor</label>
+                    <input type="text" name="conductor" value="{{ plan.conductor or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" name="description" value="{{ plan.description or '' }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Songs / Order of Service</label>
+                <textarea name="songs_list" rows="5" placeholder="List the songs and order of service...">{{ plan.songs_list or '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" rows="3">{{ plan.notes or '' }}</textarea>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined" style="font-size:18px;">save</span> {{ 'Update' if plan else 'Create' }}
+                </button>
+                <a href="{{ url_for('services.list') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

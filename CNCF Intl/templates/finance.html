@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Finance{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2>Finance</h2>
+        <p>Income: ₦{{ "%.2f"|format(income) }} &middot; Expenses: ₦{{ "%.2f"|format(expense) }}</p>
+    </div>
+    <div class="page-actions">
+        <a href="{{ url_for('finance.add') }}" class="btn btn-primary">
+            <span class="material-symbols-outlined" style="font-size:18px;">add</span> Record Transaction
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">trending_up</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value">₦{{ "%.2f"|format(income) }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon tertiary"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">trending_down</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Total Expenses</div>
+            <div class="stat-value">₦{{ "%.2f"|format(expense) }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon gold"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">account_balance</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Balance</div>
+            <div class="stat-value">₦{{ "%.2f"|format(income - expense) }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon info"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">receipt_long</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value">{{ transactions|length }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Type</th><th>Description</th><th>Category</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td><span class="badge badge-{{ 'active' if t.type == 'income' else 'inactive' }}">{{ t.type|title }}</span></td>
+                    <td>{{ t.description or '—' }}</td>
+                    <td><span class="badge badge-standard">{{ t.category or '—' }}</span></td>
+                    <td style="text-align:right;font-weight:600;color:{{ 'var(--success)' if t.type == 'income' else 'var(--error)' }};">
+                        {{ '+' if t.type == 'income' else '-' }}₦{{ "%.2f"|format(t.amount) }}
+                    </td>
+                    <td style="text-align:right;">
+                        <form method="POST" action="{{ url_for('finance.delete', id=t.id) }}" style="display:inline;" onsubmit="return confirm('Delete this transaction?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" style="text-align:center;color:var(--outline);padding:60px 20px;">
+                    <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:12px;">payments</span>
+                    No transactions yet.
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

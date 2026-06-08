@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if song else 'Add' }} Song{% endblock %}
+{% block content %}
+<div style="max-width:800px;">
+    <div class="flex items-center gap-2 mb-6">
+        <a href="{{ url_for('music.list') }}" style="color:var(--outline);text-decoration:none;font-size:14px;">Music Library</a>
+        <span class="material-symbols-outlined" style="font-size:14px;color:var(--outline);">chevron_right</span>
+        <span style="font-size:14px;font-weight:600;color:var(--primary);">{{ 'Edit' if song else 'Add' }} Song</span>
+    </div>
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:600;color:var(--primary);margin-bottom:24px;">{{ 'Edit' if song else 'Add' }} Song</h1>
+
+    <div class="glass-card" style="padding:32px;border-radius:12px;">
+        <form method="POST" action="{{ url_for('music.edit', id=song.id) if song else url_for('music.add') }}">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" name="title" value="{{ song.title or '' }}" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Composer</label>
+                    <input type="text" name="composer" value="{{ song.composer or '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Arranger</label>
+                    <input type="text" name="arranger" value="{{ song.arranger or '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Key</label>
+                    <select name="key">
+                        <option value="">Select...</option>
+                        {% for k in ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B','Cm','Dm','Em','Fm','Gm','Am'] %}
+                        <option value="{{ k }}" {{ 'selected' if song and song.key == k }}>{{ k }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tempo</label>
+                    <input type="text" name="tempo" value="{{ song.tempo or '' }}" placeholder="e.g. 120 BPM, Andante">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="sheet_music" {{ 'selected' if song and song.category == 'sheet_music' }}>Sheet Music</option>
+                        <option value="practice_track" {{ 'selected' if song and song.category == 'practice_track' }}>Practice Track</option>
+                        <option value="video_tutorial" {{ 'selected' if song and song.category == 'video_tutorial' }}>Video Tutorial</option>
+                        <option value="hymnal" {{ 'selected' if song and song.category == 'hymnal' }}>Hymnal</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="text" name="duration" value="{{ song.duration or '04:35' }}" placeholder="e.g. 04:35">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Sections (comma-separated)</label>
+                <input type="text" name="sections" value="{{ song.sections or 'S,A,T,B' }}" placeholder="e.g. S,A,T,B">
+            </div>
+            <div class="form-group">
+                <label>Lyrics</label>
+                <textarea name="lyrics" rows="6" style="font-family:monospace;">{{ song.lyrics or '' }}</textarea>
+            </div>
+            <div style="display:flex;gap:12px;padding-top:8px;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined" style="font-size:18px;">save</span> {{ 'Update' if song else 'Save' }}
+                </button>
+                <a href="{{ url_for('music.list') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,447 @@
+{% extends "base.html" %}
+{% block title %}Members{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+* { font-family: 'Inter', sans-serif; }
+h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.status-active { background: #059669; }
+.status-pending { background: #d97706; }
+
+.kpi-card { padding: 24px; display: flex; flex-direction: column; gap: 10px; background: var(--surface-container-lowest); border: 1px solid rgba(196, 198, 211, 0.3); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.25s cubic-bezier(0.4,0,0.2,1); }
+.kpi-card:hover { box-shadow: 0 8px 30px rgba(10,61,145,0.08); transform: translateY(-2px); }
+
+.kpi-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.kpi-icon .material-symbols-outlined { font-size: 20px; }
+
+.chart-bar { border-radius: 4px 4px 0 0; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+.chart-bar:hover { opacity: 0.7; transform: scaleY(1.05); transform-origin: bottom; }
+
+.section-pill { padding: 7px 18px; border-radius: 6px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif; background: transparent; color: var(--on-surface-variant); }
+.section-pill:hover { background: rgba(255,255,255,0.6); }
+.section-pill.active-pill { background: #fff; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+.pill-count { background: var(--primary); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 9999px; line-height: 16px; }
+
+.filter-input { width: 100%; padding: 9px 14px 9px 40px; background: var(--surface); border: 1px solid var(--outline-variant); border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--on-surface); outline: none; transition: all 0.2s ease; }
+.filter-input:focus { border-color: var(--primary-container); box-shadow: 0 0 0 4px rgba(10,61,145,0.08); }
+.filter-input::placeholder { color: var(--outline); }
+
+.filter-select { background: var(--surface); border: 1px solid var(--outline-variant); border-radius: 10px; padding: 9px 14px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--on-surface); outline: none; cursor: pointer; transition: all 0.2s ease; }
+.filter-select:focus { border-color: var(--primary-container); box-shadow: 0 0 0 4px rgba(10,61,145,0.08); }
+
+.action-btn { padding: 7px; color: var(--on-surface-variant); text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; transition: all 0.2s ease; }
+.action-btn:hover { background: var(--surface-container); color: var(--primary); }
+.action-btn .material-symbols-outlined { font-size: 20px; }
+
+.page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 700; color: var(--primary); letter-spacing: -0.03em; line-height: 40px; }
+.page-subtitle { font-size: 16px; color: var(--on-surface-variant); margin-top: 4px; font-weight: 400; }
+
+.header-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s cubic-bezier(0.4,0,0.2,1); text-decoration: none; border: none; }
+.header-btn .material-symbols-outlined { font-size: 20px; }
+.header-btn-secondary { background: var(--surface-container-lowest); color: var(--secondary); border: 1px solid var(--secondary); }
+.header-btn-secondary:hover { background: rgba(115, 92, 0, 0.06); box-shadow: 0 2px 8px rgba(115,92,0,0.08); }
+.header-btn-primary { background: var(--primary-container); color: #fff; box-shadow: 0 2px 12px rgba(10,61,145,0.2); }
+.header-btn-primary:hover { background: var(--primary); box-shadow: 0 4px 20px rgba(10,61,145,0.3); transform: translateY(-1px); }
+
+.kpi-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 700; color: var(--on-surface); line-height: 1.2; letter-spacing: -0.02em; }
+.kpi-label { font-size: 14px; font-weight: 600; color: var(--on-surface-variant); font-family: 'Inter', sans-serif; }
+.kpi-sub { font-size: 12px; color: var(--on-surface-variant); font-weight: 400; }
+
+tbody tr {
+  transition: all 0.15s ease;
+}
+tbody tr:hover td {
+  background: rgba(10, 61, 145, 0.02);
+}
+</style>
+
+<div style="display:flex;flex-direction:column;gap:32px;">
+  <!-- ─── Page Header ──────────────────────────────── -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <div>
+      <h1 class="page-title">Member Management</h1>
+      <p class="page-subtitle">Manage and oversee all choristers across global sections.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="header-btn header-btn-secondary"><span class="material-symbols-outlined">filter_list</span> Filter</button>
+      <button class="header-btn header-btn-secondary"><span class="material-symbols-outlined">file_download</span> Export Data</button>
+      <a href="{{ url_for('members.add') }}" class="header-btn header-btn-primary"><span class="material-symbols-outlined">person_add</span> Add New Member</a>
+    </div>
+  </div>
+
+  <!-- ─── KPI Summary ──────────────────────────────── -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;">
+    <div class="kpi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="kpi-icon" style="background:var(--primary-fixed);color:var(--primary);"><span class="material-symbols-outlined">groups</span></div>
+        <span style="font-size:12px;font-weight:600;color:#059669;background:#ecfdf5;padding:3px 10px;border-radius:9999px;font-family:'Inter',sans-serif;">+12%</span>
+      </div>
+      <div>
+        <p class="kpi-label">Total Choristers</p>
+        <p class="kpi-value">{{ total_count }}</p>
+      </div>
+      <p class="kpi-sub">Overall registered growth this month</p>
+    </div>
+    <div class="kpi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="kpi-icon" style="background:var(--secondary-container);color:var(--secondary);"><span class="material-symbols-outlined">check_circle</span></div>
+        <span style="font-size:12px;font-weight:500;color:var(--on-surface-variant);background:var(--surface-container-high);padding:3px 10px;border-radius:9999px;font-family:'Inter',sans-serif;">Target: {{ (total_count * 1.2)|int }}</span>
+      </div>
+      <div>
+        <p class="kpi-label">Active Members</p>
+        <p class="kpi-value">{{ active_count }}</p>
+      </div>
+      <div style="width:100%;background:var(--surface-container-high);height:6px;border-radius:9999px;margin-top:4px;overflow:hidden;">
+        <div style="background:linear-gradient(90deg,var(--secondary),var(--secondary-fixed-dim));height:6px;border-radius:9999px;width:{{ (active_count / total_count * 100)|round|int if total_count else 0 }}%;transition:width 1s ease;"></div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="kpi-icon" style="background:var(--tertiary-fixed);color:var(--tertiary-container);"><span class="material-symbols-outlined">person_add</span></div>
+      </div>
+      <div>
+        <p class="kpi-label">New Registrations</p>
+        <p class="kpi-value">{{ new_count }}</p>
+      </div>
+      <p class="kpi-sub">Added in the last 30 days</p>
+    </div>
+    <div class="kpi-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="kpi-icon" style="background:var(--surface-variant);color:var(--primary);"><span class="material-symbols-outlined">fact_check</span></div>
+      </div>
+      <div>
+        <p class="kpi-label">Profile Completion</p>
+        <p class="kpi-value">94.2%</p>
+      </div>
+      <p class="kpi-sub">Average across all active members</p>
+    </div>
+  </div>
+
+  <!-- ─── Table Section ────────────────────────────── -->
+  <div class="card" style="overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.03);">
+    <div style="padding:24px;border-bottom:1px solid var(--outline-variant);display:flex;flex-direction:column;gap:14px;">
+      <div style="position:relative;width:100%;max-width:460px;">
+        <span class="material-symbols-outlined" style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--outline);font-size:20px;pointer-events:none;">search</span>
+        <input type="text" placeholder="Filter by name..." id="memberSearch" class="filter-input" oninput="filterMembers()">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <select id="sectionFilter" class="filter-select" onchange="filterMembers()">
+          <option value="">Voice Section: All</option>
+          <option value="Treble">Treble</option>
+          <option value="Alto">Alto</option>
+          <option value="Tenor">Tenor</option>
+          <option value="Bass">Bass</option>
+        </select>
+        <select id="statusFilter" class="filter-select" onchange="filterMembers()">
+          <option value="">Status: All</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select id="stateFilter" class="filter-select" onchange="updateFilterAreas(); filterMembers();">
+          <option value="">State: All</option>
+          {% for s in states|sort %}
+          <option value="{{ s }}">{{ s }}</option>
+          {% endfor %}
+        </select>
+        <select id="areaFilter" class="filter-select" onchange="updateFilterZones(); filterMembers();">
+          <option value="">LGA: All</option>
+        </select>
+        <select id="zoneFilter" class="filter-select" onchange="updateFilterBethels(); filterMembers();">
+          <option value="">Zone: All</option>
+        </select>
+        <select id="bethelFilter" class="filter-select" onchange="filterMembers()">
+          <option value="">Bethel: All</option>
+        </select>
+        <div style="display:flex;border:1px solid var(--outline-variant);border-radius:10px;padding:4px;background:var(--surface-container-low);width:fit-content;">
+          <button class="section-pill active-pill" data-section="" onclick="setSection(this)">All Members</button>
+          <button class="section-pill" data-section="Treble" onclick="setSection(this)">Treble</button>
+          <button class="section-pill" data-section="Alto" onclick="setSection(this)">Alto</button>
+          <button class="section-pill" data-section="Tenor" onclick="setSection(this)">Tenor</button>
+          <button class="section-pill" data-section="Bass" onclick="setSection(this)">Bass</button>
+          <button class="section-pill" data-section="Pending" onclick="setSection(this)" style="display:flex;align-items:center;gap:6px;">Pending <span class="pill-count">{{ pending_count }}</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="font-weight:600;letter-spacing:0.06em;">Member Name</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">Voice Section</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">State</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">LGA</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">Zone</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">Bethel</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">Joined Date</th>
+            <th style="font-weight:600;letter-spacing:0.06em;">Status</th>
+            <th style="text-align:right;font-weight:600;letter-spacing:0.06em;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="memberTableBody">
+          {% for m in members %}
+          <tr class="member-row" data-name="{{ m.full_name|lower }}" data-section="{{ m.section or '' }}" data-status="{{ 'active' if m.is_active else 'inactive' }}" data-state="{{ m.state or '' }}" data-area="{{ m.area or '' }}" data-zone="{{ m.zone or '' }}" data-bethel="{{ m.bethel or '' }}">
+            <td>
+              <div style="display:flex;align-items:center;gap:12px;">
+                {% if m.photo %}
+                <img src="{{ url_for('static', filename='uploads/' + m.photo) }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                {% else %}
+                <div class="avatar-circle" style="background:linear-gradient(135deg,var(--primary-container),var(--primary));width:40px;height:40px;font-size:13px;font-weight:700;flex-shrink:0;">{{ m.first_name[0] }}{{ m.last_name[0] }}</div>
+                {% endif %}
+                <div>
+                  <p style="font-size:14px;font-weight:600;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.full_name }}</p>
+                  <p style="font-size:12px;font-weight:500;color:var(--on-surface-variant);font-family:'Inter',sans-serif;">CH-{{ (m.created_at[:4] if m.created_at else '2024') }}-{{ '%04d' % m.id }}</p>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-size:14px;font-weight:500;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.section or '—' }}</span></td>
+            <td><span style="font-size:14px;font-weight:400;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.state or '—' }}</span></td>
+            <td><span style="font-size:14px;font-weight:400;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.area or '—' }}</span></td>
+            <td><span style="font-size:14px;font-weight:400;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.zone or '—' }}</span></td>
+            <td><span style="font-size:14px;font-weight:400;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.bethel or '—' }}</span></td>
+            <td><span style="font-size:14px;font-weight:400;color:var(--on-surface);font-family:'Inter',sans-serif;">{{ m.join_date or '—' }}</span></td>
+            <td>
+              {% if m.is_active %}
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:9999px;font-size:12px;font-weight:600;background:#ecfdf5;color:#059669;font-family:'Inter',sans-serif;">
+                <span class="status-dot status-active"></span> Active
+              </span>
+              {% else %}
+              <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:9999px;font-size:12px;font-weight:600;background:#fef3c7;color:#d97706;font-family:'Inter',sans-serif;">
+                <span class="status-dot status-pending"></span> Pending
+              </span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;">
+              <div style="display:flex;align-items:center;justify-content:flex-end;gap:2px;">
+                <a href="{{ url_for('members.edit', id=m.id) }}" class="action-btn" title="View"><span class="material-symbols-outlined">visibility</span></a>
+                <a href="{{ url_for('members.edit', id=m.id) }}" class="action-btn" title="Edit"><span class="material-symbols-outlined">edit</span></a>
+                <form method="POST" action="{{ url_for('members.delete', id=m.id) }}" style="display:inline;" onsubmit="return confirm('Remove {{ m.full_name }} from the roster?')">
+                  <button type="submit" class="action-btn" title="More"><span class="material-symbols-outlined">more_vert</span></button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" style="text-align:center;color:var(--outline);padding:80px 20px;">
+            <span class="material-symbols-outlined" style="font-size:56px;display:block;margin-bottom:16px;color:var(--outline-variant);">groups</span>
+            <p style="font-size:18px;font-weight:600;color:var(--on-surface-variant);font-family:'Plus Jakarta Sans',sans-serif;">No members registered yet</p>
+            <p style="font-size:14px;color:var(--outline);margin-top:4px;">Get started by adding your first chorister.</p>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding:20px 24px;border-top:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:space-between;">
+      <p id="paginationInfo" style="font-size:13px;font-weight:500;color:var(--on-surface-variant);font-family:'Inter',sans-serif;">Showing 1–{{ members|length }} of {{ total_count }} member{{ 's' if total_count != 1 else '' }}</p>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <button style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--outline-variant);background:var(--surface);cursor:pointer;color:var(--on-surface-variant);transition:all 0.15s;" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='var(--surface)'"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
+        <button style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--primary);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 2px 8px rgba(0,40,104,0.15);">1</button>
+        <button style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--outline-variant);background:var(--surface);cursor:pointer;color:var(--on-surface-variant);transition:all 0.15s;" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='var(--surface)'"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Bento Layout ─────────────────────────────── -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;">
+    <!-- Chart Card -->
+    <div class="card" style="padding:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--on-surface);">Member Registration Trend</h4>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--on-surface-variant);font-family:'Inter',sans-serif;"><span style="width:10px;height:10px;border-radius:50%;background:var(--primary);display:inline-block;"></span> Current Year</span>
+          <span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--outline);font-family:'Inter',sans-serif;"><span style="width:10px;height:10px;border-radius:50%;background:var(--outline-variant);display:inline-block;"></span> Previous Year</span>
+        </div>
+      </div>
+      <div style="height:200px;display:flex;align-items:flex-end;justify-content:space-between;gap:6px;padding:0 8px;">
+        {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+        {% set heights = [60, 75, 90, 40, 55, 80, 65, 70, 85, 50, 45, 72] %}
+        {% set prev_heights = [50, 55, 70, 35, 45, 65, 55, 60, 70, 40, 38, 60] %}
+        {% for i in range(12) %}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:3px;height:200px;">
+            <div class="chart-bar" style="width:10px;height:{{ prev_heights[i] }}px;background:var(--outline-variant);"></div>
+            <div class="chart-bar" style="width:10px;height:{{ heights[i] }}px;background:var(--primary);{% if i == 2 %}box-shadow:0 2px 12px rgba(0,40,104,0.25);{% endif %}"></div>
+          </div>
+          <span style="font-size:11px;font-weight:500;color:var(--on-surface-variant);font-family:'Inter',sans-serif;">{{ months[i] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Featured Section Card -->
+    <div class="card" style="padding:28px;background:linear-gradient(135deg,var(--primary) 0%,#001947 100%);color:#fff;overflow:hidden;position:relative;border:none;display:flex;flex-direction:column;justify-content:space-between;">
+      <div style="position:relative;z-index:1;">
+        <span class="material-symbols-outlined" style="font-size:48px;color:var(--secondary-fixed);opacity:0.9;">workspace_premium</span>
+        <h4 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:700;margin-top:16px;letter-spacing:-0.01em;">Top Choral Excellence</h4>
+        <p style="font-size:14px;color:var(--primary-fixed);opacity:0.85;margin-top:10px;line-height:1.6;font-family:'Inter',sans-serif;">This month's featured section is the <strong style="color:#fff;font-weight:700;">Tenor Section</strong> with 99% rehearsal attendance.</p>
+      </div>
+      <button style="position:relative;z-index:1;width:fit-content;margin-top:32px;padding:11px 28px;background:var(--secondary-fixed);color:var(--on-secondary-fixed);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);box-shadow:0 4px 16px rgba(254,214,91,0.3);" onmouseover="this.style.transform='scale(1.04)';this.style.boxShadow='0 6px 24px rgba(254,214,91,0.4)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 16px rgba(254,214,91,0.3)'">View Detailed Stats</button>
+      <div style="position:absolute;right:-40px;bottom:-40px;width:200px;height:200px;background:rgba(255,255,255,0.04);border-radius:50%;filter:blur(60px);"></div>
+      <div style="position:absolute;left:-40px;top:60px;width:140px;height:140px;background:rgba(254,214,91,0.08);border-radius:50%;filter:blur(40px);"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const locationData = {
+  "Nigeria": {
+    "Abia": ["Aba North","Aba South","Arochukwu","Bende","Ikwuano","Isiala Ngwa North","Isiala Ngwa South","Isuikwuato","Obi Ngwa","Ohafia","Osisioma","Ugwunagbo","Ukwa East","Ukwa West","Umuahia North","Umuahia South","Umu Nneochi"],
+    "Adamawa": ["Demsa","Fufore","Ganye","Girei","Gombi","Guyuk","Hong","Jada","Lamurde","Madagali","Maiha","Mayo Belwa","Michika","Mubi North","Mubi South","Numan","Shelleng","Song","Toungo","Yola North","Yola South"],
+    "Akwa Ibom": ["Abak","Eastern Obolo","Eket","Esit Eket","Essien Udim","Etim Ekpo","Etinan","Ibeno","Ibesikpo Asutan","Ibiono Ibom","Ika","Ikono","Ikot Abasi","Ikot Ekpene","Ini","Itu","Mbo","Mkpat Enin","Nsit Atai","Nsit Ibom","Nsit Ubium","Obot Akara","Okobo","Onna","Oron","Oruk Anam","Udung Uko","Ukanafun","Uruan","Urue Offong Oruko","Uyo"],
+    "Anambra": ["Aguata","Anambra East","Anambra West","Anaocha","Awka North","Awka South","Ayamelum","Dunukofia","Ekwusigo","Idemili North","Idemili South","Ihiala","Njikoka","Nnewi North","Nnewi South","Ogbaru","Onitsha North","Onitsha South","Orumba North","Orumba South","Oyi"],
+    "Bauchi": ["Alkaleri","Bauchi","Bogoro","Damban","Darazo","Dass","Gamawa","Ganjuwa","Giade","Itas/Gadau","Jama'are","Katagum","Kirfi","Misau","Ningi","Shira","Tafawa Balewa","Toro","Warji","Zaki"],
+    "Bayelsa": ["Brass","Ekeremor","Kolokuma/Opokuma","Nembe","Ogbia","Sagbama","Southern Ijaw","Yenagoa"],
+    "Benue": ["Ado","Agatu","Apa","Buruku","Gboko","Guma","Gwer East","Gwer West","Katsina Ala","Konshisha","Kwande","Logo","Makurdi","Obi","Ogbadibo","Ohimini","Oju","Okpokwu","Otukpo","Tarka","Ukum","Ushongo","Vandeikya"],
+    "Borno": ["Abadam","Askira/Uba","Bama","Bayo","Biu","Chibok","Damboa","Dikwa","Gubio","Guzamala","Gwoza","Hawul","Jere","Kaga","Kala/Balge","Konduga","Kukawa","Kwaya Kusar","Mafa","Magumeri","Maiduguri","Marte","Mobbar","Monguno","Ngala","Nganzai","Shani"],
+    "Cross River": ["Abi","Akamkpa","Akpabuyo","Bakassi","Bekwarra","Biase","Boki","Calabar Municipal","Calabar South","Etung","Ikom","Obanliku","Obubra","Obudu","Odukpani","Ogoja","Yakuur","Yala"],
+    "Delta": ["Aniocha North","Aniocha South","Bomadi","Burutu","Ethiope East","Ethiope West","Ika North East","Ika South","Isoko North","Isoko South","Ndokwa East","Ndokwa West","Okpe","Oshimili North","Oshimili South","Patani","Sapele","Udu","Ughelli North","Ughelli South","Ukwuani","Uvwie","Warri North","Warri South","Warri South West"],
+    "Ebonyi": ["Abakaliki","Afikpo North","Afikpo South","Ebonyi","Ezza North","Ezza South","Ikwo","Ishielu","Ivo","Izzi","Ohaozara","Ohaukwu","Onicha"],
+    "Edo": ["Akoko Edo","Egor","Esan Central","Esan North East","Esan South East","Esan West","Etsako Central","Etsako East","Etsako West","Igueben","Ikpoba Okha","Oredo","Orhionmwon","Ovia North East","Ovia South West","Owan East","Owan West","Uhunmwonde"],
+    "Ekiti": ["Ado Ekiti","Efon","Ekiti East","Ekiti South West","Ekiti West","Emure","Gbonyin","Ido Osi","Ijero","Ikere","Ikole","Ilejemeje","Irepodun/Ifelodun","Ise/Orun","Moba","Oye"],
+    "Enugu": ["Aninri","Awgu","Enugu East","Enugu North","Enugu South","Ezeagu","Igbo Etiti","Igbo Eze North","Igbo Eze South","Isi Uzo","Nkanu East","Nkanu West","Nsukka","Oji River","Udenu","Udi","Uzo Uwani"],
+    "FCT": ["Abaji","Bwari","Gwagwalada","Kuje","Kwali","Municipal Area Council"],
+    "Gombe": ["Akko","Balanga","Billiri","Dukku","Funakaye","Gombe","Kaltungo","Kwami","Nafada","Shongom","Yamaltu/Deba"],
+    "Imo": ["Aboh Mbaise","Ahiazu Mbaise","Ehime Mbano","Ezinihitte","Ideato North","Ideato South","Ihitte/Uboma","Ikeduru","Isiala Mbano","Isu","Mbaitoli","Ngor Okpala","Njaba","Nkwerre","Nwangele","Obowo","Oguta","Ohaji/Egbema","Okigwe","Onuimo","Orlu","Orsu","Oru East","Oru West","Owerri Municipal","Owerri North","Owerri West","Unuimo"],
+    "Jigawa": ["Auyo","Babura","Biriniwa","Birnin Kudu","Buji","Dutse","Gagarawa","Garki","Gumel","Guri","Gwaram","Gwiwa","Hadejia","Jahun","Kafin Hausa","Kazaure","Kiri Kasama","Kiyawa","Kaugama","Maigatari","Malam Madori","Miga","Ringim","Roni","Sule Tankarkar","Taura","Yankwashi"],
+    "Kaduna": ["Birnin Gwari","Chikun","Giwa","Igabi","Ikara","Jaba","Jema'a","Kachia","Kaduna North","Kaduna South","Kagarko","Kajuru","Kaura","Kauru","Kubau","Kudan","Lere","Makarfi","Sabon Gari","Sanga","Soba","Zangon Kataf","Zaria"],
+    "Kano": ["Ajingi","Albasu","Bagwai","Bebeji","Bichi","Bunkure","Dala","Dambatta","Dawakin Kudu","Dawakin Tofa","Doguwa","Fagge","Gabasawa","Garko","Garun Mallam","Gaya","Gezawa","Gwale","Gwarzo","Kabo","Kano Municipal","Karaye","Kibiya","Kiru","Kumbotso","Kunchi","Kura","Madobi","Makoda","Minjibir","Nasarawa","Rano","Rimin Gado","Rogo","Shanono","Sumaila","Takai","Tarauni","Tofa","Tsanyawa","Tudun Wada","Ungogo","Warawa","Wudil"],
+    "Katsina": ["Bakori","Batagarawa","Batsari","Baure","Bindawa","Charanchi","Dandume","Danja","Dan Musa","Daura","Dutsi","Dutsin Ma","Faskari","Funtua","Ingawa","Jibia","Kafur","Kaita","Kankara","Kankia","Katsina","Kurfi","Kusada","Mai'Adua","Malumfashi","Mani","Mashi","Matazu","Musawa","Rimi","Sabuwa","Safana","Sandamu","Zango"],
+    "Kebbi": ["Aleiro","Arewa Dandi","Argungu","Augie","Bagudo","Birnin Kebbi","Bunza","Dandi","Fakai","Gwandu","Jega","Kalgo","Koko/Besse","Maiyama","Ngaski","Sakaba","Shanga","Suru","Wasagu/Danko","Yauri","Zuru"],
+    "Kogi": ["Adavi","Ajaokuta","Ankpa","Bassa","Dekina","Ibaji","Idah","Igalamela Odolu","Ijumu","Kabba/Bunu","Kogi","Lokoja","Mopa Muro","Ofu","Ogori/Magongo","Okehi","Okene","Olamaboro","Omala","Yagba East","Yagba West"],
+    "Kwara": ["Asa","Baruten","Edu","Ekiti","Ifelodun","Ilorin East","Ilorin South","Ilorin West","Irepodun","Isin","Kaiama","Moro","Offa","Oke Ero","Oyun","Pategi"],
+    "Lagos": ["Agege","Ajeromi Ifelodun","Alimosho","Amuwo Odofin","Apapa","Badagry","Epe","Eti Osa","Ibeju Lekki","Ifako Ijaiye","Ikeja","Ikorodu","Kosofe","Lagos Island","Lagos Mainland","Mushin","Ojo","Oshodi Isolo","Shomolu","Surulere","Yaba"],
+    "Nasarawa": ["Akwanga","Awe","Doma","Karu","Keana","Keffi","Kokona","Lafia","Nasarawa","Nasarawa Egon","Obi","Toto","Wamba"],
+    "Niger": ["Agaie","Agwara","Bida","Borgu","Bosso","Chanchaga","Edati","Gbako","Gurara","Katcha","Kontagora","Lapai","Lavun","Magama","Mariga","Mashegu","Mokwa","Muya","Paikoro","Rafi","Rijau","Shiroro","Suleja","Tafa","Wushishi"],
+    "Ogun": ["Abeokuta North","Abeokuta South","Ado Odo/Ota","Egbado North","Egbado South","Ewekoro","Ifo","Ijebu East","Ijebu North","Ijebu North East","Ijebu Ode","Ikenne","Imeko Afon","Ipokia","Obafemi Owode","Odeda","Odogbolu","Ogun Waterside","Remo North","Shagamu","Yewa North","Yewa South"],
+    "Ondo": ["Akoko North East","Akoko North West","Akoko South East","Akoko South West","Akure North","Akure South","Ese Odo","Idanre","Ifedore","Ilaje","Ile Oluji/Okeigbo","Irele","Odigbo","Okitipupa","Ondo East","Ondo West","Ose","Owo"],
+    "Osun": ["Atakunmosa East","Atakunmosa West","Aiyedaade","Aiyedire","Boluwaduro","Boripe","Ede North","Ede South","Egbedore","Ejigbo","Ife Central","Ife East","Ife North","Ife South","Ifedayo","Ifelodun","Ila","Ilesa East","Ilesa West","Irepodun","Irewole","Isokan","Iwo","Obokun","Odo Otin","Ola Oluwa","Olorunda","Oriade","Orolu","Osogbo"],
+    "Oyo": ["Afijio","Akinyele","Atiba","Atisbo","Egbeda","Ibadan North","Ibadan North East","Ibadan North West","Ibadan South East","Ibadan South West","Ibarapa Central","Ibarapa East","Ibarapa North","Ido","Irepo","Iseyin","Itesiwaju","Iwajowa","Kajola","Lagelu","Ogbomoso North","Ogbomoso South","Ogo Oluwa","Olorunsogo","Oluyole","Ona Ara","Orelope","Ori Ire","Oyo East","Oyo West","Saki East","Saki West","Surulere"],
+    "Plateau": ["Barkin Ladi","Bassa","Bokkos","Jos East","Jos North","Jos South","Kanam","Kanke","Langtang North","Langtang South","Mangu","Mikang","Pankshin","Qua'an Pan","Riyom","Shendam","Wase"],
+    "Rivers": ["Abua/Odual","Ahoada East","Ahoada West","Akuku Toru","Andoni","Asari Toru","Bonny","Degema","Eleme","Emuoha","Etche","Gokana","Ikwerre","Khana","Obio/Akpor","Ogba/Egbema/Ndoni","Ogu/Bolo","Okrika","Omuma","Opobo/Nkoro","Oyigbo","Port Harcourt","Tai"],
+    "Sokoto": ["Binji","Bodinga","Dange Shuni","Gada","Goronyo","Gudu","Gwadabawa","Illela","Isa","Kebbe","Kware","Rabah","Sabon Birni","Shagari","Silame","Sokoto North","Sokoto South","Tambuwal","Tangaza","Tureta","Wamako","Wurno","Yabo"],
+    "Taraba": ["Ardo Kola","Bali","Donga","Gashaka","Gassol","Ibi","Jalingo","Karim Lamido","Kurmi","Lau","Sardauna","Takum","Ussa","Wukari","Yorro","Zing"],
+    "Yobe": ["Bade","Bursari","Damaturu","Fika","Fune","Geidam","Gujba","Gulani","Jakusko","Karasuwa","Machina","Nangere","Nguru","Potiskum","Tarmuwa","Yunusari","Yusufari"],
+    "Zamfara": ["Anka","Bakura","Birnin Magaji/Kiyaw","Bukkuyum","Bungudu","Gummi","Gusau","Kaura Namoda","Maradun","Maru","Shinkafi","Talata Mafara","Chafe","Zurmi"]
+  }
+};
+
+function updateFilterAreas() {
+  const state = document.getElementById('stateFilter').value;
+  const areaSel = document.getElementById('areaFilter');
+  const zoneSel = document.getElementById('zoneFilter');
+  const bethelSel = document.getElementById('bethelFilter');
+  zoneSel.innerHTML = '<option value="">Zone: All</option>';
+  bethelSel.innerHTML = '<option value="">Bethel: All</option>';
+  areaSel.innerHTML = '<option value="">LGA: All</option>';
+  if (state && locationData.Nigeria && locationData.Nigeria[state]) {
+    for (const a of locationData.Nigeria[state].sort()) {
+      areaSel.innerHTML += '<option value="' + a + '">' + a + '</option>';
+    }
+  }
+}
+
+function updateFilterZones() {
+  const zoneSel = document.getElementById('zoneFilter');
+  const bethelSel = document.getElementById('bethelFilter');
+  bethelSel.innerHTML = '<option value="">Bethel: All</option>';
+  zoneSel.innerHTML = '<option value="">Zone: All</option><option value="General Zone">General Zone</option>';
+}
+
+function updateFilterBethels() {
+  const bethelSel = document.getElementById('bethelFilter');
+  bethelSel.innerHTML = '<option value="">Bethel: All</option><option value="General Bethel">General Bethel</option>';
+}
+};
+
+function setSection(btn) {
+  document.querySelectorAll('.section-pill').forEach(p => {
+    p.classList.remove('active-pill');
+  });
+  btn.classList.add('active-pill');
+
+  const section = btn.dataset.section;
+  document.getElementById('statusFilter').value = '';
+  const sel = document.getElementById('sectionFilter');
+  if (section === 'Pending') {
+    sel.value = '';
+    document.getElementById('statusFilter').value = 'inactive';
+  } else {
+    sel.value = section;
+  }
+  filterMembers();
+}
+
+function updateFilterAreas() {
+  const state = document.getElementById('stateFilter').value;
+  const areaSel = document.getElementById('areaFilter');
+  const zoneSel = document.getElementById('zoneFilter');
+  const bethelSel = document.getElementById('bethelFilter');
+  zoneSel.innerHTML = '<option value="">Zone: All</option>';
+  bethelSel.innerHTML = '<option value="">Bethel: All</option>';
+  areaSel.innerHTML = '<option value="">Area: All</option>';
+  if (state && locationData.Nigeria && locationData.Nigeria[state]) {
+    for (const a of Object.keys(locationData.Nigeria[state]).sort()) {
+      areaSel.innerHTML += '<option value="' + a + '">' + a + '</option>';
+    }
+  }
+}
+
+function updateFilterZones() {
+  const state = document.getElementById('stateFilter').value;
+  const area = document.getElementById('areaFilter').value;
+  const zoneSel = document.getElementById('zoneFilter');
+  const bethelSel = document.getElementById('bethelFilter');
+  bethelSel.innerHTML = '<option value="">Bethel: All</option>';
+  zoneSel.innerHTML = '<option value="">Zone: All</option>';
+  if (state && area && locationData.Nigeria && locationData.Nigeria[state] && locationData.Nigeria[state][area]) {
+    for (const z of Object.keys(locationData.Nigeria[state][area]).sort()) {
+      zoneSel.innerHTML += '<option value="' + z + '">' + z + '</option>';
+    }
+  }
+}
+
+function updateFilterBethels() {
+  const state = document.getElementById('stateFilter').value;
+  const area = document.getElementById('areaFilter').value;
+  const zone = document.getElementById('zoneFilter').value;
+  const bethelSel = document.getElementById('bethelFilter');
+  bethelSel.innerHTML = '<option value="">Bethel: All</option>';
+  if (state && area && zone && locationData.Nigeria && locationData.Nigeria[state] && locationData.Nigeria[state][area] && locationData.Nigeria[state][area][zone]) {
+    for (const b of locationData.Nigeria[state][area][zone].sort()) {
+      bethelSel.innerHTML += '<option value="' + b + '">' + b + '</option>';
+    }
+  }
+}
+
+function filterMembers() {
+  const name = document.getElementById('memberSearch').value.toLowerCase();
+  const section = document.getElementById('sectionFilter').value.toLowerCase();
+  const status = document.getElementById('statusFilter').value.toLowerCase();
+  const state = document.getElementById('stateFilter').value;
+  const area = document.getElementById('areaFilter').value;
+  const zone = document.getElementById('zoneFilter').value;
+  const bethel = document.getElementById('bethelFilter').value;
+  let visible = 0;
+
+  document.querySelectorAll('.member-row').forEach(row => {
+    const match = (!name || row.dataset.name.includes(name)) &&
+                  (!section || row.dataset.section === section) &&
+                  (!status || row.dataset.status === status) &&
+                  (!state || row.dataset.state === state) &&
+                  (!area || row.dataset.area === area) &&
+                  (!zone || row.dataset.zone === zone) &&
+                  (!bethel || row.dataset.bethel === bethel);
+    row.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+
+  const info = document.getElementById('paginationInfo');
+  if (info) info.textContent = 'Showing 1\u2013' + visible + ' of ' + visible + ' member' + (visible !== 1 ? 's' : '');
+}
+</script>
+{% endblock %}

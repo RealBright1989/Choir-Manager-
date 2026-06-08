@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Pending Approvals{% endblock %}
+{% block content %}
+<style>
+.approvals-page { max-width: 900px; margin: 0 auto; }
+.pending-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: all 0.15s;
+}
+.pending-card:hover { border-color: var(--outline); }
+.pending-card .info { flex: 1; }
+.pending-card .name { font-weight: 700; font-size: 15px; color: var(--on-surface); }
+.pending-card .meta { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+.pending-card .actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-approve {
+    background: #16a34a; color: #fff; border: none; padding: 8px 18px; border-radius: 8px;
+    font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s; font-family: 'Inter', sans-serif;
+}
+.btn-approve:hover { background: #15803d; }
+.btn-reject {
+    background: #dc2626; color: #fff; border: none; padding: 8px 18px; border-radius: 8px;
+    font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s; font-family: 'Inter', sans-serif;
+}
+.btn-reject:hover { background: #b91c1c; }
+.empty-state {
+    text-align: center; padding: 48px 24px; color: var(--on-surface-variant);
+}
+.empty-state .icon { font-size: 48px; color: var(--outline); margin-bottom: 12px; }
+</style>
+
+<div class="approvals-page">
+    <div class="page-header">
+        <div>
+            <h2 style="color:var(--primary);">Pending Approvals</h2>
+            <p style="color:var(--on-surface-variant);font-size:14px;margin-top:2px;">{{ pending|length }} user(s) awaiting review</p>
+        </div>
+    </div>
+
+    {% if pending %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+        {% for user in pending %}
+        <div class="pending-card">
+            <div class="info">
+                <div class="name">{{ user.display_name }}</div>
+                <div class="meta">
+                    @{{ user.username }} &middot; Registered {{ user.created_at }}
+                    {% if user.member %}
+                    &middot; {{ user.member.section or 'No section' }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="actions">
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="action" value="approve">
+                    <button type="submit" class="btn-approve">
+                        <span class="material-symbols-outlined" style="font-size:16px;">check</span> Approve
+                    </button>
+                </form>
+                <form method="POST" style="display:inline;">
+                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn-reject" onclick="return confirm('Reject {{ user.display_name }}?')">
+                        <span class="material-symbols-outlined" style="font-size:16px;">close</span> Reject
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="material-symbols-outlined icon">check_circle</div>
+        <h3 style="font-weight:700;font-size:16px;color:var(--on-surface);">All caught up!</h3>
+        <p style="font-size:14px;margin-top:4px;">No pending registrations to review.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

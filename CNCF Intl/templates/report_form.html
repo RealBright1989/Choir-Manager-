@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Report" if report else "Write Report" }}{% endblock %}
+{% block content %}
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+.section-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px; font-weight: 700; color: var(--primary);
+    margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-fixed-dim);
+}
+.section-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 600; color: var(--primary-container);
+    margin: 20px 0 12px;
+}
+.form-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+.form-table th {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--on-surface-variant);
+    background: var(--surface-container-low);
+    padding: 10px 12px; text-align: left;
+    border: 1px solid var(--outline-variant);
+}
+.form-table td {
+    padding: 8px 12px; border: 1px solid var(--outline-variant);
+    vertical-align: top;
+}
+.form-table input, .form-table select, .form-table textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--outline-variant);
+    border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif;
+    background: #fff; color: var(--on-surface);
+}
+.form-table input:focus, .form-table select:focus, .form-table textarea:focus {
+    outline: none; border-color: var(--primary-container);
+    box-shadow: 0 0 0 2px rgba(10,61,145,0.1);
+}
+.field-label { font-size: 13px; font-weight: 600; color: var(--on-surface-variant); margin-bottom: 4px; }
+.watermark {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    opacity: 0.04; pointer-events: none; z-index: 0;
+    max-width: 400px; width: 60%;
+}
+.report-card { position: relative; overflow: hidden; }
+.report-card .card-body { position: relative; z-index: 1; }
+</style>
+
+<div class="page-header">
+    <div style="display:flex;align-items:center;gap:16px;">
+        <img src="/static/uploads/cncf_logo.png" style="height:48px;width:auto;object-fit:contain;" alt="CNCF Logo">
+        <div>
+            <h2 style="color:var(--primary);margin:0;">{{ "Edit Report" if report else "Monthly/Termly Report" }}</h2>
+            <p style="color:var(--on-surface-variant);font-size:14px;margin-top:2px;">State Fellowship Termly Report Template &mdash; Brotherhood of the Cross and Star</p>
+        </div>
+    </div>
+</div>
+
+<div class="card report-card">
+    <img src="/static/uploads/cncf_logo.png" class="watermark" alt="">
+    <div class="card-body">
+        <form method="POST">
+
+            <!-- Basic Info -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+                <div class="form-group">
+                    <label>Name of State Fellowship</label>
+                    <input type="text" name="fellowship_name" value="Christ Natural Choristers Fellowship (CNCF)" placeholder="e.g. Christ Natural Choristers Fellowship">
+                </div>
+                <div class="form-group">
+                    <label>Year / Time Frame of Reporting</label>
+                    <input type="text" name="time_frame" value="January-March 2026" placeholder="e.g. January-March 2026">
+                </div>
+            </div>
+
+            <!-- Preamble -->
+            <div class="form-group">
+                <label>PREAMBLE</label>
+                <div id="preamble-editor" style="height:200px;">{{ report.preamble if report else "" }}</div>
+                <input type="hidden" name="preamble" id="preamble-input">
+            </div>
+
+            <!-- 1. ADMINISTRATIVE STRUCTURE -->
+            <div class="section-title">1. ADMINISTRATIVE STRUCTURE</div>
+            <p style="font-size:13px;color:var(--on-surface-variant);margin-bottom:12px;">Please kindly list all your executive members.</p>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Names of Executive Members</th><th>Portfolio</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 19) %}
+                    <tr>
+                        <td style="text-align:center;">{{ i }}</td>
+                        <td><input type="text" name="exec_name_{{ i }}" placeholder=""></td>
+                        <td><input type="text" name="exec_portfolio_{{ i }}" placeholder=""></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="form-group">
+                <label>Changes in Administrative Structure (if any)</label>
+                <textarea name="admin_changes" rows="2" placeholder="State the executive member and portfolio where changes were made and the reasons..." style="resize:vertical;"></textarea>
+            </div>
+
+            <!-- 2. STRUCTURE OF THE FELLOWSHIP -->
+            <div class="section-title">2. STRUCTURE OF THE FELLOWSHIP (EXISTENCE IN BETHELS)</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Bethel</th><th>Status</th><th>Existence (Yes/No)</th><th>Functional / Non Functional</th><th>No of Meetings Held in the Term</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 8) %}
+                    <tr>
+                        <td style="text-align:center;">{{ i }}</td>
+                        <td><input type="text" placeholder=""></td>
+                        <td><select><option value="">Select</option><option>Yes</option><option>No</option></select></td>
+                        <td><select><option value="">Select</option><option>Yes</option><option>No</option></select></td>
+                        <td><select><option value="">Select</option><option>Functional</option><option>Non Functional</option></select></td>
+                        <td><input type="text" placeholder=""></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- 3. FELLOWSHIP NUMERICAL STRENGTH -->
+            <div class="section-title">3. FELLOWSHIP NUMERICAL STRENGTH</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/NO</th><th>Activities</th><th>Comment</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Total registered members (refer to dues and registration book)</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">Numbers of Active Members / Average Attendance to Meetings</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 4. MEETINGS -->
+            <div class="section-title">4. MEETINGS</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Types of Meetings Held</th><th>Total Number</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Executive Meeting</td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td>General Meeting</td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td>Emergency Meeting</td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 5. PROPOSED PROJECTS OR PLANS -->
+            <div class="section-title">5. PROPOSED PROJECTS OR PLANS</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Activities</th><th>Comments</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Nature of Project?</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">The total cost / Budget of the Project?</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td><span class="field-label">Total amount raised so far for the project?</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>4</td><td><span class="field-label">Current State of the Project?</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 6. PROJECT/ACTIVITIES CARRIED OUT -->
+            <div class="section-title">6. PROJECT / ACTIVITIES CARRIED OUT BY THE FELLOWSHIP</div>
+            <div class="section-sub">State Level</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Detail of Project/Activity</th><th>Current State</th><th>Challenges/Way Forward</th><th>Nature of Project</th><th>Total Cost/Budget</th><th>Amount Raised</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 4) %}
+                    <tr><td>{{ i }}</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="section-sub">Bethel Levels</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Bethel</th><th>Detail of Project/Activity</th><th>Progress</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 8) %}
+                    <tr><td>{{ i }}</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- 7. EVANGELISM -->
+            <div class="section-title">7. EVANGELISM</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Activities</th><th>Comment</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Total evangelism held for the period</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">Nature of Evangelism</span></td><td><input type="text" placeholder="Two by Two / Corporate / Open Kitchen"></td></tr>
+                    <tr><td>3</td><td><span class="field-label">Different dates and venues of evangelism</span></td><td><textarea rows="2" placeholder=""></textarea></td></tr>
+                    <tr><td>4</td><td><span class="field-label">Total Baptism / record of newly baptized members</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>5</td><td><span class="field-label">State of activeness of newly Baptized Members</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>6</td><td><span class="field-label">Are you still in touch with newly baptized members?</span></td><td><input type="text" placeholder="If yes, how? If not, why?"></td></tr>
+                    <tr><td>7</td><td><span class="field-label">Your Next Move / Way Forward</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 8. CONTRIBUTION/SUPPORT TOWARDS BCS MEGA PROJECTS -->
+            <div class="section-title">8. CONTRIBUTION / SUPPORT TOWARDS BCS MEGA PROJECTS / CORPORATE ESTABLISHMENTS</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/NO</th><th>Activities</th><th>Amount Contributed</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Olumba Supreme Temple</td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td>Holy Father's Vestry Project</td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td>First Royal Micro Finance Bank (account opened?)</td><td><input type="text" placeholder="Account Name / Number if yes"></td></tr>
+                    <tr><td>4</td><td>StarCross TV Monthly Support</td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>5</td><td>Any other support</td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 9. EMPOWERMENT -->
+            <div class="section-title">9. EMPOWERMENT</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/NO</th><th>Activities</th><th>Comment</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Nature of Empowerment</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">Who were or are the Beneficiaries?</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td><span class="field-label">Duration of the empowerment (one off or continuous)</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>4</td><td><span class="field-label">Cost / Amount expended</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 10. HUMAN CAPITAL DEVELOPMENT -->
+            <div class="section-title">10. HUMAN CAPITAL DEVELOPMENT</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/NO</th><th>Activities</th><th>Comments</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Did you organize any retreat, sensitization workshop?</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">Kindly list the Topics and speakers</span></td><td><textarea rows="2" placeholder=""></textarea></td></tr>
+                    <tr><td>3</td><td><span class="field-label">Total No of Retreat / Sensitization workshop participation</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 11. CONTRIBUTION/SUPPORT FOR INTERNATIONAL EVENTS -->
+            <div class="section-title">11. CONTRIBUTION / SUPPORT FOR INTERNATIONAL EVENTS</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/NO</th><th>Name of Event</th><th>Contribution</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 12. WELFARE STRATEGIES/IMPLEMENTATION -->
+            <div class="section-title">12. WELFARE STRATEGIES / IMPLEMENTATION</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Type of Welfare</th><th>Number of Beneficiary</th><th>Nature of Welfare Rendered</th><th>Progress</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td>Birth</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td>Bereavement</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td>Marriage</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>4</td><td>Any other not stated here</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 13. FINANCE -->
+            <div class="section-title">13. FINANCE</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Activities</th><th>Comments</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><span class="field-label">Balance brought forward from last year</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>2</td><td><span class="field-label">Income for this year</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>3</td><td><span class="field-label">Expenditure for this year</span></td><td><input type="text" placeholder=""></td></tr>
+                    <tr><td>4</td><td><span class="field-label">Balance for this year</span></td><td><input type="text" placeholder=""></td></tr>
+                </tbody>
+            </table>
+            <div class="section-sub">Operational Account(s)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div class="card" style="padding:16px;">
+                    <p style="font-weight:600;font-size:14px;margin-bottom:8px;">ACCOUNT 1</p>
+                    <div class="form-group"><label>Account Name</label><input type="text" placeholder=""></div>
+                    <div class="form-group"><label>Account No</label><input type="text" placeholder=""></div>
+                    <div class="form-group"><label>Bank</label><input type="text" placeholder=""></div>
+                </div>
+                <div class="card" style="padding:16px;">
+                    <p style="font-weight:600;font-size:14px;margin-bottom:8px;">ACCOUNT 2</p>
+                    <div class="form-group"><label>Account Name</label><input type="text" placeholder=""></div>
+                    <div class="form-group"><label>Account No</label><input type="text" placeholder=""></div>
+                    <div class="form-group"><label>Bank</label><input type="text" placeholder=""></div>
+                </div>
+            </div>
+
+            <!-- 14. TITHE -->
+            <div class="section-title">14. TITHE</div>
+            <table class="form-table">
+                <thead><tr><th>Month</th><th>Amount (N)</th><th>Teller Number</th></tr></thead>
+                <tbody>
+                    {% for m in ["January", "February", "March", "May", "June", "July", "September", "October", "November"] %}
+                    <tr><td style="font-weight:600;">{{ m }}</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    {% endfor %}
+                    <tr style="font-weight:700;background:var(--surface-container-low);"><td>TOTAL</td><td><input type="text" placeholder=""></td><td></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 15. KEY ACHIEVEMENTS -->
+            <div class="section-title">15. KEY ACHIEVEMENTS FOR THE YEAR</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Achievement(s)</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 4) %}
+                    <tr><td>{{ i }}</td><td><input type="text" placeholder=""></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- 16. CHALLENGES -->
+            <div class="section-title">16. CHALLENGES / ADMINISTRATIVE RECOMMENDATIONS</div>
+            <table class="form-table">
+                <thead><tr><th style="width:50px;">S/N</th><th>Challenge</th><th>Recommendation(s)</th></tr></thead>
+                <tbody>
+                    {% for i in range(1, 4) %}
+                    <tr><td>{{ i }}</td><td><input type="text" placeholder=""></td><td><input type="text" placeholder=""></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Signatures -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;padding-top:24px;border-top:2px solid var(--outline-variant);">
+                <div>
+                    <div class="form-group">
+                        <label>Name (Chairman)</label>
+                        <input type="text" placeholder="">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>Name (Secretary)</label>
+                        <input type="text" placeholder="">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div style="display:flex;gap:12px;justify-content:flex-end;padding-top:16px;margin-top:16px;">
+                <a href="/reports/" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">{{ "Update Report" if report else "Submit Report" }}</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+var preambleEditor = new Quill('#preamble-editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'clean'],
+            [{ 'script': 'sub'}, { 'script': 'super' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['blockquote', 'code-block'],
+        ]
+    }
+});
+
+document.querySelector('form').onsubmit = function() {
+    document.getElementById('preamble-input').value = preambleEditor.root.innerHTML;
+};
+</script>
+{% endblock %}

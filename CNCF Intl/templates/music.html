@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Music Library{% endblock %}
+{% block content %}
+
+<style>
+    .waveform-bar { transition: height 0.2s ease; }
+    .music-card { transition: all 0.3s; }
+    .music-card:hover { box-shadow: 0 20px 40px rgba(10,61,145,0.12); }
+    .music-card:hover .card-img img { transform: scale(1.1); }
+    .music-card:hover .card-overlay { opacity: 1; }
+    .music-card:hover .card-overlay .play-btn { transform: translateY(0); }
+    .card-overlay { transition: opacity 0.3s; opacity: 0; background: rgba(0,40,104,0.4); backdrop-filter: blur(4px); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+    .card-overlay .play-btn { transform: translateY(16px); transition: transform 0.3s; width: 48px; height: 48px; border-radius: 50%; background: var(--secondary-container); color: var(--on-secondary-container); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .card-overlay .play-btn:hover { transform: translateY(0) scale(1.1); }
+    .tab-btn { padding-bottom: 12px; border-bottom: 2px solid transparent; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: 'Inter', sans-serif; }
+    .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); }
+    .tab-btn:not(.active) { color: var(--on-surface-variant); }
+    .tab-btn:not(.active):hover { color: var(--primary); }
+    #player { transition: transform 0.4s; }
+</style>
+
+<div class="flex justify-between items-end mb-6">
+    <div>
+        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:600;color:var(--primary);">Music Library</h1>
+        <p style="color:var(--on-surface-variant);">Manage and access the complete sacred music repertoire of BCS CNCF.</p>
+    </div>
+    <a href="{{ url_for('music.add') }}" class="btn btn-primary">
+        <span class="material-symbols-outlined" style="font-size:18px;">upload</span> Upload Music
+    </a>
+</div>
+
+<!-- Category Filters -->
+<div class="flex items-center justify-between border-b border-outline-variant mb-6">
+    <div class="flex gap-8">
+        <button class="tab-btn active" onclick="filterCategory(this,'all')">All Repertoire</button>
+        <button class="tab-btn" onclick="filterCategory(this,'sheet_music')">Sheet Music</button>
+        <button class="tab-btn" onclick="filterCategory(this,'practice_track')">Practice Tracks</button>
+        <button class="tab-btn" onclick="filterCategory(this,'video_tutorial')">Video Tutorials</button>
+        <button class="tab-btn" onclick="filterCategory(this,'hymnal')">Hymnals</button>
+    </div>
+    <div class="flex gap-2 pb-2">
+        <button class="p-2 rounded-lg" style="background:var(--surface-container-high);color:var(--primary);border:none;cursor:pointer;">
+            <span class="material-symbols-outlined" style="font-size:18px;display:block;">grid_view</span>
+        </button>
+        <button class="p-2 rounded-lg" style="border:none;color:var(--on-surface-variant);cursor:pointer;background:none;">
+            <span class="material-symbols-outlined" style="font-size:18px;display:block;">format_list_bulleted</span>
+        </button>
+    </div>
+</div>
+
+<!-- Music Grid -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;padding-bottom:120px;" id="music-grid">
+    {% for s in songs %}
+    <div class="music-card" style="background:var(--surface-container-lowest);border:1px solid var(--outline-variant);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.04);position:relative;overflow:hidden;" data-category="{{ s.category or 'sheet_music' }}">
+        <div class="card-img" style="aspect-ratio:3/4;border-radius:8px;background:var(--surface-container-high);margin-bottom:16px;overflow:hidden;position:relative;">
+            {% if s.cover %}
+            <img src="{{ url_for('static', filename='uploads/' + s.cover) }}" alt="{{ s.title }}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.7s;">
+            {% else %}
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--primary),var(--primary-container));">
+                <span class="material-symbols-outlined" style="font-size:64px;color:rgba(255,255,255,0.3);">music_note</span>
+            </div>
+            {% endif %}
+            <div class="card-overlay">
+                <button class="play-btn" onclick="playTrack('{{ s.title|e }}', '{{ s.composer|e or 'Unknown' }}', '{{ s.duration or '04:35' }}')">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:24px;">play_arrow</span>
+                </button>
+            </div>
+        </div>
+        <div>
+            <div class="flex justify-between items-start">
+                <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:600;color:var(--on-surface);line-height:1.2;">{{ s.title }}</h3>
+                {% if s.key %}
+                <span style="color:var(--secondary);font-weight:700;font-size:11px;white-space:nowrap;margin-left:8px;">Key: {{ s.key }}</span>
+                {% endif %}
+            </div>
+            <p style="color:var(--on-surface-variant);font-style:italic;font-size:14px;margin-top:4px;">{{ s.composer or 'Traditional' }}</p>
+            <div class="flex gap-1.5 pt-2">
+                {% set secs = (s.sections or 'S,A,T,B').split(',') %}
+                {% for sec in ['S','A','T','B'] %}
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background:{{ 'var(--primary-container)' if sec in secs else 'var(--surface-variant)' }};color:{{ 'var(--primary)' if sec in secs else 'var(--on-surface-variant)' }};">{{ sec }}</span>
+                {% endfor %}
+            </div>
+            <div class="pt-4 flex justify-between items-center border-t border-outline-variant/30 mt-3">
+                <div class="flex gap-3">
+                    <button class="material-symbols-outlined" style="font-size:18px;color:var(--primary);">picture_as_pdf</button>
+                    <button class="material-symbols-outlined" style="font-size:18px;color:var(--primary);">headphones</button>
+                </div>
+                <form method="POST" action="{{ url_for('music.delete', id=s.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ s.title }}?')">
+                    <button type="submit" class="material-symbols-outlined" style="font-size:18px;color:var(--on-surface-variant);border:none;background:none;cursor:pointer;padding:0;">more_vert</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div style="grid-column:1/-1;text-align:center;color:var(--outline);padding:80px 20px;">
+        <span class="material-symbols-outlined" style="font-size:64px;display:block;margin-bottom:16px;color:var(--outline-variant);">library_music</span>
+        <p style="font-size:18px;margin-bottom:8px;">No songs in the library yet.</p>
+        <p style="font-size:14px;">Upload your first piece of music to get started.</p>
+        <a href="{{ url_for('music.add') }}" class="btn btn-primary" style="margin-top:20px;display:inline-flex;">
+            <span class="material-symbols-outlined" style="font-size:18px;">add</span> Add Your First Song
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Now Playing Mini-Player -->
+<div id="player" style="position:fixed;bottom:0;left:280px;right:0;height:96px;background:var(--surface-container-lowest);border-top:1px solid var(--outline-variant);display:flex;align-items:center;padding:0 24px;z-index:40;box-shadow:0 -4px 20px rgba(10,61,145,0.08);transform:translateY(100%);">
+    <div class="flex items-center gap-4" style="width:25%;">
+        <div id="player-cover" style="width:48px;height:48px;border-radius:4px;background:var(--primary);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <span class="material-symbols-outlined" style="color:rgba(255,255,255,0.5);font-size:24px;">music_note</span>
+        </div>
+        <div style="min-width:0;">
+            <h4 id="track-name" style="font-size:14px;font-weight:600;color:var(--on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Hallelujah Chorus</h4>
+            <p id="track-composer" style="font-size:12px;color:var(--on-surface-variant);">G.F. Handel</p>
+        </div>
+    </div>
+    <div class="flex flex-col items-center gap-1" style="flex:1;">
+        <div class="flex items-center gap-5">
+            <button class="material-symbols-outlined" style="font-size:18px;color:var(--on-surface-variant);border:none;background:none;cursor:pointer;">shuffle</button>
+            <button class="material-symbols-outlined" style="font-size:18px;color:var(--on-surface-variant);border:none;background:none;cursor:pointer;" onclick="skipTrack(-1)">skip_previous</button>
+            <button id="play-btn-main" onclick="togglePlay()" style="width:40px;height:40px;border-radius:50%;background:var(--primary);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;font-size:20px;">play_arrow</span>
+            </button>
+            <button class="material-symbols-outlined" style="font-size:18px;color:var(--on-surface-variant);border:none;background:none;cursor:pointer;" onclick="skipTrack(1)">skip_next</button>
+            <button class="material-symbols-outlined" style="font-size:18px;color:var(--on-surface-variant);border:none;background:none;cursor:pointer;">repeat</button>
+        </div>
+        <div class="flex items-center gap-3" style="width:100%;max-width:500px;">
+            <span id="time-current" style="font-size:10px;font-family:monospace;color:var(--on-surface-variant);">00:00</span>
+            <div id="waveform" class="flex items-end gap-1 overflow-hidden" style="flex:1;height:32px;"></div>
+            <span id="time-total" style="font-size:10px;font-family:monospace;color:var(--on-surface-variant);">00:00</span>
+        </div>
+    </div>
+    <div class="flex items-center justify-end gap-5" style="width:25%;">
+        <div class="flex rounded-full p-0.5" style="background:var(--surface-container);border:1px solid var(--outline-variant);display:inline-flex;">
+            {% for sec in ['S','A','T','B'] %}
+            <button class="voice-btn" data-voice="{{ sec }}" onclick="toggleVoice(this)" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:none;cursor:pointer;background:{% if sec == 'S' %}#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,0.1){% else %}transparent;color:var(--on-surface-variant){% endif %};transition:all 0.15s;">{{ sec }}</button>
+            {% endfor %}
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--on-surface-variant);">volume_up</span>
+            <div style="width:80px;height:4px;background:var(--outline-variant);border-radius:4px;position:relative;overflow:hidden;">
+                <div id="volume-bar" style="position:absolute;inset:0;background:var(--primary);width:66%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isPlaying = false;
+    let currentIndex = -1;
+    let waveformInterval = null;
+    let playerVisible = false;
+    const songs = [
+        {% for s in songs %}
+        { title: "{{ s.title|e }}", composer: "{{ s.composer|e or 'Traditional' }}", duration: "{{ s.duration or '04:35' }}" },
+        {% endfor %}
+    ];
+
+    function filterCategory(btn, category) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.music-card').forEach(card => {
+            const cat = card.dataset.category || 'sheet_music';
+            card.style.display = (category === 'all' || cat === category) ? '' : 'none';
+        });
+    }
+
+    function playTrack(title, composer, duration) {
+        document.getElementById('track-name').textContent = title;
+        document.getElementById('track-composer').textContent = composer;
+        document.getElementById('time-total').textContent = duration;
+        document.getElementById('player').style.transform = 'translateY(0)';
+        playerVisible = true;
+        if (!isPlaying) togglePlay();
+        songs.forEach((s, i) => { if (s.title === title) currentIndex = i; });
+    }
+
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const icon = document.querySelector('#play-btn-main .material-symbols-outlined');
+        icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+        if (isPlaying) {
+            startWaveform();
+        } else {
+            stopWaveform();
+        }
+    }
+
+    function skipTrack(dir) {
+        if (songs.length === 0) return;
+        if (currentIndex === -1) currentIndex = 0;
+        currentIndex = (currentIndex + dir + songs.length) % songs.length;
+        const s = songs[currentIndex];
+        playTrack(s.title, s.composer, s.duration);
+    }
+
+    function toggleVoice(btn) {
+        const isActive = btn.style.background === 'rgb(255, 255, 255)';
+        btn.style.background = isActive ? 'transparent' : '#fff';
+        btn.style.color = isActive ? 'var(--on-surface-variant)' : 'var(--primary)';
+        btn.style.boxShadow = isActive ? 'none' : '0 1px 3px rgba(0,0,0,0.1)';
+    }
+
+    function startWaveform() {
+        const waveform = document.getElementById('waveform');
+        if (waveform.children.length === 0) generateWaveform();
+        let progress = 0;
+        if (waveformInterval) clearInterval(waveformInterval);
+        waveformInterval = setInterval(() => {
+            const bars = waveform.querySelectorAll('.waveform-bar');
+            bars.forEach((bar, i) => {
+                const h = Math.floor(Math.random() * 24) + 4;
+                bar.style.height = h + 'px';
+                bar.style.background = i <= progress ? 'var(--primary)' : 'rgba(0,40,104,0.15)';
+            });
+            progress = (progress + 1) % 60;
+            const totalSec = 275;
+            const elapsed = Math.floor(progress / 60 * totalSec);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('time-current').textContent = 
+                String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+        }, 150);
+    }
+
+    function stopWaveform() {
+        if (waveformInterval) { clearInterval(waveformInterval); waveformInterval = null; }
+    }
+
+    function generateWaveform() {
+        const waveform = document.getElementById('waveform');
+        waveform.innerHTML = '';
+        for (let i = 0; i < 60; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'waveform-bar';
+            bar.style.cssText = 'width:6px;background:rgba(0,40,104,0.15);border-radius:4px;height:' + (Math.floor(Math.random()*24)+4) + 'px;';
+            waveform.appendChild(bar);
+        }
+    }
+
+    generateWaveform();
+
+    // Close player when clicking outside
+    document.addEventListener('click', function(e) {
+        const player = document.getElementById('player');
+        if (playerVisible && !player.contains(e.target) && !e.target.closest('.play-btn') && !e.target.closest('.music-card')) {
+            // Don't auto-close, let user dismiss via a close button or keep it
+        }
+    });
+</script>
+{% endblock %}

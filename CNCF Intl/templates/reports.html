@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% block title %}Reports &amp; Analytics{% endblock %}
+{% block content %}
+<style>
+.report-page { max-width: 1440px; margin: 0 auto; }
+.stat-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+.stat-card:hover { box-shadow: 0 4px 20px rgba(10, 61, 145, 0.05); }
+.stat-card .icon-wrap {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 12px;
+}
+.stat-card .trend {
+    display: inline-flex; align-items: center; gap: 2px;
+    font-size: 13px; font-weight: 600; padding: 2px 10px;
+    border-radius: 20px;
+}
+.stat-card .value {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--primary); line-height: 1.1;
+}
+.stat-card .label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--on-surface-variant);
+    margin-bottom: 2px;
+}
+.stat-card .bar {
+    position: absolute; bottom: 0; left: 0; height: 4px;
+    border-radius: 0 2px 0 0;
+}
+.chart-card {
+    background: var(--surface-container-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.chart-card h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 600; color: var(--primary);
+}
+.chart-bar-group:hover .chart-bar { filter: brightness(1.1); }
+.chart-bar {
+    border-radius: 6px 6px 0 0;
+    transition: all 0.3s;
+    min-height: 4px;
+    position: relative;
+}
+.chart-bar .tooltip {
+    position: absolute;
+    top: -28px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.chart-bar-group:hover .tooltip { opacity: 1; }
+
+.report-table { width: 100%; border-collapse: collapse; }
+.report-table th {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--on-surface-variant);
+    background: var(--surface-container-low);
+    padding: 14px 24px; text-align: left; border-bottom: 1px solid var(--outline-variant);
+}
+.report-table td {
+    padding: 14px 24px; border-bottom: 1px solid var(--outline-variant);
+    font-size: 14px;
+}
+.report-table tr:hover { background: rgba(0,40,104,0.03); }
+.report-table .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+}
+</style>
+
+<div class="report-page">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+            <h2 style="color:var(--primary);">Reports &amp; Analytics</h2>
+            <p style="color:var(--on-surface-variant);font-size:14px;margin-top:2px;">Comprehensive overview of BCS CNCF performance metrics.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--surface-container-low);border-radius:10px;border:1px solid var(--outline-variant);font-size:13px;font-weight:600;">
+                <span class="material-symbols-outlined" style="font-size:18px;color:var(--primary);">calendar_today</span>
+                <span>Oct 01 - Oct 31, 2023</span>
+                <span class="material-symbols-outlined" style="font-size:16px;color:var(--outline);">expand_more</span>
+            </div>
+            <button class="btn btn-primary" style="font-size:13px;display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">download</span> Export
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:24px;">
+        <div class="stat-card">
+            <div class="icon-wrap" style="background:rgba(0,40,104,0.08);color:var(--primary);">
+                <span class="material-symbols-outlined">description</span>
+            </div>
+            <div class="label">Total Reports</div>
+            <div class="value">{{ total_reports }}</div>
+            <span class="trend" style="color:var(--on-surface-variant);background:var(--surface-container);">
+                <span class="material-symbols-outlined" style="font-size:14px;">description</span> submitted
+            </span>
+            <div class="bar" style="width:{{ "%.0f"|format(total_reports / 20 * 100) if total_reports else 0 }}%;background:var(--primary);"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-wrap" style="background:rgba(115,92,0,0.08);color:var(--secondary);">
+                <span class="material-symbols-outlined">how_to_reg</span>
+            </div>
+            <div class="label">Avg. Section Size</div>
+            <div class="value">{{ "%.0f"|format(total_members / total_sec) if total_sec else 0 }}</div>
+            <span class="trend" style="color:var(--on-surface-variant);background:var(--surface-container);">
+                <span class="material-symbols-outlined" style="font-size:14px;">groups</span> {{ total_sec }} sections
+            </span>
+            <div class="bar" style="width:{{ "%.0f"|format(total_members / total_sec * 10) if total_sec else 0 }}%;background:var(--secondary);"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-wrap" style="background:rgba(0,40,104,0.08);color:var(--primary);">
+                <span class="material-symbols-outlined">payments</span>
+            </div>
+            <div class="label">Monthly Revenue</div>
+            <div class="value">${{ "%.0f"|format(monthly_revenue) }}</div>
+            <span class="trend" style="color:#16a34a;background:rgba(22,163,74,0.1);">
+                <span class="material-symbols-outlined" style="font-size:14px;">trending_up</span> This month
+            </span>
+            <div class="bar" style="width:{{ "%.0f"|format(monthly_revenue / 50000 * 100) if monthly_revenue else 0 }}%;background:var(--primary);"></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="icon-wrap" style="background:rgba(10,61,145,0.1);color:var(--primary-container);">
+                <span class="material-symbols-outlined">event_available</span>
+            </div>
+            <div class="label">Completed Events</div>
+            <div class="value">{{ total_events }}</div>
+            <span class="trend" style="color:var(--on-surface-variant);background:var(--surface-container);">
+                <span class="material-symbols-outlined" style="font-size:14px;">horizontal_rule</span> Total
+            </span>
+            <div class="bar" style="width:{{ "%.0f"|format(total_events / 20 * 100) if total_events else 0 }}%;background:var(--primary-container);"></div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px;">
+
+        <!-- Membership Growth Chart -->
+        <div class="chart-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <div>
+                    <h3>Membership Growth</h3>
+                    <p style="font-size:14px;color:var(--on-surface-variant);">Annual trend analysis by section</p>
+                </div>
+                <div style="display:flex;gap:12px;font-size:12px;font-weight:600;">
+                    <span style="display:flex;align-items:center;gap:4px;color:var(--primary);">
+                        <span style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></span> New
+                    </span>
+                </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:12px;height:260px;padding-top:12px;">
+                {% for i in range(months_labels|length) %}
+                <div class="chart-bar-group" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
+                    <div class="chart-bar" style="width:100%;height:{{ "%.0f"|format(months_data[i] / max_month * 100) if max_month else 0 }}%;background:{{ 'var(--primary)' if months_labels[i] == 'Apr' else 'var(--primary-fixed-dim)' }};">
+                        <span class="tooltip">{{ months_data[i] }}</span>
+                    </div>
+                    <span style="font-size:11px;color:var(--on-surface-variant);margin-top:8px;font-weight:{{ 700 if i == months_labels|length - 1 else 400 }};">{{ months_labels[i] }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Section Attendance -->
+        <div class="chart-card">
+            <h3>Section Distribution</h3>
+            <p style="font-size:14px;color:var(--on-surface-variant);margin-bottom:20px;">Members by voice type</p>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                {% for s in sections_order %}
+                {% set pct = (section_counts[s] / total_sec * 100)|round if total_sec else 0 %}
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-bottom:4px;">
+                        <span>{{ s }}</span>
+                        <span style="color:var(--primary);">{{ "%.0f"|format(pct) }}%</span>
+                    </div>
+                    <div style="height:8px;background:var(--surface-variant);border-radius:10px;overflow:hidden;">
+                        <div style="height:100%;border-radius:10px;width:{{ pct }}%;background:{{ 'var(--primary)' if s != 'Tenor' else 'var(--secondary)' }};"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top:24px;padding:14px;background:rgba(0,40,104,0.04);border:1px solid rgba(0,40,104,0.08);border-radius:12px;">
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:20px;">info</span>
+                    <p style="font-size:13px;color:var(--primary);">Treble section leads with <strong>{{ "%.0f"|format(section_counts['Treble'] / total_sec * 100) if total_sec else 0 }}%</strong> of total membership.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Reports Table -->
+    <div class="chart-card" style="overflow:hidden;padding:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--outline-variant);">
+            <div>
+                <h3 style="margin:0;">Detailed Reports</h3>
+                <p style="font-size:14px;color:var(--on-surface-variant);margin:0;">Breakdown of recent financial and member audits</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <a href="/reports/pdf" class="btn btn-secondary" style="font-size:12px;padding:6px 14px;text-decoration:none;">
+                    <span class="material-symbols-outlined" style="font-size:14px;">picture_as_pdf</span> PDF Audit
+                </a>
+                <a href="/reports/add" class="btn btn-primary" style="font-size:12px;padding:6px 14px;text-decoration:none;">
+                    <span class="material-symbols-outlined" style="font-size:14px;">edit_note</span> Write Report
+                </a>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Report Name</th>
+                        <th>Category</th>
+                        <th>Generated Date</th>
+                        <th>Author</th>
+                        <th style="text-align:right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports_data %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="material-symbols-outlined" style="color:var(--{{ r.color }});font-size:20px;">{{ r.icon }}</span>
+                                <span style="font-weight:600;">{{ r.name }}</span>
+                            </div>
+                        </td>
+                        <td><span class="badge" style="background:var(--surface-container);color:var(--on-surface-variant);">{{ r.category }}</span></td>
+                        <td style="color:var(--on-surface-variant);">{{ r.date }}</td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:26px;height:26px;border-radius:50%;background:var(--secondary);color:var(--on-primary);font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:700;">{{ r.initials }}</div>
+                                <span>{{ r.author }}</span>
+                            </div>
+                        </td>
+                        <td style="text-align:right;"><a href="/reports/pdf/{{ r.id }}" style="color:var(--primary);font-weight:600;font-size:13px;">Download</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="display:flex;justify-content:center;align-items:center;gap:4px;padding:12px 24px;border-top:1px solid var(--outline-variant);">
+            <button class="btn btn-ghost" style="padding:6px 10px;min-width:auto;"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
+            <button class="btn btn-primary" style="padding:6px 12px;min-width:36px;font-size:13px;">1</button>
+            <button class="btn btn-ghost" style="padding:6px 12px;min-width:36px;font-size:13px;">2</button>
+            <button class="btn btn-ghost" style="padding:6px 12px;min-width:36px;font-size:13px;">3</button>
+            <button class="btn btn-ghost" style="padding:6px 10px;min-width:auto;"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
+        </div>
+    </div>
+
+</div>
+
+<!-- AI Insights FAB -->
+<div style="position:fixed;bottom:32px;right:32px;z-index:100;display:flex;flex-direction:column;align-items:flex-end;gap:12px;">
+    <div id="aiPanel" style="width:320px;background:var(--surface-container-lowest);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.12);border:1px solid var(--secondary-fixed);overflow:hidden;display:none;">
+        <div style="background:var(--secondary-container);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;font-size:14px;color:var(--on-secondary-container);display:flex;align-items:center;gap:8px;">
+                <span class="material-symbols-outlined" style="font-size:18px;">auto_awesome</span> AI Insights
+            </span>
+            <button onclick="toggleAiPanel()" style="background:none;border:none;cursor:pointer;color:var(--on-secondary-container);"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>
+        </div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+            <div style="padding:12px;background:var(--secondary-fixed);border-radius:10px;font-size:13px;">Member retention is projected to grow by <strong>15%</strong> next quarter if current rehearsal frequency maintains.</div>
+            <div style="padding:12px;background:rgba(0,40,104,0.04);border-left:4px solid var(--primary);border-radius:10px;font-size:13px;">Financial contributions peak on <strong>Sundays</strong>. Consider optimizing gift collections on these days.</div>
+            <button class="btn btn-primary" style="width:100%;font-size:13px;">Generate Full AI Report</button>
+        </div>
+    </div>
+    <button id="aiFab" onclick="toggleAiPanel()" style="width:56px;height:56px;border-radius:50%;background:var(--secondary-container);color:var(--on-secondary-container);border:none;box-shadow:0 4px 20px rgba(10,61,145,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.3s;">
+        <span class="material-symbols-outlined" style="font-size:28px;">lightbulb</span>
+    </button>
+</div>
+
+<script>
+function toggleAiPanel() {
+    const panel = document.getElementById('aiPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

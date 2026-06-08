@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Member Management | BCS CNCF</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#002868",
+                        "surface-container-low": "#f0f3ff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbcd",
+                        "tertiary-fixed-dim": "#ffb597",
+                        "on-secondary-container": "#745c00",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e7eeff",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#762900",
+                        "surface-container-high": "#dee8ff",
+                        "secondary-fixed": "#ffe088",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#dae2ff",
+                        "outline-variant": "#c4c6d3",
+                        "on-tertiary-fixed-variant": "#7c2e04",
+                        "inverse-primary": "#b1c5ff",
+                        "secondary": "#735c00",
+                        "surface-variant": "#d8e3fb",
+                        "surface-tint": "#345baf",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#e9c349",
+                        "on-primary-fixed": "#001947",
+                        "tertiary": "#521a00",
+                        "on-secondary-fixed-variant": "#574500",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#144296",
+                        "inverse-surface": "#263143",
+                        "on-surface-variant": "#434652",
+                        "on-surface": "#111c2d",
+                        "on-secondary-fixed": "#241a00",
+                        "on-background": "#111c2d",
+                        "surface-dim": "#cfdaf2",
+                        "on-primary-container": "#8dadff",
+                        "inverse-on-surface": "#ecf1ff",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "primary-container": "#0a3d91",
+                        "secondary-container": "#fed65b",
+                        "outline": "#747783",
+                        "on-tertiary-container": "#ff9162",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9ff",
+                        "surface": "#f9f9ff",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-tertiary-fixed": "#360f00",
+                        "error": "#ba1a1a",
+                        "background": "#f9f9ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "16px",
+                        "container-padding-mobile": "16px",
+                        "stack-lg": "24px",
+                        "container-padding-desktop": "32px",
+                        "base": "8px",
+                        "section-gap": "48px",
+                        "gutter": "24px",
+                        "stack-sm": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background">
+<!-- SideNavBar (Shared Component) -->
+<aside class="flex flex-col h-screen fixed left-0 top-0 z-50 overflow-y-auto bg-[#1E293B] shadow-md border-r border-outline-variant w-[280px]">
+<div class="p-stack-lg flex flex-col gap-4">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="BCS CNCF Logo" class="object-cover" data-alt="A sophisticated minimalist logo for a global choral fellowship organization. The logo is clean and vector-styled, featuring abstract musical notes and a globe silhouette. The primary colors are a deep Royal Blue and elegant Gold, set against a dark navy background. The overall vibe is one of spiritual leadership and corporate excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd3iY15toFn6N5pLOZi1nm3l3vFlQL3oEuDgWzYUJtmRNwJhe0C-LqCYqTPTfI6I2CdNU_1odGqpv3O-ib8D9k1fRjj1eiNVyAEWRBYycknq8KjoBIpqv9pH2FMOYRbcTn8eXB55e8mydVfXSghYfQMqSOS1uWrTNR-JI2rZ2yI6iAC6CeOThV1t_kqqfUOhILFU1n8VeqrqMruTrB65R69fF5V1ohRmeaq-TvNplDaPj9NAvV5sL_3fiADGmIP80FAatdmoog060"/>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-secondary-fixed font-bold leading-tight">Sovereign Leadership</h2>
+<p class="font-label-sm text-label-sm text-surface-variant">BCS CNCF Admin</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<!-- Nav Items (JSON content) -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md border-l-4 border-secondary-fixed bg-primary-container/20 text-secondary-fixed-dim" href="#">
+<span class="material-symbols-outlined">groups</span> Members
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">record_voice_over</span> Voice Sections
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">how_to_reg</span> Attendance
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span> Rehearsals
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">library_music</span> Music Library
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">event_note</span> Service Planning
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">event</span> Events
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span> Communication
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">school</span> Training
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">checkroom</span> Uniform Management
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">payments</span> Finance
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">description</span> Documents
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span> Reports
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">verified_user</span> Approvals
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+</nav>
+<div class="mt-auto pt-8 border-t border-white/10">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md text-surface-variant hover:bg-primary-container/10 hover:text-secondary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span> Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Shell -->
+<main class="pl-[280px] w-full min-h-screen">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center h-16 px-gutter w-full fixed top-0 right-0 w-[calc(100%-280px)] z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-full py-2 pl-10 pr-4 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Search choristers, ID, or section..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Super Admin</p>
+</div>
+<img alt="User Profile" class="w-10 h-10 rounded-full border-2 border-surface-container-high object-cover" data-alt="A professional close-up headshot of a corporate administrator in their mid-40s. They are wearing a formal dark suit and have a friendly yet authoritative expression. The background is a blurred office environment with soft, high-key lighting that emphasizes a clean and modern workspace. The photo is high-resolution with a premium, professional color grade." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRXK58mWXgf4rEH_wZJz-8ZBvCmUMp6-Ve-WPRtCDVHggrbiIdrsyilfZ366CLa8I-d5P15-pgpG1JkTiQwAWkar1a_QU4JPp1qOOzQc34lM_FN898YHZOpkBkF4gkOtxIgOPjY5EMowcieqNZAEzzbJDt9HNOEhMq5TGwZaJqOyniyAZJ7uVkvJlwe4ik9glYd1wO_jyZn9LHVRmKEzSngELdI5lb-CwdEd8xJ_oQIWEw75fM62k65fOjwDxx5O-in0htUZ6DafI"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="pt-24 px-gutter pb-stack-lg flex flex-col gap-8">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">Member Management</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and oversee all choristers across global sections.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface border border-secondary text-secondary rounded-lg font-label-md text-label-md hover:bg-secondary/5 transition-all">
+<span class="material-symbols-outlined text-[20px]">filter_list</span> Filter
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface border border-secondary text-secondary rounded-lg font-label-md text-label-md hover:bg-secondary/5 transition-all">
+<span class="material-symbols-outlined text-[20px]">file_download</span> Export Data
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-primary/90 shadow-md active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]">person_add</span> Add New Member
+                    </button>
+</div>
+</div>
+<!-- KPI Summary Row -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-full bg-primary-fixed/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<span class="font-label-sm text-label-sm text-success text-[#059669] bg-[#ecfdf5] px-2 py-0.5 rounded-full">+12%</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Total Choristers</p>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-1">1,248</h3>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-2">Overall registered growth this month</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">Target: 1.2k</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Active Members</p>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-1">1,102</h3>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full mt-3">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 88%"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">New Registrations</p>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-1">86</h3>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-2">Added in the last 30 days</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-stack-lg rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30 flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-full bg-surface-variant/40 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">fact_check</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Profile Completion</p>
+<h3 class="font-headline-md text-headline-md text-on-surface mt-1">94.2%</h3>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-2">Average across all active members</p>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30 overflow-hidden">
+<!-- Table Filters -->
+<div class="p-gutter border-b border-outline-variant/30 flex flex-col lg:flex-row gap-gutter lg:items-center">
+<div class="flex-1 flex items-center gap-4">
+<div class="relative w-full max-w-sm">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg py-2 pl-10 pr-4 font-body-sm text-body-sm focus:outline-none focus:border-primary" placeholder="Filter by name..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<select class="bg-surface border border-outline-variant rounded-lg py-2 px-4 font-body-sm text-body-sm focus:outline-none focus:border-primary">
+<option>Voice Section: All</option>
+<option>Soprano</option>
+<option>Alto</option>
+<option>Tenor</option>
+<option>Bass</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded-lg py-2 px-4 font-body-sm text-body-sm focus:outline-none focus:border-primary">
+<option>Status: All</option>
+<option>Active</option>
+<option>Pending</option>
+<option>Inactive</option>
+</select>
+</div>
+</div>
+<div class="flex border border-outline-variant rounded-lg p-1 bg-surface-container-low">
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md bg-white text-primary shadow-sm">All Members</button>
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors">Soprano</button>
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors">Alto</button>
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors">Tenor</button>
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors">Bass</button>
+<button class="px-4 py-1.5 rounded-md font-label-md text-label-md text-on-surface-variant hover:bg-white/50 transition-colors">Pending <span class="ml-1 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">12</span></button>
+</div>
+</div>
+<!-- Table Content -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-gutter py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Member Name</th>
+<th class="px-gutter py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Voice Section</th>
+<th class="px-gutter py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Joined Date</th>
+<th class="px-gutter py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-gutter py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Member 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-gutter py-4">
+<div class="flex items-center gap-3">
+<img alt="Jonathan Adeyemi" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young man with a confident smile, wearing a traditional white Nigerian choral tunic. He has short dark hair and a professional demeanor. The image is shot with a shallow depth of field, highlighting the subject against a bright, modern architectural background with soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvq5zl0sg8zd8QjyW5pKVASxHZXhSfSdIHmarwh3hkSnr250Gqtj8gWH7s1Ej4yHJDVRUqhDaobVi2l_TUsvHNqXkjhnagGt-PpmC8ET5yc-q6jI2zLxPVJy-jRM95fPmmIuLeDfOKUY5LxR4EuODSUgLq-CqL6sVQKBSTyowxeqzKue2QSpKHLDB1Aqf15ymjAkB9tXyh9fKjDLkjH0Vfmy5og-gb8x_YDY-hyUQp5XnwqobyMTcQm9tp9BZdzi2bwn3oz5jVNN4"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Jonathan Adeyemi</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CH-2023-0941</p>
+</div>
+</div>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Tenor</span>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Oct 10, 2023</span>
+</td>
+<td class="px-gutter py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-sm text-label-sm bg-emerald-100 text-emerald-700">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span> Active
+                                    </span>
+</td>
+<td class="px-gutter py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Member 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-gutter py-4">
+<div class="flex items-center gap-3">
+<img alt="Blessing Chen" class="w-10 h-10 rounded-full object-cover" data-alt="A professional portrait of a woman of East Asian descent, smiling warmly. She is dressed in elegant business casual attire. The setting is a bright, minimalist studio with soft, even lighting that creates a welcoming and high-end feel. The overall aesthetic is clean, modern, and aligned with a premium SaaS dashboard environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_jzqCyhb1nmumypzEw9jDSSk5uZas5CEh4-wkkd6Mlis6HB-lNBqwdOi-ja5TSEbxjA5eNzSF-d7MKdHV0Ra3TOTtu6-SqbFNAqrdK2hLKNDoHlnMPvAgRPR6YVCQAKNx7RRvOGKLo3Ma-oZlaTHEMd2mTZMBg6nrRTlaAa-tcfXC8Fydo1GRaYZXA-HIz9rfR9srsmKaR4bwIugBIvpY-gEnFvKIbqTAz1JvObiuU5ke4r2IKn8zjAwb1Zvo0fscNx8KeQdATBw"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Blessing Chen</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CH-2023-0945</p>
+</div>
+</div>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Soprano</span>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Oct 09, 2023</span>
+</td>
+<td class="px-gutter py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-sm text-label-sm bg-amber-100 text-amber-700">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-700"></span> Pending
+                                    </span>
+</td>
+<td class="px-gutter py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Member 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-gutter py-4">
+<div class="flex items-center gap-3">
+<img alt="Emmanuel Okafor" class="w-10 h-10 rounded-full object-cover" data-alt="A striking portrait of a mature man with a distinguished appearance, grey-flecked beard, and a calm, authoritative gaze. He is wearing a dark navy blazer over a crisp white shirt. The background is a sophisticated architectural space with soft blue and warm gold ambient lighting, reflecting a sense of leadership and wisdom." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBefVdkPuuSPzI1mjAold8r3zsZMidCoxV2ZCCinO5kdmPnRulxkh4mzgBzSZ9Rh16MYj7kmaawGvapEsRAMQthCMLqlo0lr1KyRY6G5a8kgbty9acMcpRq544iSiTyNRHt_VUdLTaAiKvQUBnaOgaaXg_SoMmi_5pdxDX_Xx1hi9WS5tLVJYpAz-OIU_wApzCwSb_dpgyqa4_R1p5KC22sCNYygNSyY5SNHd223U3fp8FgbzJ4RY4F9CfxKUQOLMi4qBN_I84QmK0"/>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Emmanuel Okafor</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">CH-2023-0940</p>
+</div>
+</div>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Bass</span>
+</td>
+<td class="px-gutter py-4">
+<span class="font-body-sm text-body-sm text-on-surface">Oct 08, 2023</span>
+</td>
+<td class="px-gutter py-4">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-label-sm text-label-sm bg-emerald-100 text-emerald-700">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-700"></span> Active
+                                    </span>
+</td>
+<td class="px-gutter py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">visibility</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">more_vert</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-gutter border-t border-outline-variant/30 flex items-center justify-between">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Showing 1-10 of 1,248 members</p>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white font-label-sm text-label-sm">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm text-label-sm">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm text-label-sm">3</button>
+<span class="px-2 text-outline-variant">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm text-label-sm">125</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Bento Layout Section for Highlights -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<div class="lg:col-span-2 bg-surface-container-lowest p-gutter rounded-xl shadow-[0px_4px_20px_rgba(10,61,145,0.05)] border border-outline-variant/30">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Member Registration Trend</h4>
+<div class="flex items-center gap-2">
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-primary"><span class="w-2 h-2 rounded-full bg-primary"></span> Current Year</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-outline"><span class="w-2 h-2 rounded-full bg-outline-variant"></span> Previous Year</span>
+</div>
+</div>
+<div class="h-64 w-full flex items-end justify-between gap-2 px-4">
+<!-- Mock Bar Chart -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-sm h-[60%] group-hover:bg-primary/40 transition-all"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jan</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-sm h-[75%] group-hover:bg-primary/40 transition-all"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Feb</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary rounded-t-sm h-[90%] shadow-lg shadow-primary/20"></div>
+<span class="font-label-sm text-label-sm text-primary font-bold">Mar</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-sm h-[40%] group-hover:bg-primary/40 transition-all"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Apr</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-sm h-[55%] group-hover:bg-primary/40 transition-all"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">May</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-primary/20 rounded-t-sm h-[80%] group-hover:bg-primary/40 transition-all"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Jun</span>
+</div>
+</div>
+</div>
+<div class="bg-primary p-gutter rounded-xl shadow-xl flex flex-col justify-between text-white overflow-hidden relative group">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-[48px] text-secondary opacity-80">workspace_premium</span>
+<h4 class="font-headline-sm text-headline-sm mt-4">Top Choral Excellence</h4>
+<p class="font-body-sm text-body-sm text-primary-fixed mt-2 opacity-80">This month's featured section is the <strong class="text-white">Tenor Section</strong> with 99% rehearsal attendance.</p>
+</div>
+<button class="relative z-10 w-fit mt-8 px-6 py-2 bg-secondary text-on-secondary-fixed font-label-md text-label-md rounded-lg hover:scale-105 transition-transform active:scale-95">
+                        View Detailed Stats
+                    </button>
+<!-- Background Decoration -->
+<div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all duration-700"></div>
+<div class="absolute -left-10 top-20 w-32 h-32 bg-secondary/10 rounded-full blur-2xl group-hover:scale-150 transition-all duration-700"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Scripts -->
+<script>
+        // Simple hover effect for table rows
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.cursor = 'pointer';
+            });
+        });
+
+        // Search bar focus interaction
+        const searchInput = document.querySelector('header input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('max-w-xl');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('max-w-xl');
+        });
+    </script>
+</body></html>

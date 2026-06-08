@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %} — BCS CNCF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,200&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #002868;
+            --primary-container: #0a3d91;
+            --on-primary: #ffffff;
+            --primary-fixed: #dae2ff;
+            --primary-fixed-dim: #b1c5ff;
+            --on-primary-fixed: #001947;
+            --on-primary-fixed-variant: #144296;
+            --secondary: #735c00;
+            --on-secondary: #ffffff;
+            --secondary-container: #fed65b;
+            --secondary-fixed: #ffe088;
+            --secondary-fixed-dim: #e9c349;
+            --on-secondary-container: #745c00;
+            --tertiary: #521a00;
+            --tertiary-container: #762900;
+            --on-tertiary: #ffffff;
+            --surface: #f9f9ff;
+            --surface-dim: #cfdaf2;
+            --surface-bright: #f9f9ff;
+            --surface-container-lowest: #ffffff;
+            --surface-container-low: #f0f3ff;
+            --surface-container: #e7eeff;
+            --surface-container-high: #dee8ff;
+            --surface-container-highest: #d8e3fb;
+            --on-surface: #111c2d;
+            --on-surface-variant: #434652;
+            --outline: #747783;
+            --outline-variant: #c4c6d3;
+            --error: #ba1a1a;
+            --error-container: #ffdad6;
+            --on-error-container: #93000a;
+            --success: #16a34a;
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 400;
+            background: var(--surface);
+            color: var(--on-surface);
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* ─── Sidebar ──────────────────────────────────── */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #1E293B;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            border-right: 1px solid var(--outline-variant);
+            transition: transform 0.3s;
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .sidebar-brand .brand-icon {
+            width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-brand .brand-icon img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .sidebar-brand .brand-icon .placeholder {
+            font-size: 32px;
+            color: var(--on-secondary-container);
+        }
+
+        .sidebar-brand h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 28px;
+            color: #fff;
+        }
+
+        .sidebar-brand p {
+            font-size: 12px;
+            margin-top: 2px;
+            font-weight: 500;
+            line-height: 16px;
+            letter-spacing: 0.04em;
+            color: rgba(255,255,255,0.6);
+            margin-top: 2px;
+        }
+
+        .sidebar-nav { flex: 1; padding: 8px 16px; overflow-y: auto; }
+
+        .sidebar-nav .nav-section {
+            padding: 16px 16px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: 0.01em;
+            border-left: 4px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--secondary-fixed);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(10, 61, 145, 0.3);
+            color: var(--secondary-fixed);
+            border-left-color: var(--secondary-fixed);
+        }
+
+        .sidebar-nav a .material-symbols-outlined { font-size: 20px; }
+
+        .sidebar-footer { padding: 24px; }
+
+        .sidebar-footer a {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.12);
+            transition: all 0.15s;
+        }
+
+        .sidebar-footer a:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        /* ─── Main Content ─────────────────────────────── */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; overflow-x: hidden; }
+
+        /* ─── Topbar ───────────────────────────────────── */
+        .topbar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: calc(100% - var(--sidebar-width));
+            height: 64px;
+            background: rgba(249, 249, 255, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 40;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary);
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .hamburger:hover { background: var(--surface-container-low); }
+
+        .topbar-brand {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .search-bar {
+            position: relative;
+            width: 380px;
+        }
+
+        .search-bar .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--outline);
+            font-size: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px 16px 8px 40px;
+            background: var(--surface-container-low);
+            border: 1px solid var(--outline-variant);
+            border-radius: 9999px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: var(--on-surface);
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--primary-container);
+            box-shadow: 0 0 0 3px rgba(10, 61, 145, 0.08);
+        }
+
+        .search-bar input::placeholder { color: var(--outline); }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-right .icon-btn {
+            width: 40px; height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--on-surface-variant);
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .topbar-right .icon-btn:hover { background: var(--surface-container); }
+
+        .topbar-right .icon-btn .dot {
+            position: absolute;
+            top: 10px; right: 10px;
+            width: 8px; height: 8px;
+            background: var(--error);
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+        }
+
+        .topbar-right .divider {
+            width: 1px; height: 32px;
+            background: var(--outline-variant);
+            margin: 0 8px;
+        }
+
+        .topbar-right .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 8px;
+        }
+
+        .topbar-right .user-profile .user-info { text-align: right; }
+
+        .topbar-right .user-profile .user-info .name {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+        }
+
+        .topbar-right .user-profile .user-info .role {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--on-surface-variant);
+        }
+
+        .topbar-right .user-profile .avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+            background: var(--primary-container);
+            flex-shrink: 0;
+            box-shadow: 0 0 0 2px var(--secondary-fixed);
+        }
+
+        /* ─── Page Body ────────────────────────────────── */
+        .page-body {
+            padding-top: 88px;
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-bottom: 24px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* ─── Glass Card ───────────────────────────────── */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(10, 61, 145, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+        }
+
+        /* ─── Regular Card ─────────────────────────────── */
+        .card {
+            background: var(--surface-container-lowest);
+            border: 1px solid var(--outline-variant);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--outline-variant);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-body { padding: 24px; }
+
+        /* ─── Tables ───────────────────────────────────── */
+        table { width: 100%; border-collapse: collapse; }
+
+        table thead th {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+            letter-spacing: 0.04em;
+            color: var(--outline);
+            text-transform: uppercase;
+            padding: 16px 24px;
+            text-align: left;
+            background: var(--surface-container-low);
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        table tbody td {
+            padding: 14px 24px;
+            font-size: 14px;
+            line-height: 20px;
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        table tbody tr:hover { background: rgba(10, 61, 145, 0.03); }
+
+        table tbody tr:last-child td { border-bottom: none; }
+
+        /* ─── Buttons ──────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-container);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary);
+            box-shadow: 0 4px 12px rgba(10, 61, 145, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+        }
+
+        .btn-secondary:hover { background: rgba(115, 92, 0, 0.05); }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--primary-container);
+        }
+
+        .btn-ghost:hover { background: var(--primary-fixed); }
+
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+        .btn-danger {
+            background: var(--error);
+            color: #fff;
+        }
+
+        .btn-danger:hover { background: #991b1b; }
+
+        /* ─── Forms ────────────────────────────────────── */
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: var(--on-surface-variant);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--outline-variant);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            color: var(--on-surface);
+            transition: all 0.15s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-container);
+            box-shadow: 0 0 0 3px rgba(10, 61, 145, 0.12);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ─── Alerts ───────────────────────────────────── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+        /* ─── Badges ───────────────────────────────────── */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-active { background: #dcfce7; color: var(--success); }
+        .badge-inactive { background: #fee2e2; color: var(--error); }
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .badge-gold { background: rgba(254, 214, 91, 0.2); color: var(--secondary); }
+        .badge-standard { background: var(--surface-container-highest); color: var(--primary-container); }
+        .badge-admin { background: rgba(82, 26, 0, 0.08); color: var(--tertiary); }
+        .badge-public { background: var(--surface-container-high); color: var(--primary); }
+
+        /* ─── Avatar ───────────────────────────────────── */
+        .avatar-circle {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .avatar-sm { width: 32px; height: 32px; font-size: 11px; }
+        .avatar-lg { width: 64px; height: 64px; font-size: 22px; }
+
+        /* ─── Overlay ──────────────────────────────────── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 49;
+        }
+
+        /* ─── FAB ──────────────────────────────────────── */
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px; height: 56px;
+            background: var(--primary-container);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(10,61,145,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            transition: all 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .overlay.show { display: block; }
+            .main-content { margin-left: 0; }
+            .topbar { width: 100%; padding: 0 16px; }
+            .topbar-brand { display: none; }
+            .search-bar { display: none; }
+            .hamburger { display: block; }
+            .page-body { padding-top: 80px; padding-left: 16px; padding-right: 16px; }
+            .form-row { grid-template-columns: 1fr; }
+            .topbar-right .user-profile .user-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- ─── Sidebar + Topbar when logged in ─────────── -->
+    {% if session.user_id %}
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <img src="{{ url_for('static', filename='uploads/cncf_logo.png') }}" alt="CNCF Logo">
+            </div>
+            <h1>BCS CNCF</h1>
+            <p>Management System</p>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">Core Management</div>
+            <a href="{{ url_for('general.dashboard') }}" class="{% if request.endpoint == 'general.dashboard' %}active{% endif %}">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+            <a href="{{ url_for('members.list') }}" class="{% if request.endpoint and request.endpoint.startswith('members.') %}active{% endif %}">
+                <span class="material-symbols-outlined">groups</span> Members
+            </a>
+            <a href="{{ url_for('services.list') }}" class="{% if request.endpoint and request.endpoint.startswith('services.') %}active{% endif %}">
+                <span class="material-symbols-outlined">event_note</span> Service Planning
+            </a>
+            <a href="{{ url_for('documents.list') }}" class="{% if request.endpoint and request.endpoint.startswith('documents.') %}active{% endif %}">
+                <span class="material-symbols-outlined">description</span> Documents
+            </a>
+            <div class="nav-section">Resources</div>
+            <a href="{{ url_for('music.list') }}" class="{% if request.endpoint and request.endpoint.startswith('music.') %}active{% endif %}">
+                <span class="material-symbols-outlined">library_music</span> Music Library
+            </a>
+            <a href="{{ url_for('finance.list') }}" class="{% if request.endpoint and request.endpoint.startswith('finance.') %}active{% endif %}">
+                <span class="material-symbols-outlined">payments</span> Finance
+            </a>
+            <a href="{{ url_for('reports.index') }}" class="{% if request.endpoint and request.endpoint.startswith('reports.') %}active{% endif %}">
+                <span class="material-symbols-outlined">analytics</span> Reports
+            </a>
+            <div class="nav-section">System</div>
+            {% if session.get('role') == 'admin' %}
+            <a href="{{ url_for('auth.approvals') }}" class="{% if request.endpoint == 'auth.approvals' %}active{% endif %}">
+                <span class="material-symbols-outlined">how_to_reg</span> Pending Approvals
+            </a>
+            {% endif %}
+            <a href="{{ url_for('settings_bp.settings') }}" class="{% if request.endpoint and request.endpoint.startswith('settings_bp.') %}active{% endif %}">
+                <span class="material-symbols-outlined">settings</span> Settings
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}">
+                <span class="material-symbols-outlined">logout</span> Logout
+            </a>
+        </div>
+    </aside>
+    <div class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="hamburger" onclick="toggleSidebar()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <span class="topbar-brand">BCS CNCF</span>
+                <div class="search-bar">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input type="text" placeholder="Search members, events, or resources...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn"><span class="material-symbols-outlined">notifications</span><span class="dot"></span></button>
+                <button class="icon-btn"><span class="material-symbols-outlined">chat_bubble</span></button>
+                <button class="icon-btn"><span class="material-symbols-outlined">add_circle</span></button>
+                <div class="divider"></div>
+                <div class="user-profile">
+                    <div class="user-info">
+                        <div class="name">{{ session.get('display_name', 'Admin') }}</div>
+                        <div class="role">{{ session.get('role', 'admin')|title }}</div>
+                    </div>
+                    <div class="avatar">{{ session.get('display_name', 'A')[0]|upper }}</div>
+                </div>
+            </div>
+        </header>
+        <div class="page-body">
+    {% else %}
+    <div class="public-content" style="margin:0 auto;padding:24px 16px 48px;min-height:100vh;max-width:900px;">
+    {% endif %}
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;width:100%;max-width:520px;">
+        {% for category, msg in messages %}
+        <div class="alert alert-{{ category }}" style="margin-bottom:8px;">
+            <span class="material-symbols-outlined" style="font-size:18px;">
+                {% if category == 'success' %}check_circle{% elif category == 'danger' %}error{% elif category == 'warning' %}warning{% else %}info{% endif %}
+            </span>
+            {{ msg }}
+        </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    {% if session.user_id %}
+        </div>
+    </div>
+    {% else %}
+    </div>
+    {% endif %}
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Documents{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="breadcrumb">
+            <span>Repository</span>
+            <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
+            <span class="current">Main Archive</span>
+        </div>
+        <h2>Documents Repository</h2>
+        <p>Secure access for organizational constitutions and music manuscripts.</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('uploadModal').style.display='block'">
+            <span class="material-symbols-outlined" style="font-size:18px;">upload</span> Upload Document
+        </button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">folder</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Total Folders</div>
+            <div class="stat-value">{{ folders|length }}</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon gold"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">description</span></div>
+        <div class="stat-body">
+            <div class="stat-label">Total Files</div>
+            <div class="stat-value">{{ docs|length }}</div>
+        </div>
+    </div>
+</div>
+
+{% if folders %}
+<div class="folder-grid">
+    {% for folder in folders %}
+    <div class="folder-card" onclick="location.href='{{ url_for('documents.list', folder=folder) }}'">
+        <div class="folder-top">
+            <span class="folder-icon material-symbols-outlined" style="color:var(--secondary-fixed-dim);font-variation-settings:'FILL' 1;">folder</span>
+            <span class="material-symbols-outlined" style="color:var(--outline);font-size:20px;">more_vert</span>
+        </div>
+        <h5>{{ folder }}</h5>
+        <p>{{ docs|selectattr('folder', 'equalto', folder)|list|length }} files</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+    <div style="padding:14px 24px;border-bottom:1px solid var(--outline-variant);display:flex;justify-content:space-between;align-items:center;background:rgba(240,243,255,0.3);">
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);">Recent Documents</h3>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:16px;">filter_list</span></button>
+            <button class="btn btn-ghost btn-sm"><span class="material-symbols-outlined" style="font-size:16px;">grid_view</span></button>
+        </div>
+    </div>
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr><th>Document Name</th><th>Folder</th><th>Permissions</th><th>Date</th><th style="text-align:right;">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for d in docs %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span class="material-symbols-outlined" style="font-size:20px;color:var(--error);font-variation-settings:'FILL' 1;">picture_as_pdf</span>
+                            <span style="font-weight:600;">{{ d.title }}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-standard">{{ d.folder }}</span></td>
+                    <td><span class="badge badge-{{ 'admin' if d.permissions == 'Admin Only' else 'standard' if d.permissions == 'Standard' else 'public' }}">{{ d.permissions }}</span></td>
+                    <td style="color:var(--outline);">{{ d.uploaded_at or '—' }}</td>
+                    <td style="text-align:right;">
+                        <form method="POST" action="{{ url_for('documents.delete', id=d.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ d.title }}?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align:center;color:var(--outline);padding:60px 20px;">
+                    <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:12px;">description</span>
+                    No documents yet.
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div id="uploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="card" style="max-width:500px;width:90%;">
+        <div class="card-header">
+            <h3>Upload Document</h3>
+            <button onclick="document.getElementById('uploadModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:24px;">×</button>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('documents.upload') }}">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" required placeholder="Document title">
+                </div>
+                <div class="form-group">
+                    <label>Folder</label>
+                    <select name="folder">
+                        <option value="General">General</option>
+                        <option value="Organizational Constitutions">Organizational Constitutions</option>
+                        <option value="Music Manuscripts">Music Manuscripts</option>
+                        <option value="Choir Bylaws">Choir Bylaws</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <select name="permissions">
+                        <option value="Standard">Standard</option>
+                        <option value="Admin Only">Admin Only</option>
+                        <option value="Public">Public</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                <div style="display:flex;gap:12px;">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined" style="font-size:18px;">upload</span> Upload
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('uploadModal').style.display='none'">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

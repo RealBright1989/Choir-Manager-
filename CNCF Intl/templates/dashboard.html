@@ -1,0 +1,389 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Welcome Header -->
+<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;gap:16px;flex-wrap:wrap;">
+    <div>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:700;color:var(--primary);letter-spacing:-0.03em;line-height:40px;margin-bottom:4px;">Executive Overview</h2>
+        <p style="font-size:16px;color:var(--on-surface-variant);">Welcome back, {{ session.get('display_name', 'Admin') }}. Here is a summary of BCS CNCF operations.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <a href="{{ url_for('members.list') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);background:var(--surface-container-lowest);color:var(--secondary);border:1px solid var(--secondary);text-decoration:none;" onmouseover="this.style.background='rgba(115,92,0,0.06)';this.style.boxShadow='0 2px 8px rgba(115,92,0,0.08)'" onmouseout="this.style.background='var(--surface-container-lowest)';this.style.boxShadow='none'">
+            <span class="material-symbols-outlined" style="font-size:20px;">download</span> Download Report
+        </a>
+        <a href="{{ url_for('settings_bp.settings') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);background:var(--primary-container);color:#fff;border:none;box-shadow:0 2px 12px rgba(10,61,145,0.2);text-decoration:none;" onmouseover="this.style.background='var(--primary)';this.style.boxShadow='0 4px 20px rgba(10,61,145,0.3)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--primary-container)';this.style.boxShadow='0 2px 12px rgba(10,61,145,0.2)';this.style.transform='translateY(0)'">
+            <span class="material-symbols-outlined" style="font-size:20px;">settings</span> System Actions
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards (6-column grid) -->
+<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:40px;">
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,40,104,0.08);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">groups</span>
+            </div>
+            <span style="color:var(--secondary);font-weight:700;font-size:11px;">+{{ stats.member_growth|default('12') }}%</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Total Choristers</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ total_members }}</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;color:#16a34a;">trending_up</span>
+            <span>Vs last month</span>
+        </div>
+    </div>
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(254,214,91,0.15);display:flex;align-items:center;justify-content:center;color:var(--secondary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">person_check</span>
+            </div>
+            <span style="color:var(--secondary);font-weight:700;font-size:11px;">+{{ stats.active_growth|default('4') }}%</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Active Members</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ stats.active_members or total_members }}</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;color:#16a34a;">trending_up</span>
+            <span>Target: {{ stats.active_target|default('1,200') }}</span>
+        </div>
+    </div>
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(82,26,0,0.08);display:flex;align-items:center;justify-content:center;color:var(--tertiary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">person_add</span>
+            </div>
+            <span style="color:var(--error);font-weight:700;font-size:11px;">-{{ stats.registration_decline|default('2') }}%</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">New Registrations</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ stats.new_registrations|default('0') }}</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;color:#dc2626;">trending_down</span>
+            <span>Last 30 days</span>
+        </div>
+    </div>
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,40,104,0.08);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">how_to_reg</span>
+            </div>
+            <span style="color:var(--secondary);font-weight:700;font-size:11px;">+{{ stats.attendance_growth|default('5') }}%</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Attendance Rate</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ stats.attendance_rate|default('94.2') }}%</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;color:#16a34a;">trending_up</span>
+            <span>Above benchmark</span>
+        </div>
+    </div>
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(254,214,91,0.15);display:flex;align-items:center;justify-content:center;color:var(--secondary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">calendar_today</span>
+            </div>
+            <span style="color:var(--on-surface-variant);font-weight:700;font-size:11px;">NEXT</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Rehearsals</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ stats.rehearsals|default('0') }}</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
+            <span>Scheduled this week</span>
+        </div>
+    </div>
+    <div class="glass-card" style="padding:20px;border-radius:12px;display:flex;flex-direction:column;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(82,26,0,0.08);display:flex;align-items:center;justify-content:center;color:var(--tertiary);">
+                <span class="material-symbols-outlined" style="font-size:22px;">cake</span>
+            </div>
+            <span style="color:var(--on-surface-variant);font-weight:700;font-size:11px;">TODAY</span>
+        </div>
+        <div>
+            <div style="color:var(--on-surface-variant);font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Birthdays</div>
+            <div style="font-size:28px;font-weight:800;color:var(--primary);margin-top:4px;">{{ '%02d' % stats.birthdays|default(0) }}</div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--on-surface-variant);">
+            <span class="material-symbols-outlined" style="font-size:14px;color:var(--tertiary);">celebration</span>
+            <span>Wish them well</span>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics + Quick Actions Row -->
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:32px;margin-bottom:40px;">
+    <div style="display:flex;flex-direction:column;gap:32px;">
+        <!-- Membership Growth Chart -->
+        <div class="glass-card" style="padding:24px;border-radius:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <div>
+                    <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);">Membership & Attendance Growth</h3>
+                    <p style="color:var(--on-surface-variant);font-size:14px;">Visualizing organizational performance over time</p>
+                </div>
+                <div style="display:flex;gap:4px;background:var(--surface-container-low);padding:3px;border-radius:8px;">
+                    <button style="padding:4px 12px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.08);border:none;border-radius:6px;font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;font-family:'Inter',sans-serif;">Line</button>
+                    <button style="padding:4px 12px;background:transparent;border:none;border-radius:6px;font-size:12px;color:var(--on-surface-variant);cursor:pointer;font-family:'Inter',sans-serif;">Bar</button>
+                </div>
+            </div>
+            <div style="position:relative;height:260px;width:100%;display:flex;align-items:flex-end;padding:0 8px;overflow:hidden;">
+                <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 1000 260">
+                    <defs>
+                        <linearGradient id="lineGrad" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stop-color="#002868" stop-opacity="0.2"/>
+                            <stop offset="100%" stop-color="#002868" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M0,220 Q100,190 200,210 T400,150 T600,90 T800,60 T1000,30 L1000,260 L0,260 Z" fill="url(#lineGrad)"/>
+                    <path d="M0,220 Q100,190 200,210 T400,150 T600,90 T800,60 T1000,30" fill="none" stroke="#002868" stroke-linecap="round" stroke-width="3"/>
+                    <circle cx="400" cy="150" fill="#002868" r="5" stroke="white" stroke-width="2"/>
+                    <circle cx="800" cy="60" fill="#002868" r="5" stroke="white" stroke-width="2"/>
+                </svg>
+                <div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;font-size:10px;color:var(--outline);padding:0 8px;">
+                    <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Section + Attendance Trend -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div class="glass-card" style="padding:24px;border-radius:12px;">
+                <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);margin-bottom:24px;">Voice Section Distribution</h3>
+                <div style="display:flex;align-items:center;gap:24px;">
+                    <div style="position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg style="width:100%;height:100%;transform:rotate(-90deg);" viewBox="0 0 36 36">
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" stroke-width="3"/>
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#002868" stroke-dasharray="{{ stats.soprano_pct|default(35) }}, 100" stroke-width="3"/>
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#735c00" stroke-dasharray="{{ stats.alto_pct|default(25) }}, 100" stroke-dashoffset="-{{ stats.soprano_pct|default(35) }}" stroke-width="3"/>
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#521a00" stroke-dasharray="{{ stats.tenor_pct|default(20) }}, 100" stroke-dashoffset="-{{ stats.soprano_pct|default(35) + stats.alto_pct|default(25) }}" stroke-width="3"/>
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#ba1a1a" stroke-dasharray="{{ stats.bass_pct|default(20) }}, 100" stroke-dashoffset="-{{ stats.soprano_pct|default(35) + stats.alto_pct|default(25) + stats.tenor_pct|default(20) }}" stroke-width="3"/>
+                        </svg>
+                        <div style="position:absolute;display:flex;flex-direction:column;align-items:center;">
+                            <span style="font-size:20px;font-weight:700;color:var(--primary);">{{ total_members }}</span>
+                            <span style="font-size:8px;text-transform:uppercase;color:var(--outline);">Total</span>
+                        </div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:var(--primary);"></div>
+                                <span style="font-size:14px;">Treble</span>
+                            </div>
+                            <span style="font-weight:700;">{{ stats.soprano_pct|default(35) }}%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:var(--secondary);"></div>
+                                <span style="font-size:14px;">Alto</span>
+                            </div>
+                            <span style="font-weight:700;">{{ stats.alto_pct|default(25) }}%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:var(--tertiary);"></div>
+                                <span style="font-size:14px;">Tenor</span>
+                            </div>
+                            <span style="font-weight:700;">{{ stats.tenor_pct|default(20) }}%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:10px;height:10px;border-radius:50%;background:var(--error);"></div>
+                                <span style="font-size:14px;">Bass</span>
+                            </div>
+                            <span style="font-weight:700;">{{ stats.bass_pct|default(20) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card" style="padding:24px;border-radius:12px;">
+                <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);margin-bottom:24px;">Attendance Trend</h3>
+                <div style="height:140px;display:flex;align-items:flex-end;gap:8px;padding:0 4px;">
+                    {% set bars = [60, 80, 70, 95, 85, 90, 100] %}
+                    {% for pct in bars %}
+                    <div style="flex:1;background:var(--primary);border-radius:4px 4px 0 0;height:{{ pct }}%;opacity:0.85;transition:all 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'"></div>
+                    {% endfor %}
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:10px;color:var(--outline);">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Quick Actions + Announcements -->
+    <div style="display:flex;flex-direction:column;gap:32px;">
+        <div class="glass-card" style="padding:24px;border-radius:12px;">
+            <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);margin-bottom:20px;">Quick Actions</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <a href="{{ url_for('members.add') }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">person_add</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">New Member</span>
+                </a>
+                <a href="#" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">playlist_add_check</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">Attendance</span>
+                </a>
+                <a href="{{ url_for('services.add') }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">history_edu</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">Schedule</span>
+                </a>
+                <a href="{{ url_for('music.add') }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">upload_file</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">Upload Music</span>
+                </a>
+                <a href="#" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">campaign</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">Create Event</span>
+                </a>
+                <a href="#" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;background:var(--surface-container-low);border-radius:10px;text-decoration:none;color:var(--on-surface-variant);transition:all 0.2s;border:1px solid transparent;" onmouseover="this.style.borderColor='var(--secondary)';this.style.background='rgba(254,214,91,0.08)'" onmouseout="this.style.borderColor='transparent';this.style.background='var(--surface-container-low)'">
+                    <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary);margin-bottom:8px;">analytics</span>
+                    <span style="font-size:12px;font-weight:600;text-align:center;">Reports</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="glass-card" style="padding:24px;border-radius:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);">Announcements</h3>
+                <a href="#" style="color:var(--secondary);font-size:12px;font-weight:600;text-decoration:none;">View All</a>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:20px;">
+                {% for ann in announcements %}
+                <div style="display:flex;gap:12px;cursor:pointer;">
+                    <div style="width:4px;border-radius:4px;background:{{ ann.color or 'var(--secondary)' }};flex-shrink:0;"></div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:var(--primary);">{{ ann.title }}</h4>
+                        <p style="font-size:13px;color:var(--on-surface-variant);">{{ ann.body }}</p>
+                        <span style="font-size:10px;color:var(--outline);margin-top:4px;display:block;">{{ ann.time }}</span>
+                    </div>
+                </div>
+                {% else %}
+                <div style="display:flex;gap:12px;">
+                    <div style="width:4px;border-radius:4px;background:var(--secondary);flex-shrink:0;"></div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:var(--primary);">Grand Anniversary Concert</h4>
+                        <p style="font-size:13px;color:var(--on-surface-variant);">Rehearsals scheduled for all sections this Saturday at 10 AM. Mandatory attendance.</p>
+                        <span style="font-size:10px;color:var(--outline);margin-top:4px;display:block;">2 hours ago</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;">
+                    <div style="width:4px;border-radius:4px;background:var(--outline-variant);flex-shrink:0;"></div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:var(--primary);">New Sheet Music Uploaded</h4>
+                        <p style="font-size:13px;color:var(--on-surface-variant);">The 'Hallelujah Chorus' arrangement has been updated. Please download the latest PDF.</p>
+                        <span style="font-size:10px;color:var(--outline);margin-top:4px;display:block;">Yesterday</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--outline-variant);">
+                <h4 style="font-size:14px;font-weight:600;color:var(--on-surface);margin-bottom:12px;">Upcoming Activities</h4>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    {% for act in upcoming %}
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(10,61,145,0.03);border-radius:8px;border:1px solid rgba(10,61,145,0.08);">
+                        <div style="width:40px;height:40px;border-radius:6px;background:var(--primary);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">
+                            <span style="font-size:9px;line-height:1;">{{ act.month }}</span>
+                            <span style="font-size:16px;line-height:1.2;">{{ act.day }}</span>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-size:13px;font-weight:600;color:var(--primary);">{{ act.title }}</p>
+                            <p style="font-size:10px;color:var(--on-surface-variant);">{{ act.detail }}</p>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(10,61,145,0.03);border-radius:8px;border:1px solid rgba(10,61,145,0.08);">
+                        <div style="width:40px;height:40px;border-radius:6px;background:var(--primary);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">
+                            <span style="font-size:9px;line-height:1;">OCT</span>
+                            <span style="font-size:16px;line-height:1.2;">15</span>
+                        </div>
+                        <div style="flex:1;">
+                            <p style="font-size:13px;font-weight:600;color:var(--primary);">Section Leader Meeting</p>
+                            <p style="font-size:10px;color:var(--on-surface-variant);">Conference Hall • 5:00 PM</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(254,214,91,0.05);border-radius:8px;border:1px solid rgba(254,214,91,0.15);">
+                        <div style="width:40px;height:40px;border-radius:6px;background:var(--secondary);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">
+                            <span style="font-size:9px;line-height:1;">OCT</span>
+                            <span style="font-size:16px;line-height:1.2;">18</span>
+                        </div>
+                        <div style="flex:1;">
+                            <p style="font-size:13px;font-weight:600;color:var(--primary);">Youth Choir Workshop</p>
+                            <p style="font-size:10px;color:var(--on-surface-variant);">Main Chapel • 2:00 PM</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Table -->
+<div class="glass-card" style="border-radius:12px;overflow:hidden;">
+    <div style="padding:20px 24px;display:flex;justify-content:space-between;align-items:center;background:var(--surface-container-low);border-bottom:1px solid var(--outline-variant);">
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--primary);">Recent Registrations</h3>
+        <div style="display:flex;gap:8px;">
+            <button style="padding:8px 16px;background:#fff;border:1px solid var(--outline-variant);border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Inter',sans-serif;">
+                <span class="material-symbols-outlined" style="font-size:14px;">filter_list</span> Filter
+            </button>
+            <button style="padding:8px 16px;background:#fff;border:1px solid var(--outline-variant);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Export</button>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr style="background:var(--surface-container-lowest);border-bottom:1px solid var(--outline-variant);">
+                <th style="padding:16px 24px;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--on-surface-variant);text-transform:uppercase;">Member Name</th>
+                <th style="padding:16px 24px;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--on-surface-variant);text-transform:uppercase;">Voice Section</th>
+                <th style="padding:16px 24px;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--on-surface-variant);text-transform:uppercase;">Joined Date</th>
+                <th style="padding:16px 24px;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--on-surface-variant);text-transform:uppercase;">Status</th>
+                <th style="padding:16px 24px;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--on-surface-variant);text-transform:uppercase;">Action</th>
+            </tr>
+        </thead>
+        <tbody style="border-collapse:collapse;">
+            {% for m in recent_members %}
+            <tr style="border-bottom:1px solid var(--outline-variant);transition:background 0.15s;" onmouseover="this.style.background='rgba(10,61,145,0.03)'" onmouseout="this.style.background='transparent'">
+                <td style="padding:14px 24px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="avatar-circle" style="background:var(--primary-container);width:32px;height:32px;font-size:12px;flex-shrink:0;">{{ m.first_name[0] }}{{ m.last_name[0] }}</div>
+                        <span style="font-size:14px;font-weight:600;">{{ m.full_name }}</span>
+                    </div>
+                </td>
+                <td style="padding:14px 24px;font-size:13px;color:var(--on-surface-variant);">{{ m.section or '—' }}</td>
+                <td style="padding:14px 24px;font-size:13px;color:var(--on-surface-variant);">{{ m.created_at[:10] if m.created_at else '—' }}</td>
+                <td style="padding:14px 24px;">
+                    <span style="padding:3px 10px;background:{{ '#dcfce7' if m.is_active else '#fee2e2' }};color:{{ '#16a34a' if m.is_active else '#dc2626' }};font-size:10px;font-weight:700;border-radius:9999px;text-transform:uppercase;">{{ 'Active' if m.is_active else 'Inactive' }}</span>
+                </td>
+                <td style="padding:14px 24px;color:var(--primary-container);">
+                    <span class="material-symbols-outlined" style="font-size:18px;opacity:0;transition:opacity 0.15s;cursor:pointer;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">more_horiz</span>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center;color:var(--outline);padding:40px;font-size:14px;">No members yet. Add your first member to get started.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="padding:12px 24px;display:flex;justify-content:center;border-top:1px solid var(--outline-variant);">
+        <a href="{{ url_for('members.list') }}" style="color:var(--secondary);font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px;">
+            See All Members <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+        </a>
+    </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="window.location.href='{{ url_for('members.add') }}'">
+    <span class="material-symbols-outlined" style="font-size:28px;">add</span>
+</button>
+
+<script>
+    document.querySelectorAll('.glass-card').forEach(card => {
+        card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-4px)'; });
+        card.addEventListener('mouseleave', () => { card.style.transform = 'translateY(0px)'; });
+    });
+</script>
+{% endblock %}

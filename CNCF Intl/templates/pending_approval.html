@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BCS CNCF | Registration Pending</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,200&display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#002868",
+            "primary-container": "#0a3d91",
+            "on-primary": "#ffffff",
+            secondary: "#735c00",
+            "surface": "#f9f9ff",
+            "on-surface": "#111c2d",
+            "on-surface-variant": "#434652",
+          },
+          fontFamily: {
+            heading: ["Plus Jakarta Sans", "sans-serif"],
+            body: ["Inter", "sans-serif"],
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(10, 61, 145, 0.1);
+    }
+    .bg-choir-overlay {
+      background: linear-gradient(135deg, rgba(0, 40, 104, 0.85) 0%, rgba(10, 61, 145, 0.4) 100%);
+    }
+  </style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+<div class="fixed inset-0 z-0">
+<img class="w-full h-full object-cover scale-110 blur-sm" src="{{ url_for('static', filename='uploads/login_bg.png') }}">
+<div class="fixed inset-0 bg-choir-overlay z-10"></div>
+</div>
+
+<div class="fixed top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/20 blur-[120px] rounded-full z-10"></div>
+<div class="fixed bottom-[-10%] left-[-5%] w-[300px] h-[300px] bg-secondary/10 blur-[100px] rounded-full z-10"></div>
+
+<main class="relative z-20 w-full max-w-[520px]">
+
+<div class="flex flex-col items-center mb-6">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-36 h-36 flex items-center justify-center">
+<img src="{{ url_for('static', filename='uploads/login_logo.png') }}" alt="CNCF" class="w-full h-full object-contain">
+</div>
+<div class="text-white">
+<h1 class="font-heading text-2xl font-bold tracking-tight">BCS CNCF</h1>
+<p class="text-xs font-medium opacity-80 uppercase tracking-widest">Choir Management Portal</p>
+</div>
+</div>
+</div>
+
+<div class="glass-card rounded-[2rem] p-10 text-center">
+<div class="mb-6">
+<span class="material-symbols-outlined text-6xl text-primary mb-4" style="font-variation-settings:'FILL'1;">hourglass</span>
+<h2 class="font-heading text-2xl font-bold text-primary mb-2">Registration Submitted!</h2>
+<p class="text-sm text-on-surface-variant">Your registration is now pending approval from the administrator. You will be able to log in and access the portal once your account is approved.</p>
+</div>
+
+<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-left">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-amber-600 text-[20px]" style="font-variation-settings:'FILL'1;">info</span>
+<div>
+<p class="text-sm font-semibold text-amber-800 mb-1">What happens next?</p>
+<ul class="text-sm text-amber-700 space-y-1 list-disc list-inside">
+<li>An admin will review your registration</li>
+<li>You'll receive access to the member dashboard</li>
+<li>You can then manage your profile, view music sheets, and more</li>
+</ul>
+</div>
+</div>
+</div>
+
+<a href="{{ url_for('auth.login') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-container transition-all px-6 py-3 rounded-xl hover:bg-primary/5">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+Back to Sign In
+</a>
+</div>
+
+<div class="mt-8 text-center opacity-60">
+<p class="text-xs text-white/60">© 2026 BCS CNCF. All rights reserved.</p>
+</div>
+</main>
+</body>
+</html>
